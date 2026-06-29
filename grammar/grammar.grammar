@@ -1,0 +1,136 @@
+// Meta-grammar for parser-lr grammar files (.grammar).
+// Dogfood target: this file should parse itself once lexer, table build, and parse are wired.
+
+name "grammar" ;
+
+tokens
+    name_kw = /name/ ;
+    tokens_kw = /tokens/ ;
+    skip_kw = /skip/ ;
+    states_kw = /states/ ;
+    start_kw = /start/ ;
+    grammar_kw = /grammar/ ;
+
+    identifier = /[A-Za-z_][A-Za-z0-9_]*/ ;
+
+    equal = /=/ ;
+    semicolon = /;/ ;
+    comma = /,/ ;
+    bar = /\|/ ;
+    hash = /#/ ;
+
+    lpar = /\(/ ;
+    rpar = /\)/ ;
+    lbracket = /\[/ ;
+    rbracket = /\]/ ;
+    lbrace = /\{/ ;
+    rbrace = /\}/ ;
+
+    // Lexer: / pattern / then zero or more flag letters from g i m s u y
+    regex_literal = /\/(\\.|[^\\\/])+\// ;
+    string_literal = /"(?:\\.|[^"\\])*"/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+    comment = /\/\/[^\n\r]*/ ;
+
+start grammar_file ;
+
+grammar
+    grammar_file =
+        name_decl
+        { section }
+        start_decl
+        grammar_section
+    ;
+
+    name_decl =
+        name_kw grammar_name semicolon
+    ;
+
+    grammar_name =
+        identifier
+      | string_literal
+    ;
+
+    section =
+        token_section
+      | skip_section
+      | states_section
+    ;
+
+    token_section =
+        tokens_kw token_def { token_def }
+    ;
+
+    skip_section =
+        skip_kw token_def { token_def }
+    ;
+
+    states_section =
+        states_kw state_name { comma state_name } semicolon
+    ;
+
+    token_def =
+        identifier equal regex_literal semicolon
+    ;
+
+    state_name =
+        identifier
+    ;
+
+    start_decl =
+        start_kw identifier semicolon
+    ;
+
+    grammar_section =
+        grammar_kw production { production }
+    ;
+
+    production =
+        identifier equal expression semicolon
+    ;
+
+    expression =
+        choice
+    ;
+
+    choice =
+        alternative { bar alternative }
+    ;
+
+    alternative =
+        labeled_alternative
+    ;
+
+    labeled_alternative =
+        [ hash identifier ] sequence
+    ;
+
+    sequence =
+        factor { factor }
+    ;
+
+    factor =
+        optional
+      | repeat
+      | group
+      | primary
+    ;
+
+    optional =
+        lbracket expression rbracket
+    ;
+
+    repeat =
+        lbrace expression rbrace
+    ;
+
+    group =
+        lpar expression rpar
+    ;
+
+    primary =
+        string_literal
+      | identifier
+    ;

@@ -5,15 +5,17 @@
 export { AstNode } from './ast/ast-node.js';
 export type { SourceLocation } from './ast/ast-node.js';
 export type {
-    EbnfChoiceExpression,
-    EbnfExpression,
-    EbnfGroupExpression,
-    EbnfOptionalExpression,
-    EbnfReferenceExpression,
-    EbnfRepeatExpression,
-    EbnfSequenceExpression,
-    EbnfTerminalExpression,
-    EbnfRule,
+    Alternative,
+    ChoiceExpression,
+    Expression,
+    GroupExpression,
+    OptionalExpression,
+    Production,
+    ReferenceExpression,
+    RepeatExpression,
+    SequenceExpression,
+    TerminalExpression,
+    TokenRule,
 } from './grammar/index.js';
-export { EbnfGrammar } from './grammar/index.js';
+export { Grammar } from './grammar/index.js';
 export { ParserLr } from './parser-lr.js';

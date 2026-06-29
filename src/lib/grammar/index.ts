@@ -1,12 +1,14 @@
 export type {
-    EbnfChoiceExpression,
-    EbnfExpression,
-    EbnfGroupExpression,
-    EbnfOptionalExpression,
-    EbnfReferenceExpression,
-    EbnfRepeatExpression,
-    EbnfSequenceExpression,
-    EbnfTerminalExpression,
-} from './ebnf-expression.js';
-export { EbnfGrammar } from './ebnf-grammar.js';
-export type { EbnfRule } from './ebnf-rule.js';
+    Alternative,
+    ChoiceExpression,
+    Expression,
+    GroupExpression,
+    OptionalExpression,
+    ReferenceExpression,
+    RepeatExpression,
+    SequenceExpression,
+    TerminalExpression,
+} from './expression.js';
+export { Grammar } from './grammar.js';
+export type { Production } from './production.js';
+export type { TokenRule } from './token-rule.js';
