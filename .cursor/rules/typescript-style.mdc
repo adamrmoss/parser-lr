@@ -12,13 +12,49 @@ In-source comments and TSDoc: see **`comments.mdc`**. READMEs and `docs/`: see *
 - **Semicolons** — terminate statements with semicolons; never rely on ASI or omit optional semicolons
 - **Function keyword spacing** — no space between `function` and `(`: `function foo()` and `function()`, not `function foo ()`
 - **Imports first** — all import statements at the top of the file, before any other code, unless there is a special reason (dynamic import, circular dependency workaround)
-- **Import paths** — use relative paths within `src/`; use `@/` alias for imports from project root `src/` when crossing major domains
+- **Import paths** — use relative paths within `src/`; use `@/` alias for imports from project root `src/` when crossing major domains. **Always use a `.js` extension** on relative imports (`./foo.js`, not `./foo` or `./foo.ts`). TypeScript sources are `.ts`, but the extension must match the **emitted** JavaScript so unbundled Node ESM consumers can load `dist/` correctly. Rollup (CLI) and application bundlers resolve these the same way.
 - **Import order** — group imports with a blank line between groups: (1) external packages, (2) `@/` path aliases, (3) relative (`./`, `../`). Alphabetize by module path within each group
 - **Prefer traditional object-oriented structures** — use classes with explicit access modifiers (`public`, `private`, `protected`) rather than object literals for namespaced logic
 - Prefer `switch` statements over `else-if` chains when checking the same variable
 - Use braces `{ }` for all control structures, even single-line blocks
+- **Brace style** — opening `{` on the **next line** for types, top-level functions, methods, and control blocks (`if`, `else`, `for`, `while`, `switch`, `try`, `catch`, `class`, `interface`, `type`, `enum`). **End-of-line `{` is fine mid-statement** (object literals, `import()`, arrow callbacks on one line, type intersections in a single expression)
 - **Explicit access** — all class properties and methods must have explicit access modifiers
 - **Trailing commas** — when list elements are written one per line, put a comma after the last item. Single-line lists may omit the trailing comma
+
+```typescript
+// ✅ GOOD — next-line brace on declarations and control flow
+export class ParserLr
+{
+    public parse(input: string): Ast | null
+    {
+        if (input.length === 0)
+        {
+            return null;
+        }
+
+        return this.parseTokens(input);
+    }
+}
+
+export function loadGrammar(path: string): Grammar | null
+{
+    // ...
+}
+
+// ✅ GOOD — end-of-line brace mid-statement
+const options = { grammar: path, algorithm: 'lr1' };
+const loaded = await import(path, { with: { type: 'json' } });
+type Config = BaseConfig & { output?: string };
+
+// ❌ BAD — same-line brace on a method or control block
+export class ParserLr {
+    public parse(input: string): Ast | null {
+        if (input.length === 0) {
+            return null;
+        }
+    }
+}
+```
 
 ## Type safety and assertions
 

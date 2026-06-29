@@ -1,10 +1,12 @@
 /**
  * Shift-reduce parser for EBNF grammars.
  */
-export class ParserLr {
+export class ParserLr
+{
     /**
      * Creates a parser instance.
      */
-    public constructor() {
+    public constructor()
+    {
     }
 }
