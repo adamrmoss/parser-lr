@@ -14,6 +14,9 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 ## Core types
 
 - **`AstNode`** — tree node from parsing: symbol name, child subtrees, optional terminal lexeme text and source span.
-- **`Grammar`** — parsed `.grammar` file: name, `tokens` / `skip` / `states`, start symbol, and productions. Expression shapes live in the `Expression` union; choice branches use `Alternative` (`#` labels).
+- **`Grammar`** — parsed `.grammar` file: name, `tokens` / `skip` / `states`, start symbol, parse productions, optional **`AstSchema`**.
+- **`AstSchema`** — AST types from the `ast` section; same expression syntax as productions, with `#` variants and `[slot]:` bindings.
+- **`TransformSchema`** — CST-to-AST rules from the `transform` section (`pass`, `drop`, `fold-left`, `fold-right`, `flatten`, `type.#variant(…)`).
+- **`AstNode`** — single tree node class for CST (parse output) and AST (post-transform); `symbol` + optional `variant` (`#` label).
 
 Co-located tests: `*.test.ts` next to the module under test. Run `npm test` from the project root.

@@ -1,5 +1,31 @@
 // Meta-grammar for parser-lr grammar files (.grammar).
 // Dogfood target: this file should parse itself once lexer, table build, and parse are wired.
+//
+// Calc example (parse + ast + transform):
+//
+//   grammar
+//       expr = term { #add plus term | #sub minus term } ;
+//       term = factor { #mul star factor | #div slash factor } ;
+//       factor = #number number | #group lpar expr rpar ;
+//
+//   ast
+//       expr = #binary [left]:expr [operator]:operator [right]:expr
+//            | #literal number
+//            | #grouped expr ;
+//       operator = #plus plus | #minus minus | #star star | #slash slash ;
+//
+//   transform
+//       expr ->
+//           #add fold-left(expr.#binary, left, operator, right)
+//         | #sub fold-left(expr.#binary, left, operator, right)
+//         | #term pass(term) ;
+//       term ->
+//           #mul fold-left(expr.#binary, left, operator, right)
+//         | #div fold-left(expr.#binary, left, operator, right)
+//         | #factor pass(factor) ;
+//       factor ->
+//           #number expr.#literal(number)
+//         | #group pass(expr) ;
 
 name "grammar" ;
 
@@ -10,6 +36,13 @@ tokens
     states_kw = /states/ ;
     start_kw = /start/ ;
     grammar_kw = /grammar/ ;
+    ast_kw = /ast/ ;
+    transform_kw = /transform/ ;
+    pass_kw = /pass/ ;
+    drop_kw = /drop/ ;
+    fold_left_kw = /fold-left/ ;
+    fold_right_kw = /fold-right/ ;
+    flatten_kw = /flatten/ ;
 
     identifier = /[A-Za-z_][A-Za-z0-9_]*/ ;
 
@@ -18,6 +51,9 @@ tokens
     comma = /,/ ;
     bar = /\|/ ;
     hash = /#/ ;
+    arrow = /->/ ;
+    colon = /:/ ;
+    dot = /\./ ;
 
     lpar = /\(/ ;
     rpar = /\)/ ;
@@ -42,6 +78,8 @@ grammar
         { section }
         start_decl
         grammar_section
+        [ ast_section ]
+        [ transform_section ]
     ;
 
     name_decl =
@@ -87,8 +125,69 @@ grammar
         grammar_kw production { production }
     ;
 
+    ast_section =
+        ast_kw ast_type { ast_type }
+    ;
+
+    transform_section =
+        transform_kw transform_rule { transform_rule }
+    ;
+
     production =
         identifier equal expression semicolon
+    ;
+
+    ast_type =
+        identifier equal expression semicolon
+    ;
+
+    transform_rule =
+        identifier arrow labeled_transform { bar labeled_transform } semicolon
+    ;
+
+    labeled_transform =
+        hash identifier transform_expr
+    ;
+
+    transform_expr =
+        drop_kw
+      | pass_expr
+      | fold_left_expr
+      | fold_right_expr
+      | flatten_expr
+      | build_expr
+    ;
+
+    pass_expr =
+        pass_kw lpar reference rpar
+    ;
+
+    fold_left_expr =
+        fold_left_kw lpar build_target comma reference_list rpar
+    ;
+
+    fold_right_expr =
+        fold_right_kw lpar build_target comma reference_list rpar
+    ;
+
+    flatten_expr =
+        flatten_kw lpar build_target comma reference comma reference rpar
+    ;
+
+    build_expr =
+        build_target [ lpar reference_list rpar ]
+    ;
+
+    build_target =
+        identifier dot hash identifier
+    ;
+
+    reference_list =
+        reference { comma reference }
+    ;
+
+    reference =
+        identifier
     ;
 
     expression =
@@ -132,5 +231,10 @@ grammar
 
     primary =
         string_literal
+      | bound_reference
       | identifier
+    ;
+
+    bound_reference =
+        lbracket identifier rbracket colon identifier
     ;

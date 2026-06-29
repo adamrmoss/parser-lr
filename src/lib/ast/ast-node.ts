@@ -8,26 +8,29 @@ export interface SourceLocation
 }
 
 /**
- * Node in a parse tree produced by shift-reduce parsing.
+ * Tree node used for both parse (CST) and abstract (AST) phases.
  *
- * Interior nodes represent grammar symbols with child subtrees.
- * Leaf nodes carry terminal lexeme text.
+ * After parsing, {@link symbol} is a grammar production and {@link variant}
+ * is the matched `#` label. After transform, {@link symbol} is an AST type
+ * name and {@link variant} is the AST alternative label.
  */
 export class AstNode
 {
     /**
-     * Creates a parse tree node.
+     * Creates a tree node.
      *
-     * @param symbol - Grammar symbol name (non-terminal or terminal).
-     * @param children - Child nodes for interior symbols.
-     * @param text - Lexeme text for terminal leaves; null for interior nodes.
-     * @param location - Optional source span for this node.
+     * @param symbol - Production or AST type name.
+     * @param children - Child subtrees.
+     * @param text - Lexeme or literal text for leaves; null for interior nodes.
+     * @param location - Optional source span.
+     * @param variant - `#` alternative label when present.
      */
     public constructor(
         public readonly symbol: string,
         public readonly children: readonly AstNode[] = [],
         public readonly text: string | null = null,
         public readonly location: SourceLocation | null = null,
+        public readonly variant: string | null = null,
     )
     {
     }
@@ -41,19 +44,21 @@ export class AstNode
     }
 
     /**
-     * Builds an interior node for a reduced non-terminal symbol.
+     * Builds an interior node from a grammar or AST reduction.
      *
-     * @param symbol - Non-terminal symbol name.
+     * @param symbol - Production or AST type name.
      * @param children - Reduced child subtrees.
      * @param location - Optional source span covering the full production.
+     * @param variant - `#` alternative label when present.
      */
     public static rule(
         symbol: string,
         children: readonly AstNode[],
         location: SourceLocation | null = null,
+        variant: string | null = null,
     ): AstNode
     {
-        return new AstNode(symbol, children, null, location);
+        return new AstNode(symbol, children, null, location, variant);
     }
 
     /**
@@ -69,6 +74,6 @@ export class AstNode
         location: SourceLocation | null = null,
     ): AstNode
     {
-        return new AstNode(symbol, [], text, location);
+        return new AstNode(symbol, [], text, location, null);
     }
 }

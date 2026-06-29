@@ -1,9 +1,19 @@
 /**
- * Reference to a production or token by name.
+ * Reference to a production, token, or AST type by name.
  */
 export interface ReferenceExpression
 {
     readonly kind: 'reference';
+    readonly name: string;
+}
+
+/**
+ * Named child slot referencing another symbol (`[slot]:symbol`).
+ */
+export interface BoundReferenceExpression
+{
+    readonly kind: 'boundReference';
+    readonly binding: string;
     readonly name: string;
 }
 
@@ -75,6 +85,7 @@ export interface GroupExpression
  */
 export type Expression =
     | ReferenceExpression
+    | BoundReferenceExpression
     | TerminalExpression
     | SequenceExpression
     | ChoiceExpression

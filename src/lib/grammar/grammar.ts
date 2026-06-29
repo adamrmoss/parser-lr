@@ -1,5 +1,7 @@
+import type { AstSchema } from './ast-schema.js';
 import type { Production } from './production.js';
 import type { TokenRule } from './token-rule.js';
+import type { TransformSchema } from './transform-schema.js';
 
 /**
  * Parsed `.grammar` file: lexer rules, skip rules, and parser productions.
@@ -17,6 +19,8 @@ export class Grammar
      * @param states - State names from the `states` section.
      * @param startSymbol - Entry production from the `start` declaration.
      * @param productions - Productions from the `grammar` section.
+     * @param astSchema - AST types from the `ast` section, or null when omitted.
+     * @param transformSchema - CST-to-AST rules from the `transform` section, or null when omitted.
      */
     public constructor(
         public readonly name: string,
@@ -25,6 +29,8 @@ export class Grammar
         public readonly states: readonly string[],
         public readonly startSymbol: string,
         public readonly productions: readonly Production[],
+        public readonly astSchema: AstSchema | null = null,
+        public readonly transformSchema: TransformSchema | null = null,
     )
     {
         // Index productions by name for lookup.

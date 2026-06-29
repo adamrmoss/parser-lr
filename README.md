@@ -6,7 +6,9 @@ Shift-reduce parser library for EBNF grammars. Build an LR parse table from a gr
 
 | Type | Purpose |
 |------|---------|
-| `Grammar` | Parsed `.grammar` file (lexer rules, skip rules, productions) |
+| `Grammar` | Parsed `.grammar` file (lexer, parse productions, optional `AstSchema`) |
+| `AstSchema` | AST types from the `ast` section |
+| `TransformSchema` | CST-to-AST rules from the `transform` section |
 | `AstNode` | Parse tree node (interior symbols and terminal leaves) |
 | `ParserLr` | Shift-reduce parser (table build and parse) |
 

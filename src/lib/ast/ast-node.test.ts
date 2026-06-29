@@ -24,4 +24,12 @@ describe('AstNode', () =>
         expect(node.children).toEqual([child]);
         expect(node.isTerminal).toBe(false);
     });
+
+    it('stores an alternative label as variant', () =>
+    {
+        const node = AstNode.rule('expr', [], null, 'binary');
+
+        expect(node.symbol).toBe('expr');
+        expect(node.variant).toBe('binary');
+    });
 });
