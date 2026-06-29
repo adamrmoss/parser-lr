@@ -33,7 +33,7 @@
         "bootstrap": "npm link && parser-lr table generate -g grammars/grammar.grammar -o src/lib/grammar/grammar.json",
         "build": "npm run build:clean && npm run build:lib && npm run build:cli",
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
-        "build:lib": "tsc -p tsconfig.lib.json",
+        "build:lib": "tsc -p tsconfig.lib.json && cp src/lib/grammar/grammar.json dist/lib/grammar/",
         "build:cli": "rollup -c rollup.cli.config.js && chmod +x bin/parser-lr.js",
         "test": "jest",
         "prepack": "npm run build"

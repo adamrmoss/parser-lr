@@ -1,10 +1,6 @@
 import type { Expression } from './expression.js';
-import {
-    decodeStringLiteral,
-    lexGrammarFile,
-    splitRegexLiteral,
-} from './grammar-file-lexer.js';
-import type { GrammarFileToken, GrammarFileTokenKind } from './grammar-file-lexer.js';
+import { decodeStringLiteral, splitRegexLiteral } from './grammar-literals.js';
+import { lexGrammarSource } from './meta-grammar-table.js';
 import { AstSchema } from './ast-schema.js';
 import type { AstType } from './ast-type.js';
 import { Grammar } from './grammar.js';
@@ -15,6 +11,7 @@ import type { TransformAlternative } from './transform-rule.js';
 import type { TransformRule } from './transform-rule.js';
 import type { TransformExpression } from './transform-expression.js';
 import { TransformSchema } from './transform-schema.js';
+import type { Token } from '../lexer/token.js';
 
 /**
  * Parses a `.grammar` source string into a {@link Grammar} model.
@@ -24,7 +21,7 @@ import { TransformSchema } from './transform-schema.js';
  */
 export function readGrammar(source: string): Grammar
 {
-    const tokens = lexGrammarFile(source);
+    const tokens = lexGrammarSource(source);
     const cursor = new TokenCursor(tokens);
 
     return parseGrammarFile(cursor);
@@ -42,26 +39,37 @@ class TokenCursor
      *
      * @param tokens - Lexed grammar file tokens.
      */
-    public constructor(private readonly tokens: readonly GrammarFileToken[])
+    public constructor(private readonly tokens: readonly Token[])
     {
+    }
+
+    /**
+     * Returns whether all tokens have been consumed.
+     */
+    public atEnd(): boolean
+    {
+        return this.index >= this.tokens.length;
     }
 
     /**
      * Returns the next token without consuming it.
      */
-    public peek(): GrammarFileToken
+    public peek(): Token
     {
         return this.tokens[this.index] ?? {
-            kind: 'eof',
+            name: '$eof',
             text: '',
-            offset: this.tokens.at(-1)?.offset ?? 0,
+            location: {
+                offset: this.tokens.at(-1)?.location.offset ?? 0,
+                length: 0,
+            },
         };
     }
 
     /**
      * Consumes and returns the next token.
      */
-    public next(): GrammarFileToken
+    public next(): Token
     {
         const token = this.peek();
         this.index += 1;
@@ -69,20 +77,20 @@ class TokenCursor
     }
 
     /**
-     * Consumes the next token when it matches an expected kind.
+     * Consumes the next token when it matches an expected name.
      *
-     * @param kind - Expected token kind.
+     * @param name - Expected token name.
      * @returns The consumed token.
      */
-    public expect(kind: GrammarFileTokenKind): GrammarFileToken
+    public expect(name: string): Token
     {
         const token = this.next();
 
-        if (token.kind !== kind)
+        if (token.name !== name)
         {
             throw new ReadGrammarError(
-                `Expected ${kind}, found ${token.kind}`,
-                token.offset,
+                `Expected ${name}, found ${token.name}`,
+                token.location.offset,
             );
         }
 
@@ -90,13 +98,13 @@ class TokenCursor
     }
 
     /**
-     * Returns whether the next token matches a kind.
+     * Returns whether the next token matches a name.
      *
-     * @param kind - Candidate token kind.
+     * @param name - Candidate token name.
      */
-    public check(kind: GrammarFileTokenKind): boolean
+    public check(name: string): boolean
     {
-        return this.peek().kind === kind;
+        return !this.atEnd() && this.peek().name === name;
     }
 
     /**
@@ -104,13 +112,9 @@ class TokenCursor
      *
      * @param distance - Zero-based offset from the current token.
      */
-    public peekAhead(distance: number): GrammarFileToken
+    public peekAhead(distance: number): Token
     {
-        return this.tokens[this.index + distance] ?? {
-            kind: 'eof',
-            text: '',
-            offset: this.peek().offset,
-        };
+        return this.tokens[this.index + distance] ?? this.peek();
     }
 }
 
@@ -153,7 +157,14 @@ function parseGrammarFile(cursor: TokenCursor): Grammar
     const productions = parseGrammarSection(cursor);
     const astTypes = parseOptionalAstSection(cursor);
     const transformRules = parseOptionalTransformSection(cursor);
-    cursor.expect('eof');
+
+    if (!cursor.atEnd())
+    {
+        throw new ReadGrammarError(
+            'Expected end of file',
+            cursor.peek().location.offset,
+        );
+    }
 
     return new Grammar(
         name,
@@ -192,17 +203,17 @@ function parseGrammarName(cursor: TokenCursor): string
 {
     const token = cursor.next();
 
-    if (token.kind === 'identifier')
+    if (token.name === 'identifier')
     {
         return token.text;
     }
 
-    if (token.kind === 'string_literal')
+    if (token.name === 'string_literal')
     {
         return decodeStringLiteral(token.text);
     }
 
-    throw new ReadGrammarError('Expected grammar name', token.offset);
+    throw new ReadGrammarError('Expected grammar name', token.location.offset);
 }
 
 /**
@@ -652,7 +663,7 @@ function parseSequence(cursor: TokenCursor): Expression
 {
     const elements = [parseFactor(cursor)];
 
-    while (isFactorStart(cursor.peek().kind))
+    while (isFactorStart(cursor.peek().name))
     {
         elements.push(parseFactor(cursor));
     }
@@ -760,21 +771,21 @@ function parseBoundReference(cursor: TokenCursor): Expression
 function isBoundReferenceStart(cursor: TokenCursor): boolean
 {
     return cursor.check('lbracket')
-        && cursor.peekAhead(1).kind === 'identifier'
-        && cursor.peekAhead(2).kind === 'rbracket'
-        && cursor.peekAhead(3).kind === 'colon';
+        && cursor.peekAhead(1).name === 'identifier'
+        && cursor.peekAhead(2).name === 'rbracket'
+        && cursor.peekAhead(3).name === 'colon';
 }
 
 /**
- * Returns whether a token kind can start another sequence factor.
+ * Returns whether a token name can start another sequence factor.
  *
- * @param kind - Candidate token kind.
+ * @param name - Candidate token name.
  */
-function isFactorStart(kind: GrammarFileTokenKind): boolean
+function isFactorStart(name: string): boolean
 {
-    return kind === 'lbracket'
-        || kind === 'lbrace'
-        || kind === 'lpar'
-        || kind === 'string_literal'
-        || kind === 'identifier';
+    return name === 'lbracket'
+        || name === 'lbrace'
+        || name === 'lpar'
+        || name === 'string_literal'
+        || name === 'identifier';
 }

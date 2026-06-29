@@ -11,7 +11,7 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 | `parse-context.ts` | `ParseContext` — load parser + table from grammar or JSON |
 | `parse-output.ts` | Format parse results for interchange |
 | `ast/ast-node.ts` | `AstNode` parse tree nodes |
-| `grammar/` | `.grammar` file model (`Grammar`, `Production`, `Expression`, `TokenRule`) |
+| `grammar/` | `.grammar` file model; bootstrap table in `grammar.json`; `readGrammar` parser |
 | `lexer/` | Stream tokenizer (`Lexer`, `Token`, `$eof`) driven by grammar `tokens` / `skip` / `states` |
 | `parse-table/` | Serializable LR table metadata (`ParseTable`, token inventory) |
 
