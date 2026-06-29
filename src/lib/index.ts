@@ -29,4 +29,12 @@ export type {
     TransformRule,
 } from './grammar/index.js';
 export { AstSchema, Grammar, TransformSchema } from './grammar/index.js';
+export { ReadGrammarError, readGrammar } from './grammar/index.js';
+export { Lexer, LexerError, token } from './lexer/index.js';
+export type { Token } from './lexer/index.js';
+export { PARSE_TABLE_VERSION, ParseTable, isLrAlgorithm, parseLrAlgorithm, tokenInventory } from './parse-table/index.js';
+export type { LrAlgorithm, ParseTableJson } from './parse-table/index.js';
+export { ParseContext } from './parse-context.js';
+export type { ParseContextSources } from './parse-context.js';
+export { formatParseOutput } from './parse-output.js';
 export { ParserLr } from './parser-lr.js';

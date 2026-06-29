@@ -13,6 +13,8 @@ export type {
     TerminalExpression,
 } from './expression.js';
 export { Grammar } from './grammar.js';
+export { readGrammar } from './read-grammar.js';
+export { ReadGrammarError } from './read-grammar-error.js';
 export type { Production } from './production.js';
 export type { TokenRule } from './token-rule.js';
 export type {
