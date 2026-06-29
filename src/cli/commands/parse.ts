@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import { ParseContext, formatParseOutput } from '../../lib/index.js';
 
-import { readTextFile, writeTextFile } from '../io.js';
+import { readTextChunks, readTextFile, writeTextFile } from '../io.js';
 
 /**
  * Registers the `parse` command on the root CLI program.
@@ -31,8 +31,8 @@ export function registerParseCommand(program: Command): void
             }
 
             const context = await loadContextFromPaths(options);
-            const source = await readTextFile(options.input);
-            const output = formatParseOutput(context.lex(source), options.format);
+            const tokens = await context.lexChunkStreamAsync(readTextChunks(options.input));
+            const output = formatParseOutput(tokens, options.format);
 
             // Write output to disk or stdout.
             if (options.output !== undefined)

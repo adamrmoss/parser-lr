@@ -33,7 +33,8 @@
         "lbrace",
         "rbrace",
         "regex_literal",
-        "string_literal"
+        "string_literal",
+        "$eof"
     ],
     "tokenRules": [
         {

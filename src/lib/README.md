@@ -12,7 +12,7 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 | `parse-output.ts` | Format parse results for interchange |
 | `ast/ast-node.ts` | `AstNode` parse tree nodes |
 | `grammar/` | `.grammar` file model (`Grammar`, `Production`, `Expression`, `TokenRule`) |
-| `lexer/` | Tokenizer (`Lexer`, `Token`) driven by grammar `tokens` / `skip` rules |
+| `lexer/` | Stream tokenizer (`Lexer`, `Token`, `$eof`) driven by grammar `tokens` / `skip` / `states` |
 | `parse-table/` | Serializable LR table metadata (`ParseTable`, token inventory) |
 
 ## Core types
@@ -23,7 +23,8 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 - **`TransformSchema`** — CST-to-AST rules from the `transform` section (`pass`, `drop`, `fold-left`, `fold-right`, `flatten`, `type.#variant(…)`).
 - **`AstNode`** — single tree node class for CST (parse output) and AST (post-transform); `symbol` + optional `variant` (`#` label).
 - **`ParseContext`** — parser and table loaded from grammar text or serialized table JSON.
-- **`Token`** — lexeme from the lexer: rule name, matched text, and source span.
+- **`Token`** — lexeme from the lexer: rule name, matched text, and source span; streams end with `$eof`.
+- **`Lexer`** — push source chunks, call `finish()`, read tokens via `next()` or `lexChunks` / `lexChunksAsync`.
 - **`ParseTable`** — serialized table metadata; JSON includes `tokens`, `tokenRules`, and `skipRules`.
 
 Co-located tests: `*.test.ts` next to the module under test. Run `npm test` from the project root.

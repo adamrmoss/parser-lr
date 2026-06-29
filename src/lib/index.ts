@@ -30,8 +30,17 @@ export type {
 } from './grammar/index.js';
 export { AstSchema, Grammar, TransformSchema } from './grammar/index.js';
 export { ReadGrammarError, readGrammar } from './grammar/index.js';
-export { Lexer, LexerError, token } from './lexer/index.js';
-export type { Token } from './lexer/index.js';
+export { Lexer, LexerCompileError, lexChunkStream, lexChunkStreamAsync, lexChunks, lexChunksAsync } from './lexer/index.js';
+export {
+    DEFAULT_LEXER_STATE,
+    EOF_TOKEN_NAME,
+    LexerError,
+    compileLexerRules,
+    eofToken,
+    isEofToken,
+    token,
+} from './lexer/index.js';
+export type { CompiledLexerRules, CompiledRule, Token } from './lexer/index.js';
 export { PARSE_TABLE_VERSION, ParseTable, isLrAlgorithm, parseLrAlgorithm, tokenInventory } from './parse-table/index.js';
 export type { LrAlgorithm, ParseTableJson } from './parse-table/index.js';
 export { ParseContext } from './parse-context.js';

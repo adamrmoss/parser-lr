@@ -1,9 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { Grammar } from '../grammar/grammar.js';
+import { EOF_TOKEN_NAME, eofToken } from './token.js';
 
+import { LexerCompileError } from './lexer-compile-error.js';
+import { DEFAULT_LEXER_STATE } from './lexer-compile.js';
 import { LexerError } from './lexer-error.js';
-import { Lexer } from './lexer.js';
+import { Lexer, lexChunkStream, lexChunks } from './lexer.js';
 
 describe('Lexer', () =>
 {
@@ -22,7 +25,7 @@ describe('Lexer', () =>
         [],
     );
 
-    it('emits tokens and skips whitespace', () =>
+    it('emits tokens and skips whitespace, ending with $eof', () =>
     {
         const lexer = new Lexer(calcGrammar);
         const tokens = lexer.lex('1 + foo');
@@ -43,6 +46,7 @@ describe('Lexer', () =>
                 text: 'foo',
                 location: { offset: 4, length: 3 },
             },
+            eofToken(7),
         ]);
     });
 
@@ -62,13 +66,14 @@ describe('Lexer', () =>
 
         const tokens = new Lexer(grammar).lex(':=');
 
-        expect(tokens).toEqual([
+        expect(tokens.slice(0, 1)).toEqual([
             {
                 name: 'assign',
                 text: ':=',
                 location: { offset: 0, length: 2 },
             },
         ]);
+        expect(tokens.at(-1)).toEqual(eofToken(2));
     });
 
     it('breaks equal-length ties by token declaration order', () =>
@@ -105,7 +110,7 @@ describe('Lexer', () =>
 
         const tokens = new Lexer(grammar).lex('/abc/gi');
 
-        expect(tokens).toEqual([
+        expect(tokens.slice(0, 1)).toEqual([
             {
                 name: 'regex_literal',
                 text: '/abc/gi',
@@ -117,5 +122,156 @@ describe('Lexer', () =>
     it('throws when input cannot be matched', () =>
     {
         expect(() => new Lexer(calcGrammar).lex('1 @')).toThrow(LexerError);
+    });
+
+    it('throws LexerCompileError for invalid regular expressions', () =>
+    {
+        expect(() => new Lexer(new Grammar(
+            'bad',
+            [{ name: 'broken', pattern: '(', flags: '' }],
+            [],
+            [],
+            'start',
+            [],
+        ))).toThrow(LexerCompileError);
+    });
+
+    it('uses the default initial state when no states are declared', () =>
+    {
+        const lexer = new Lexer(calcGrammar);
+
+        expect(lexer.state).toBe(DEFAULT_LEXER_STATE);
+    });
+
+    it('starts in the first declared lexer state', () =>
+    {
+        const grammar = new Grammar(
+            'states',
+            [
+                {
+                    name: 'word',
+                    pattern: '[a-z]+',
+                    flags: '',
+                    states: ['initial'],
+                },
+                {
+                    name: 'digit',
+                    pattern: '[0-9]+',
+                    flags: '',
+                    states: ['numbers'],
+                },
+            ],
+            [],
+            ['initial', 'numbers'],
+            'start',
+            [],
+        );
+        const lexer = new Lexer(grammar);
+
+        expect(lexer.state).toBe('initial');
+        expect(lexer.lex('abc')).toEqual([
+            {
+                name: 'word',
+                text: 'abc',
+                location: { offset: 0, length: 3 },
+            },
+            eofToken(3),
+        ]);
+
+        lexer.enterState('numbers');
+        expect(lexer.lex('42')).toEqual([
+            {
+                name: 'digit',
+                text: '42',
+                location: { offset: 0, length: 2 },
+            },
+            eofToken(2),
+        ]);
+    });
+
+    it('lexes split tokens from chunked input', () =>
+    {
+        const tokens = lexChunkStream(calcGrammar, ['1 ', '+ f', 'oo']);
+
+        expect(tokens).toEqual([
+            {
+                name: 'number',
+                text: '1',
+                location: { offset: 0, length: 1 },
+            },
+            {
+                name: 'plus',
+                text: '+',
+                location: { offset: 2, length: 1 },
+            },
+            {
+                name: 'identifier',
+                text: 'foo',
+                location: { offset: 4, length: 3 },
+            },
+            eofToken(7),
+        ]);
+    });
+
+    it('waits for more input before committing ambiguous prefixes', () =>
+    {
+        const grammar = new Grammar(
+            'example',
+            [
+                { name: 'assign', pattern: ':=', flags: '' },
+                { name: 'colon', pattern: ':', flags: '' },
+            ],
+            [],
+            [],
+            'start',
+            [],
+        );
+
+        expect([...lexChunks(grammar, [':', '='])]).toEqual([
+            {
+                name: 'assign',
+                text: ':=',
+                location: { offset: 0, length: 2 },
+            },
+            eofToken(2),
+        ]);
+    });
+
+    it('streams tokens incrementally from push and finish', () =>
+    {
+        const lexer = new Lexer(calcGrammar);
+
+        lexer.push('1 ');
+        expect(lexer.next()).toEqual({
+            name: 'number',
+            text: '1',
+            location: { offset: 0, length: 1 },
+        });
+        expect(lexer.next()).toBeNull();
+
+        lexer.push('+ foo');
+        expect(lexer.next()).toEqual({
+            name: 'plus',
+            text: '+',
+            location: { offset: 2, length: 1 },
+        });
+        expect(lexer.next()).toBeNull();
+
+        lexer.finish();
+        expect(lexer.next()).toEqual({
+            name: 'identifier',
+            text: 'foo',
+            location: { offset: 4, length: 3 },
+        });
+        expect(lexer.next()).toEqual(eofToken(7));
+        expect(lexer.next()).toBeNull();
+    });
+});
+
+describe('Lexer EOF token', () =>
+{
+    it('uses the $eof token name', () =>
+    {
+        expect(EOF_TOKEN_NAME).toBe('$eof');
     });
 });

@@ -22,8 +22,8 @@ describe('ParseTable', () =>
 
     it('captures the full token inventory from a grammar', () =>
     {
-        expect(tokenInventory(grammar)).toEqual(['number', 'plus']);
-        expect(ParseTable.fromGrammar(grammar).tokens).toEqual(['number', 'plus']);
+        expect(tokenInventory(grammar)).toEqual(['number', 'plus', '$eof']);
+        expect(ParseTable.fromGrammar(grammar).tokens).toEqual(['number', 'plus', '$eof']);
     });
 
     it('serializes lexer metadata and round-trips through JSON', () =>
@@ -35,7 +35,7 @@ describe('ParseTable', () =>
         expect(restored.grammarName).toBe('calc');
         expect(restored.startSymbol).toBe('expr');
         expect(restored.algorithm).toBe('lalr');
-        expect(restored.tokens).toEqual(['number', 'plus']);
+        expect(restored.tokens).toEqual(['number', 'plus', '$eof']);
         expect(restored.tokenRules).toEqual(grammar.tokenRules);
         expect(restored.skipRules).toEqual(grammar.skipRules);
     });

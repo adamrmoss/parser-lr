@@ -1,6 +1,7 @@
 import { Grammar } from '../grammar/grammar.js';
 import type { TokenRule } from '../grammar/token-rule.js';
 
+import { EOF_TOKEN_NAME } from '../lexer/token.js';
 import type { LrAlgorithm } from './lr-algorithm.js';
 
 /** Current on-disk JSON schema version for parse tables. */
@@ -165,5 +166,12 @@ export class ParseTable
  */
 export function tokenInventory(grammar: Grammar): readonly string[]
 {
-    return grammar.tokenRules.map((rule) => rule.name);
+    const names = grammar.tokenRules.map((rule) => rule.name);
+
+    if (names.includes(EOF_TOKEN_NAME))
+    {
+        return names;
+    }
+
+    return [...names, EOF_TOKEN_NAME];
 }

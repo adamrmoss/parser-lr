@@ -1,4 +1,5 @@
 import { readGrammar } from './grammar/read-grammar.js';
+import type { Lexer } from './lexer/lexer.js';
 import type { Token } from './lexer/token.js';
 import type { LrAlgorithm } from './parse-table/lr-algorithm.js';
 import { parseLrAlgorithm } from './parse-table/lr-algorithm.js';
@@ -80,14 +81,68 @@ export class ParseContext
     }
 
     /**
+     * Creates a stream lexer for this context's grammar.
+     *
+     * @returns A fresh stream lexer instance.
+     */
+    public createLexer(): Lexer
+    {
+        return this.parser.createLexer();
+    }
+
+    /**
      * Lexes source text using this context's parser.
      *
      * @param source - Input text to tokenize.
-     * @returns Matched tokens in source order.
+     * @returns Matched tokens in source order, ending with `$eof`.
      */
     public lex(source: string): readonly Token[]
     {
         return this.parser.lex(source);
+    }
+
+    /**
+     * Lexes synchronous source chunks into a token stream ending with `$eof`.
+     *
+     * @param chunks - Source text fragments in order.
+     * @returns Token iterator including `$eof`.
+     */
+    public lexChunks(chunks: Iterable<string>): IterableIterator<Token>
+    {
+        return this.parser.lexChunks(chunks);
+    }
+
+    /**
+     * Lexes asynchronous source chunks into a token stream ending with `$eof`.
+     *
+     * @param chunks - Source text fragments in order.
+     * @returns Async token iterator including `$eof`.
+     */
+    public lexChunksAsync(chunks: AsyncIterable<string>): AsyncIterableIterator<Token>
+    {
+        return this.parser.lexChunksAsync(chunks);
+    }
+
+    /**
+     * Collects all tokens from a synchronous chunk stream.
+     *
+     * @param chunks - Source text fragments in order.
+     * @returns Matched tokens including `$eof`.
+     */
+    public lexChunkStream(chunks: Iterable<string>): readonly Token[]
+    {
+        return this.parser.lexChunkStream(chunks);
+    }
+
+    /**
+     * Collects all tokens from an asynchronous chunk stream.
+     *
+     * @param chunks - Source text fragments in order.
+     * @returns Matched tokens including `$eof`.
+     */
+    public async lexChunkStreamAsync(chunks: AsyncIterable<string>): Promise<readonly Token[]>
+    {
+        return this.parser.lexChunkStreamAsync(chunks);
     }
 }
 

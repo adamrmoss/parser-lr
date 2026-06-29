@@ -28,7 +28,8 @@ grammar
 
         expect(context.table.grammarName).toBe('calc');
         expect(context.table.algorithm).toBe('lalr');
-        expect(context.lex('1 + 2')).toHaveLength(3);
+        expect(context.lex('1 + 2')).toHaveLength(4);
+        expect(context.lex('1 + 2').at(-1)?.name).toBe('$eof');
     });
 
     it('loads from serialized table JSON', () =>
@@ -50,6 +51,11 @@ grammar
                 name: 'number',
                 text: '42',
                 location: { offset: 0, length: 2 },
+            },
+            {
+                name: '$eof',
+                text: '',
+                location: { offset: 2, length: 0 },
             },
         ]);
     });
