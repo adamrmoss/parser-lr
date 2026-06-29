@@ -1,0 +1,50 @@
+// Very simple Lisp: s-expressions with numbers, symbols, and strings.
+//
+// Example:
+//
+//   ; factorial sketch
+//   (def factorial (n)
+//     (if (= n 0)
+//       1
+//       (* n (factorial (- n 1)))))
+//
+//   (quote hello)
+//   (+ 1 2 3)
+
+name "lisp" ;
+
+tokens
+    lpar = /\(/ ;
+    rpar = /\)/ ;
+
+    number = /[+-]?[0-9]+/ ;
+    symbol = /[a-zA-Z+*\-\/=<>?!_][a-zA-Z0-9+*\-\/=<>?!_]*/ ;
+    string = /"(?:\\.|[^"\\])*"/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+    comment = /;[^\n\r]*/ ;
+
+start program ;
+
+grammar
+    program =
+        { form }
+    ;
+
+    form =
+        list
+      | atom
+    ;
+
+    list =
+        lpar
+        { form }
+        rpar
+    ;
+
+    atom =
+        number
+      | symbol
+      | string
+    ;

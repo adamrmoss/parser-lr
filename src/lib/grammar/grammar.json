@@ -1,0 +1,204 @@
+{
+    "version": 1,
+    "algorithm": "lr1",
+    "grammarName": "grammar",
+    "startSymbol": "grammar_file",
+    "tokens": [
+        "name_kw",
+        "tokens_kw",
+        "skip_kw",
+        "states_kw",
+        "start_kw",
+        "grammar_kw",
+        "ast_kw",
+        "transform_kw",
+        "pass_kw",
+        "drop_kw",
+        "fold_left_kw",
+        "fold_right_kw",
+        "flatten_kw",
+        "identifier",
+        "equal",
+        "semicolon",
+        "comma",
+        "bar",
+        "hash",
+        "arrow",
+        "colon",
+        "dot",
+        "lpar",
+        "rpar",
+        "lbracket",
+        "rbracket",
+        "lbrace",
+        "rbrace",
+        "regex_literal",
+        "string_literal",
+        "$eof"
+    ],
+    "tokenRules": [
+        {
+            "name": "name_kw",
+            "pattern": "name",
+            "flags": ""
+        },
+        {
+            "name": "tokens_kw",
+            "pattern": "tokens",
+            "flags": ""
+        },
+        {
+            "name": "skip_kw",
+            "pattern": "skip",
+            "flags": ""
+        },
+        {
+            "name": "states_kw",
+            "pattern": "states",
+            "flags": ""
+        },
+        {
+            "name": "start_kw",
+            "pattern": "start",
+            "flags": ""
+        },
+        {
+            "name": "grammar_kw",
+            "pattern": "grammar",
+            "flags": ""
+        },
+        {
+            "name": "ast_kw",
+            "pattern": "ast",
+            "flags": ""
+        },
+        {
+            "name": "transform_kw",
+            "pattern": "transform",
+            "flags": ""
+        },
+        {
+            "name": "pass_kw",
+            "pattern": "pass",
+            "flags": ""
+        },
+        {
+            "name": "drop_kw",
+            "pattern": "drop",
+            "flags": ""
+        },
+        {
+            "name": "fold_left_kw",
+            "pattern": "fold-left",
+            "flags": ""
+        },
+        {
+            "name": "fold_right_kw",
+            "pattern": "fold-right",
+            "flags": ""
+        },
+        {
+            "name": "flatten_kw",
+            "pattern": "flatten",
+            "flags": ""
+        },
+        {
+            "name": "identifier",
+            "pattern": "[A-Za-z_][A-Za-z0-9_]*",
+            "flags": ""
+        },
+        {
+            "name": "equal",
+            "pattern": "=",
+            "flags": ""
+        },
+        {
+            "name": "semicolon",
+            "pattern": ";",
+            "flags": ""
+        },
+        {
+            "name": "comma",
+            "pattern": ",",
+            "flags": ""
+        },
+        {
+            "name": "bar",
+            "pattern": "\\|",
+            "flags": ""
+        },
+        {
+            "name": "hash",
+            "pattern": "#",
+            "flags": ""
+        },
+        {
+            "name": "arrow",
+            "pattern": "->",
+            "flags": ""
+        },
+        {
+            "name": "colon",
+            "pattern": ":",
+            "flags": ""
+        },
+        {
+            "name": "dot",
+            "pattern": "\\.",
+            "flags": ""
+        },
+        {
+            "name": "lpar",
+            "pattern": "\\(",
+            "flags": ""
+        },
+        {
+            "name": "rpar",
+            "pattern": "\\)",
+            "flags": ""
+        },
+        {
+            "name": "lbracket",
+            "pattern": "\\[",
+            "flags": ""
+        },
+        {
+            "name": "rbracket",
+            "pattern": "\\]",
+            "flags": ""
+        },
+        {
+            "name": "lbrace",
+            "pattern": "\\{",
+            "flags": ""
+        },
+        {
+            "name": "rbrace",
+            "pattern": "\\}",
+            "flags": ""
+        },
+        {
+            "name": "regex_literal",
+            "pattern": "\\/(\\\\.|[^\\\\\\/])+\\/",
+            "flags": ""
+        },
+        {
+            "name": "string_literal",
+            "pattern": "\"(?:\\\\.|[^\"\\\\])*\"",
+            "flags": ""
+        }
+    ],
+    "skipRules": [
+        {
+            "name": "whitespace",
+            "pattern": "[ \\t\\r\\n]+",
+            "flags": ""
+        },
+        {
+            "name": "comment",
+            "pattern": "\\/\\/[^\\n\\r]*",
+            "flags": ""
+        }
+    ],
+    "states": []
+}

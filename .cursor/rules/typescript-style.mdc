@@ -62,11 +62,53 @@ export class ParserLr {
 - When a cast is unavoidable, use a named target: discriminated unions, domain types, `satisfies`, `Extract<…>`, or `value as unknown as SpecificType` — never `as any`.
 - In tests, apply the same standard: narrowing, `Partial<T>` with `as unknown as T`, or small test-only interfaces instead of `any`.
 
+## Constructor parameter properties
+
+- Declare constructor parameters with `public`, `private`, or `protected` (and `readonly` when immutable) to create and assign fields in one place
+- Do not duplicate the same value as a separate class field plus manual `this.field = field` assignment in the constructor body
+- Use `public readonly` parameter properties for simple exposed read-only data; skip redundant pass-through getters
+- Use an explicit field plus constructor-body assignment only when the value is derived or transformed (e.g. indexing a map from other parameters)
+
+```typescript
+// ✅ GOOD — parameter properties; getter only for computed values
+export class AstNode
+{
+    public constructor(
+        public readonly symbol: string,
+        public readonly children: readonly AstNode[] = [],
+        public readonly text: string | null = null,
+    )
+    {
+    }
+
+    public get isTerminal(): boolean
+    {
+        return this.text !== null;
+    }
+}
+
+// ❌ BAD — duplicate field declarations and manual assignment
+export class AstNode
+{
+    private readonly _symbol: string;
+
+    public constructor(symbol: string)
+    {
+        this._symbol = symbol;
+    }
+
+    public get symbol(): string
+    {
+        return this._symbol;
+    }
+}
+```
+
 ## Property syntax (accessors)
 
 - Prefer TypeScript `get` / `set` accessors over `getFoo()` / `setFoo()` when the member behaves like a property
 - **Pairing** — place getter and setter back-to-back when both exist
-- **Backing fields** — use `_name` only when backing a public property accessor of the same name; otherwise no leading underscore on fields
+- **Backing fields** — use `_name` only when a public getter or setter wraps a private field; not when using parameter properties
 - Keep ordinary methods when the operation is not a simple property (multiple parameters, async, imperative actions)
 
 ## File endings

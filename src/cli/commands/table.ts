@@ -1,5 +1,9 @@
 import { Command } from 'commander';
 
+import { ParseContext } from '../../lib/index.js';
+
+import { readTextFile, writeTextFile } from '../io.js';
+
 /**
  * Registers `table` subcommands on the root CLI program.
  *
@@ -23,13 +27,22 @@ export function registerTableCommands(program: Command): void
         )
         .action(async (options: TableGenerateOptions) =>
         {
-            // Stub: wire to ParserLr table builder.
-            process.stdout.write(
-                `table generate (stub)\n`
-                + `  grammar: ${options.grammar}\n`
-                + `  algorithm: ${options.algorithm}\n`
-                + `  output: ${options.output ?? '(stdout)'}\n`,
-            );
+            const grammarSource = await readTextFile(options.grammar);
+            const context = ParseContext.fromSources({
+                grammarSource,
+                algorithm: options.algorithm,
+            });
+            const json = context.table.toJsonString();
+
+            // Write JSON to disk or stdout.
+            if (options.output !== undefined)
+            {
+                await writeTextFile(options.output, json);
+            }
+            else
+            {
+                process.stdout.write(`${json}\n`);
+            }
         });
 }
 

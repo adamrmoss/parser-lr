@@ -1,5 +1,9 @@
 import { Command } from 'commander';
 
+import { ParseContext, formatParseOutput } from '../../lib/index.js';
+
+import { readTextChunks, readTextFile, writeTextFile } from '../io.js';
+
 /**
  * Registers the `parse` command on the root CLI program.
  *
@@ -11,7 +15,7 @@ export function registerParseCommand(program: Command): void
         .command('parse')
         .description('Parse a source file using an LR table')
         .requiredOption('-i, --input <path>', 'Source file to parse')
-        .option('-g, --grammar <path>', 'EBNF grammar file (builds or loads a table)')
+        .option('-g, --grammar <path>', 'EBNF grammar file (builds a table in memory)')
         .option('-t, --table <path>', 'Serialized parse table JSON file')
         .option('-o, --output <path>', 'Write the AST to this file (default: stdout)')
         .option(
@@ -26,15 +30,19 @@ export function registerParseCommand(program: Command): void
                 command.error('required: --grammar or --table');
             }
 
-            // Stub: wire to ParserLr shift-reduce parser.
-            process.stdout.write(
-                `parse (stub)\n`
-                + `  input: ${options.input}\n`
-                + `  grammar: ${options.grammar ?? '(none)'}\n`
-                + `  table: ${options.table ?? '(none)'}\n`
-                + `  format: ${options.format}\n`
-                + `  output: ${options.output ?? '(stdout)'}\n`,
-            );
+            const context = await loadContextFromPaths(options);
+            const tokens = await context.lexChunkStreamAsync(readTextChunks(options.input));
+            const output = formatParseOutput(tokens, options.format);
+
+            // Write output to disk or stdout.
+            if (options.output !== undefined)
+            {
+                await writeTextFile(options.output, output);
+            }
+            else
+            {
+                process.stdout.write(`${output}\n`);
+            }
         });
 }
 
@@ -45,4 +53,22 @@ interface ParseOptions
     table?: string;
     output?: string;
     format: string;
+}
+
+/**
+ * Reads grammar or table files and builds a parse context.
+ *
+ * @param options - CLI paths for grammar or table input.
+ * @returns Loaded parse context.
+ */
+async function loadContextFromPaths(options: ParseOptions): Promise<ParseContext>
+{
+    return ParseContext.fromSources({
+        grammarSource: options.grammar === undefined
+            ? undefined
+            : await readTextFile(options.grammar),
+        tableJson: options.table === undefined
+            ? undefined
+            : await readTextFile(options.table),
+    });
 }

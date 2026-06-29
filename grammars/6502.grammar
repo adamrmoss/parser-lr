@@ -1,0 +1,109 @@
+// Very simple 6502 assembler (ca65-inspired syntax).
+//
+// Example:
+//
+//   .org $8000
+//   start:
+//       LDA #$01
+//       STA $0200
+//       LDX #$00
+//   loop:
+//       INX
+//       BNE loop
+//       BRK
+
+name "6502" ;
+
+tokens
+    dot = /\./ ;
+    colon = /:/ ;
+    comma = /,/ ;
+    hash = /#/ ;
+    lpar = /\(/ ;
+    rpar = /\)/ ;
+
+    mnemonic = /[A-Z]{3}/ ;
+    identifier = /[A-Za-z_][A-Za-z0-9_]*/ ;
+    hex_number = /\$[0-9A-Fa-f]+/ ;
+    x_reg = /[Xx]/ ;
+    y_reg = /[Yy]/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+    comment = /;[^\n\r]*/ ;
+
+start program ;
+
+grammar
+    program =
+        { line }
+    ;
+
+    line =
+        #directive directive
+      | #labeled label colon [ instruction ]
+      | #code instruction
+    ;
+
+    directive =
+        dot
+        identifier
+        hex_number
+    ;
+
+    label =
+        identifier
+    ;
+
+    instruction =
+        #implied implied
+      | #immediate immediate
+      | #absolute absolute
+      | #indexed_x indexed_x
+      | #indexed_y indexed_y
+      | #indirect_x indirect_x
+      | #relative relative
+    ;
+
+    implied =
+        mnemonic
+    ;
+
+    immediate =
+        mnemonic
+        hash
+        hex_number
+    ;
+
+    absolute =
+        mnemonic
+        hex_number
+    ;
+
+    indexed_x =
+        mnemonic
+        hex_number
+        comma
+        x_reg
+    ;
+
+    indexed_y =
+        mnemonic
+        hex_number
+        comma
+        y_reg
+    ;
+
+    indirect_x =
+        mnemonic
+        lpar
+        hex_number
+        comma
+        x_reg
+        rpar
+    ;
+
+    relative =
+        mnemonic
+        identifier
+    ;
