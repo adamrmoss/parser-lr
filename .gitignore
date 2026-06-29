@@ -1,7 +1,5 @@
 .DS_Store
 
-external-cursor-rules/
-
 # Logs
 logs
 *.log

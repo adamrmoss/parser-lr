@@ -1,11 +1,12 @@
-#!/usr/bin/env node
+import { ParserLr } from '../lib/parser-lr.js';
 
 /**
- * Command-line entry point for parser-lr.
+ * Runs the parser-lr command-line tool.
  */
-
 function main(): void {
-    process.stdout.write(`${'parser-lr'}\n`);
+    const parser = new ParserLr();
+
+    process.stdout.write(`${parser.constructor.name}\n`);
 }
 
 main();

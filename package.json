@@ -4,12 +4,13 @@
     "description": "Shift-reduce parser library for EBNF grammars",
     "license": "MIT",
     "type": "module",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
+    "sideEffects": false,
+    "main": "./dist/lib/index.js",
+    "types": "./dist/lib/index.d.ts",
     "exports": {
         ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js"
+            "types": "./dist/lib/index.d.ts",
+            "import": "./dist/lib/index.js"
         }
     },
     "bin": {
@@ -19,12 +20,20 @@
         "dist"
     ],
     "scripts": {
-        "build": "tsc",
+        "build": "npm run build:lib && npm run build:cli",
+        "build:lib": "tsc -p tsconfig.lib.json",
+        "build:cli": "rollup -c rollup.cli.config.js",
         "clean": "rm -rf dist"
     },
     "dependencies": {},
     "devDependencies": {
+        "@rollup/plugin-commonjs": "28.x",
+        "@rollup/plugin-node-resolve": "16.x",
+        "@rollup/plugin-typescript": "12.x",
         "@types/node": "22.x",
+        "commander": "12.x",
+        "rollup": "4.x",
+        "tslib": "2.x",
         "typescript": "5.x"
     }
 }
