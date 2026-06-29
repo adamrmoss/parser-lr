@@ -1,0 +1,30 @@
+---
+description: Agent decision guardrails - minimal fix, pattern matching, constraint checking
+alwaysApply: true
+---
+
+# Agent Decision Guardrails
+
+Before making any code change, apply these checks.
+
+## Minimal Fix First
+
+1. Identify the **smallest fix** that solves the problem
+2. Prefer config tweaks, one-line changes, or targeted edits over refactors
+3. Only do larger changes if the minimal fix is impossible or the user explicitly requests it
+
+## Pattern Matching
+
+Before adding or changing types, interfaces, or structures:
+
+1. Search the file and related code for existing naming and structure
+2. Match those patterns
+3. Do not introduce new conventions when existing ones apply
+
+## Constraint Checking
+
+Before implementing:
+
+1. List the user's stated constraints (e.g. browser-safe, no Node-only APIs in core, preserve format)
+2. Confirm the change satisfies all of them
+3. Do not add logic that contradicts them

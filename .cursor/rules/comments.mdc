@@ -1,0 +1,36 @@
+---
+description: In-source comments and TSDoc (not READMEs or docs folder markdown)
+alwaysApply: true
+---
+
+# Comments and source docblocks
+
+This rule covers **comments and `/** */` API docblocks inside source files** only. For **`README.md` files**, the **`docs/`** folder, and other **project markdown guides**, use **`documentation.mdc`**.
+
+Comments exist to explain the **code** for future readers of that source. They should be concise, action-oriented, and **on their own line** (never inline).
+
+**Concise by default** — summaries should be short (often one sentence). Put non-essential detail in `@remarks` or brief `//` section headers next to the logic.
+
+**Concise does not mean fewer docblocks** — every public/exported element still gets its own `/** … */` block; tighten the text inside it, do not delete the block.
+
+## General principles
+
+- Comments document the codebase, not the developer (use chat for that)
+- Comments always go on their own line, never inline
+- **Method bodies (`//`)** — before each logical block, add a brief `//` section header so readers can scan control flow
+- **TSDoc summaries** should be action-oriented, starting with verbs (e.g. "Parses…", "Returns…", "Builds…")
+
+## TypeScript (`*.ts`)
+
+Use **[TSDoc](https://tsdoc.org/)** for exported APIs.
+
+- Use `/** ... */` for every exported type, interface, class, enum, and every `public` method, property, getter, setter, and constructor
+- Use `@param paramName - description` for each parameter
+- Use `@returns description` for return values (omit for `void`)
+- Optional: `@remarks`, `@example`
+
+Private members: document when behavior is non-obvious; otherwise minimal or no docblock is acceptable.
+
+## Relationship to other rules
+
+- **Project documentation** (READMEs, `docs/*.md`): `documentation.mdc`

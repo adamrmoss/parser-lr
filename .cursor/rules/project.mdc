@@ -1,0 +1,46 @@
+---
+description: parser-lr project identity, layout, and dependency conventions
+alwaysApply: true
+---
+
+# parser-lr
+
+Shift-reduce parser library for EBNF grammars. Builds parse tables and uses them to produce an AST.
+
+## Deliverables
+
+- **Library** — importable from Node and browser npm projects (`dist/lib/`, built with `tsc`)
+- **CLI** — Node command-line tool (`bin/parser-lr.js`, built with Rollup)
+
+## Formatting
+
+- **Indentation** — 4 spaces everywhere (TypeScript, JSON, markdown, config). Never tabs.
+
+## Dependencies
+
+- Use **`x` semver wildcards** in `package.json` (e.g. `5.x`, `1.x`), not pinned patch/minor versions
+- Do not add runtime or dev dependencies without discussing with the user first
+
+## Layout
+
+- Organize by **domain concepts**, not technical layers (no `controllers/`, `views/`, `services/` folders)
+- Library source under `src/lib/`; public API via `src/lib/index.ts`
+- CLI under `src/cli/` (Node-only; may import from `src/lib/`)
+- Barrel `index.ts` files for directories with multiple related exports
+
+## Build
+
+- `npm run build:lib` — `tsc -p tsconfig.lib.json` → `dist/lib/`
+- `npm run build:cli` — `rollup -c rollup.cli.config.js` → `bin/parser-lr.js`
+- `npm run build` — both, in that order
+
+## Publish (npm)
+
+- **`package.json`** — npm manifest (`name`, `version`, `exports`, `bin`, `files`, …)
+- **`.npmrc`** — default registry (`https://registry.npmjs.org/`)
+- **`prepack`** — runs `npm run build` automatically before `npm pack` / `npm publish`
+- **`files`** — only `bin/` and `dist/` ship; `src/` stays out of the tarball. npm always includes root `README.md`, `LICENSE`, and `package.json` as well.
+
+## Paths
+
+- Use the real project path in docs and examples (e.g. `/Users/amoss/parser-lr`), not placeholders like `/path/to/project`

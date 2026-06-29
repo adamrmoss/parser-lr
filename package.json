@@ -1,0 +1,51 @@
+{
+    "name": "parser-lr",
+    "author": "Adam R Moss <adamrmoss@gmail.com>",
+    "version": "0.0.0",
+    "description": "Shift-reduce parser library for EBNF grammars",
+    "license": "MIT",
+    "type": "module",
+    "sideEffects": false,
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "main": "./dist/lib/index.js",
+    "types": "./dist/lib/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/lib/index.d.ts",
+            "import": "./dist/lib/index.js"
+        }
+    },
+    "bin": {
+        "parser-lr": "./bin/parser-lr.js"
+    },
+    "files": [
+        "bin",
+        "dist"
+    ],
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
+    "scripts": {
+        "publish": "npm run build && npm publish",
+        "build": "npm run build:clean && npm run build:lib && npm run build:cli",
+        "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
+        "build:lib": "tsc -p tsconfig.lib.json",
+        "build:cli": "rollup -c rollup.cli.config.js",
+        "prepack": "npm run build"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "28.x",
+        "@rollup/plugin-json": "6.x",
+        "@rollup/plugin-node-resolve": "16.x",
+        "@rollup/plugin-typescript": "12.x",
+        "@types/node": "22.x",
+        "commander": "12.x",
+        "rollup": "4.x",
+        "tslib": "2.x",
+        "typescript": "5.x"
+    }
+}
