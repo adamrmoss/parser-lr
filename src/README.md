@@ -1,4 +1,4 @@
 # Source
 
-- `lib/` — library API (`tsc` → `dist/lib/`)
-- `cli/` — command-line tool (Rollup → `dist/cli/`)
+- `lib/` — library API (`tsc` → `dist/lib/`): `AstNode`, `EbnfGrammar`, `ParserLr`
+- `cli/` — command-line tool (Rollup → `bin/parser-lr.js`)
