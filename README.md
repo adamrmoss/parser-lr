@@ -11,3 +11,7 @@ Shift-reduce parser library for EBNF grammars. Build an LR parse table from a gr
 | `ParserLr` | Shift-reduce parser (table build and parse) |
 
 Source lives under `src/lib/`. See [`src/lib/README.md`](src/lib/README.md) for layout.
+
+```bash
+npm test
+```

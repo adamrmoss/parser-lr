@@ -34,17 +34,22 @@
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
         "build:lib": "tsc -p tsconfig.lib.json",
         "build:cli": "rollup -c rollup.cli.config.js",
+        "test": "jest",
         "prepack": "npm run build"
     },
     "dependencies": {},
     "devDependencies": {
+        "@jest/globals": "29.x",
         "@rollup/plugin-commonjs": "28.x",
         "@rollup/plugin-json": "6.x",
         "@rollup/plugin-node-resolve": "16.x",
         "@rollup/plugin-typescript": "12.x",
+        "@types/jest": "29.x",
         "@types/node": "22.x",
         "commander": "12.x",
+        "jest": "29.x",
         "rollup": "4.x",
+        "ts-jest": "29.x",
         "tslib": "2.x",
         "typescript": "5.x"
     }

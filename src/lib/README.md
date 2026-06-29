@@ -15,3 +15,5 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 
 - **`AstNode`** — tree node from parsing: symbol name, child subtrees, optional terminal lexeme text and source span.
 - **`EbnfGrammar`** — named EBNF productions with a start symbol; expression shapes live in the `EbnfExpression` union.
+
+Co-located tests: `*.test.ts` next to the module under test. Run `npm test` from the project root.
