@@ -1,0 +1,33 @@
+---
+description: parser-lr project identity, layout, and dependency conventions
+alwaysApply: true
+---
+
+# parser-lr
+
+Shift-reduce parser library for EBNF grammars. Builds parse tables and uses them to produce an AST.
+
+## Deliverables
+
+- **Library** — importable from Node and browser npm projects
+- **CLI** — Node command-line tool (`bin` entry)
+
+## Formatting
+
+- **Indentation** — 4 spaces everywhere (TypeScript, JSON, markdown, config). Never tabs.
+
+## Dependencies
+
+- Use **`x` semver wildcards** in `package.json` (e.g. `5.x`, `1.x`), not pinned patch/minor versions
+- Do not add runtime or dev dependencies without discussing with the user first
+
+## Layout
+
+- Organize by **domain concepts**, not technical layers (no `controllers/`, `views/`, `services/` folders)
+- Source lives under `src/`; public API via `src/index.ts`
+- CLI under `src/cli/`
+- Barrel `index.ts` files for directories with multiple related exports
+
+## Paths
+
+- Use the real project path in docs and examples (e.g. `/Users/amoss/parser-lr`), not placeholders like `/path/to/project`

@@ -1,0 +1,19 @@
+---
+description: Critical forbidden and required actions for every response
+alwaysApply: true
+---
+
+# Critical rules — verify before every response
+
+## Forbidden actions
+
+- Never assume work is complete without verification
+- Never create generic folders like `controllers/`, `views/`, `services/`
+- Follow **`comments.mdc`** for in-source comments and TSDoc; **`documentation.mdc`** for READMEs and `docs/`
+
+## Required actions
+
+- Always answer questions directly before taking action
+- Always verify changes by reading the actual file output
+- Always terminate JavaScript and TypeScript statements with semicolons; never omit optional semicolons (see **`typescript-style.mdc`**)
+- Always use 4-space indentation (see **`project.mdc`**)

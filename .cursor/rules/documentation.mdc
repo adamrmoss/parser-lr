@@ -1,0 +1,42 @@
+---
+description: Project documentation - READMEs and docs folder (not in-source comments)
+alwaysApply: true
+---
+
+# Project documentation
+
+This rule covers **markdown documentation files** beside or under `docs/`. It does **not** cover comments or TSDoc inside `.ts` files; those are in **`comments.mdc`**.
+
+## Punctuation (prose)
+
+- **Em dashes (—)**: use sparingly; when used, put spaces on both sides: ` word — word `
+- **Prefer** colon, comma, semicolon, or ellipsis (…) when they carry the pause clearly
+- **En dashes (–)** are for ranges only (pages 1–10), not as em-dash substitutes
+
+## Terminology
+
+| Term | Meaning | Rule |
+|------|---------|------|
+| **Project documentation** | READMEs, `docs/*.md`, guides | This file |
+| **In-source documentation** | `//` comments, TSDoc | `comments.mdc` |
+
+## The `docs/` directory
+
+Long-form and reference material lives under **`docs/`** when READMEs in `src/` are not enough.
+
+## Co-located READMEs
+
+Prefer a `README.md` in the same directory as the code it describes (`src/…`, relevant test areas). Update the nearest README when a change would confuse future readers.
+
+**Entrypoints:**
+
+- [`README.md`](README.md) — project overview
+- [`src/README.md`](src/README.md) — source tree orientation (create when `src/` grows)
+
+Do not create new markdown files unless the user asks or the change clearly needs a new doc home.
+
+## Before making changes
+
+1. Check for `README.md` in the directory you are working in
+2. If the topic is project-wide, check `docs/` for a relevant `.md` file
+3. Read relevant documentation to understand architecture and conventions

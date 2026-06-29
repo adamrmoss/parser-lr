@@ -1,0 +1,52 @@
+---
+description: TypeScript/JavaScript style, accessors, error handling, file endings
+globs: "**/*.{ts,tsx,js,mjs,cjs,jsx}"
+alwaysApply: false
+---
+
+# TypeScript and JavaScript code style
+
+In-source comments and TSDoc: see **`comments.mdc`**. READMEs and `docs/`: see **`documentation.mdc`**.
+
+- **Indentation** — 4 spaces; never tabs
+- **Semicolons** — terminate statements with semicolons; never rely on ASI or omit optional semicolons
+- **Function keyword spacing** — no space between `function` and `(`: `function foo()` and `function()`, not `function foo ()`
+- **Imports first** — all import statements at the top of the file, before any other code, unless there is a special reason (dynamic import, circular dependency workaround)
+- **Import paths** — use relative paths within `src/`; use `@/` alias for imports from project root `src/` when crossing major domains
+- **Import order** — group imports with a blank line between groups: (1) external packages, (2) `@/` path aliases, (3) relative (`./`, `../`). Alphabetize by module path within each group
+- **Prefer traditional object-oriented structures** — use classes with explicit access modifiers (`public`, `private`, `protected`) rather than object literals for namespaced logic
+- Prefer `switch` statements over `else-if` chains when checking the same variable
+- Use braces `{ }` for all control structures, even single-line blocks
+- **Explicit access** — all class properties and methods must have explicit access modifiers
+- **Trailing commas** — when list elements are written one per line, put a comma after the last item. Single-line lists may omit the trailing comma
+
+## Type safety and assertions
+
+- Prefer the type checker over escape hatches; do not use `as any` to silence errors.
+- When a cast is unavoidable, use a named target: discriminated unions, domain types, `satisfies`, `Extract<…>`, or `value as unknown as SpecificType` — never `as any`.
+- In tests, apply the same standard: narrowing, `Partial<T>` with `as unknown as T`, or small test-only interfaces instead of `any`.
+
+## Property syntax (accessors)
+
+- Prefer TypeScript `get` / `set` accessors over `getFoo()` / `setFoo()` when the member behaves like a property
+- **Pairing** — place getter and setter back-to-back when both exist
+- **Backing fields** — use `_name` only when backing a public property accessor of the same name; otherwise no leading underscore on fields
+- Keep ordinary methods when the operation is not a simple property (multiple parameters, async, imperative actions)
+
+## File endings
+
+- Files must end with exactly one newline character after the last content line
+- Do not include two blank lines at the end of files
+
+## Error handling
+
+- Prefer returning `null` over throwing or logging for recoverable/expected failures
+- Parsing methods should return `T | null` instead of throwing
+- Never use exceptions or `console.error`/`console.warn` for expected failure cases
+- **try/catch only for exceptional behaviour** — for expected conditions, check and return/set state; do not throw or log
+
+## Module organization and barrel files
+
+- Use barrel files (`index.ts`) for directories with 3+ related exports
+- Import from barrel files instead of deep individual file paths when a barrel exists
+- Do not export internal helpers from barrel files

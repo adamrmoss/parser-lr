@@ -1,0 +1,30 @@
+{
+    "name": "parser-lr",
+    "version": "0.0.0",
+    "description": "Shift-reduce parser library for EBNF grammars",
+    "license": "MIT",
+    "type": "module",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js"
+        }
+    },
+    "bin": {
+        "parser-lr": "./dist/cli/index.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "@types/node": "22.x",
+        "typescript": "5.x"
+    }
+}

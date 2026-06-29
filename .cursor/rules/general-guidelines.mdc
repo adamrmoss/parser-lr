@@ -1,0 +1,14 @@
+---
+description: Core project guidelines - answering, paths, changes, structure
+alwaysApply: true
+---
+
+# General Guidelines
+
+- Always answer questions directly first
+- Solutions are divided by layers into projects. Projects are subdivided semantically, in domain space. We never create folders like controllers/, views/, services/, etc.
+- Only add comments for the purpose of documenting the codebase, not for conveying information to the developer (that's what the chat is for). Comments should ALWAYS go on their own line, never inline
+- Within methods, add brief comments as "section headers" before each logical block of code to describe what that block does
+- Method comments should be action-oriented, starting with verbs (e.g., "Verify the signature", "Compute the hash", "Parse the production")
+- Comments mark the logical flow/steps within a method, making it easy to scan and understand the sequence of operations
+- Every distinct logical operation (validation, computation, I/O, branching) should have a brief comment preceding it
