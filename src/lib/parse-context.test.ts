@@ -80,6 +80,23 @@ grammar
         expect(context.table.grammarName).toBe('calc');
     });
 
+    it('delegates chunk lexing and parsing to the parser', async () =>
+    {
+        const context = ParseContext.fromGrammar(calcGrammarSource, 'lr1');
+
+        expect(context.createLexer().lex('1')).toHaveLength(2);
+        expect(context.lexChunkStream(['1', '2'])).toEqual(context.lex('12'));
+        expect([...context.lexChunks(['3'])]).toEqual(context.lex('3'));
+
+        async function* chunks(): AsyncGenerator<string>
+        {
+            yield '4';
+        }
+
+        expect(await context.lexChunkStreamAsync(chunks())).toEqual(context.lex('4'));
+        expect(context.parse(context.lex('7'))?.symbol).toBe('expr');
+    });
+
     it('throws ParseContextError when neither grammar nor table is supplied', () =>
     {
         expect(() => ParseContext.fromSources({})).toThrow(ParseContextError);

@@ -1,0 +1,42 @@
+---
+description: Jest tests — quiet expected errors, coverage helpers
+globs: "**/*.test.ts"
+alwaysApply: false
+---
+
+# Testing
+
+## Expected errors must stay off the console
+
+Passing tests must not print expected failures to the terminal. When code under test throws, rejects, or otherwise reports an expected error via **stderr** or **`console.error`**, suppress or capture that output for the duration of the test.
+
+Use helpers from [`src/test/suppress-expected-error-output.ts`](src/test/suppress-expected-error-output.ts):
+
+- **`withSuppressedErrorOutput`** — discard stderr / `console.error` while running the callback (sync or async).
+- **`withCapturedErrorOutput`** — capture stderr / `console.error` when the test must assert on warning or error text.
+
+```typescript
+// ✅ GOOD — expected CLI failure, no console noise
+await withSuppressedErrorOutput(async () =>
+{
+    await runProgram(['node', 'parser-lr', 'table', 'generate', '-g', missingPath]);
+    expect(process.exitCode).toBe(1);
+});
+
+// ✅ GOOD — expected warnings still asserted, not printed
+const { output } = await withCapturedErrorOutput(async () =>
+{
+    await createProgram().parseAsync([/* table generate … */]);
+});
+expect(output).toContain('shift/reduce conflict');
+
+// ❌ BAD — passing test leaves ENOENT / formatUserError on stderr
+await runProgram(['node', 'parser-lr', 'table', 'generate', '-g', missingPath]);
+expect(process.exitCode).toBe(1);
+```
+
+Wrap **`expect(() => …).toThrow(…)`** in `withSuppressedErrorOutput` when the callee may log before throwing (CLI, `runProgram`, similar error formatters).
+
+Conflict **warnings** that are part of a successful build are not exceptions; capture them with **`withCapturedErrorOutput`** when asserting on the text.
+
+Do not globally disable Jest console reporting; scope suppression to the test or block that expects the error.
