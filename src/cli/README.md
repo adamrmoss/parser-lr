@@ -30,4 +30,4 @@ Parse a source file using a grammar or a saved parse table.
 | `-o, --output <path>` | no | Write output (default: stdout) |
 | `--format <name>` | no | Output format (default: `json`) |
 
-Until shift-reduce parsing is wired, `parse` outputs the lexed token stream as JSON.
+Output is a JSON object `{ "ast": … }` with the concrete syntax tree, or `{ "ast": null }` on syntax error.

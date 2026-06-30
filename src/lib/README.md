@@ -8,12 +8,13 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 |------|------|
 | `index.ts` | Public exports |
 | `parser-lr.ts` | `ParserLr` shift-reduce parser |
+| `shift-reduce/` | Table-driven shift-reduce interpreter |
 | `parse-context.ts` | `ParseContext` — load parser + table from grammar or JSON |
 | `parse-output.ts` | Format parse results for interchange |
 | `ast/ast-node.ts` | `AstNode` parse tree nodes |
 | `grammar/` | `.grammar` file model, `readGrammar`, bootstrap table — see below |
 | `lexer/` | Stream tokenizer (`Lexer`, `Token`, `$eof`) driven by grammar `tokens` / `skip` / `states` |
-| `parse-table/` | Serializable LR table metadata (`ParseTable`, token inventory) and table construction (`bnf/`, `analysis/`, `lr0/`) |
+| `parse-table/` | Serializable LR table metadata (`ParseTable`, token inventory) and table construction (`bnf/`, `analysis/`, `lr0/`, `lr1/`, `slr/`, `table/`, `build-lr-table.ts`) |
 
 ### `grammar/`
 

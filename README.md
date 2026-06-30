@@ -37,7 +37,7 @@ Grammar files are lexed with a bootstrapped table checked in at `src/lib/grammar
 npm run bootstrap
 ```
 
-The hand-written `readGrammar` parser still builds the `Grammar` model until LR shift-reduce parsing is wired.
+The hand-written `readGrammar` parser still builds the `Grammar` model used to bootstrap table generation.
 
 ## CLI
 
@@ -46,4 +46,4 @@ parser-lr table generate -g grammars/lisp.grammar -o table.json
 parser-lr parse -i source.txt -g grammars/lisp.grammar
 ```
 
-Until shift-reduce parsing is wired, `parse` outputs the lexed token stream as JSON.
+The `parse` command outputs a concrete syntax tree as JSON (`{ "ast": … }`).
