@@ -5,7 +5,7 @@ import type { Production } from '../../grammar/production.js';
 import { BnfGrammar } from './bnf-grammar.js';
 import type { BnfProduction } from './bnf-production.js';
 import type { BnfNonTerminalSymbol, BnfSymbol, BnfTokenSymbol } from './bnf-symbol.js';
-import { tokenInventory } from '../parse-table.js';
+import { tokenInventory } from '../token-inventory.js';
 
 /**
  * One right-hand side alternative produced while expanding EBNF.

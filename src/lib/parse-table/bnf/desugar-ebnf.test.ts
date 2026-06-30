@@ -170,9 +170,9 @@ describe('desugarEbnf', () =>
 
         const listProduction = bnf.productionsFor('list')[0];
         expect(listProduction?.rhs.map((symbol) => bnfSymbolKey(symbol))).toEqual([
-            'lpar',
+            '[open]:lpar',
             expect.stringMatching(/^list\$repeat_/),
-            'rpar',
+            '[close]:rpar',
         ]);
     });
 });

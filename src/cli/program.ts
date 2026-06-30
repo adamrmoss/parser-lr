@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import packageDefinition from '../../package.json' with { type: 'json' };
 
-import { formatUserError } from '../../lib/index.js';
+import { formatUserError } from '../lib/index.js';
 
 import { registerParseCommand, registerTableCommands } from './commands/index.js';
 

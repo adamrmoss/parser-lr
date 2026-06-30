@@ -332,7 +332,7 @@ export class CstTransformer
             }
 
             items.push(head);
-            current = this.transformReference(current, expression.tail);
+            current = this.resolveReferenceNode(current, expression.tail);
         }
 
         return AstNode.rule(

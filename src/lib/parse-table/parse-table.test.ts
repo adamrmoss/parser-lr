@@ -3,7 +3,8 @@ import { describe, expect, it } from '@jest/globals';
 import { Grammar } from '../grammar/grammar.js';
 
 import { ParseTableError } from './parse-table-error.js';
-import { ParseTable, tokenInventory } from './parse-table.js';
+import { ParseTable } from './parse-table.js';
+import { tokenInventory } from './token-inventory.js';
 
 describe('ParseTable', () =>
 {

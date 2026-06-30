@@ -143,7 +143,7 @@ oops
     it('reports unsupported parse table versions with ParseTableError', () =>
     {
         expect(() => ParseTable.fromJson({
-            version: 99,
+            version: 99 as unknown as 1,
             algorithm: 'lr1',
             grammarName: 'x',
             startSymbol: 'S',

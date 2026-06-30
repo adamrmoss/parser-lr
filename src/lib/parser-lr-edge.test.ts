@@ -1,6 +1,5 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { AstNode } from './ast/ast-node.js';
 import { readGrammar } from './grammar/read-grammar.js';
 import { eofToken } from './lexer/token.js';
 import { ParseTable } from './parse-table/parse-table.js';
@@ -64,7 +63,7 @@ grammar
         const parser = new ParserLr(grammar, table);
         const tokens = [
             { name: 'plus', text: '+', location: { offset: 0, length: 1 } },
-            eofToken({ offset: 1, length: 0 }),
+            eofToken(1),
         ];
 
         expect(() => parser.parse(tokens)).not.toThrow();

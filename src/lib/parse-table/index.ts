@@ -26,5 +26,6 @@ export {
     LrParseTable,
 } from './table/index.js';
 export type { ParseAction, ParseConflict } from './table/index.js';
-export { PARSE_TABLE_VERSION, PARSE_TABLE_VERSION_FULL, ParseTable, tokenInventory } from './parse-table.js';
+export { tokenInventory } from './token-inventory.js';
+export { PARSE_TABLE_VERSION, PARSE_TABLE_VERSION_FULL, ParseTable } from './parse-table.js';
 export type { ParseTableJson } from './parse-table.js';
