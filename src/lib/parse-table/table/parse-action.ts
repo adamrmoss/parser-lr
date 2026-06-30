@@ -20,7 +20,7 @@ export type ParseAction =
 export type ParseConflictKind = 'shift-reduce' | 'reduce-reduce';
 
 /**
- * Records an unresolved shift/reduce or reduce/reduce conflict.
+ * Records a shift/reduce or reduce/reduce conflict and how it was resolved.
  */
 export interface ParseConflict
 {
@@ -29,6 +29,8 @@ export interface ParseConflict
     readonly symbol: string;
     readonly existing: ParseAction;
     readonly incoming: ParseAction;
+    /** Action kept in the table after conflict resolution. */
+    readonly resolution: 'shift' | 'reduce';
 }
 
 /**

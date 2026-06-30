@@ -34,6 +34,12 @@ export function registerTableCommands(program: Command): void
             });
             const json = context.table.toJsonString();
 
+            // Write conflict warnings to stderr after table generation.
+            for (const warning of context.table.formatConflictWarnings())
+            {
+                process.stderr.write(`${warning}\n`);
+            }
+
             // Write JSON to disk or stdout.
             if (options.output !== undefined)
             {

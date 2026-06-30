@@ -75,7 +75,7 @@ export class TableBuilderBase
      * @param gotoTargets - Precomputed GOTO target indices.
      * @param stateActions - ACTION map for the state.
      * @param stateGotos - GOTO map for the state.
-     * @param conflicts - Conflict list to append to when actions disagree.
+     * @param conflicts - Resolved conflict list to append to when actions disagree.
      */
     public static fillShiftsAndGotos(
         grammar: BnfGrammar,
@@ -135,7 +135,7 @@ export class TableBuilderBase
      * @param state - Parser state index.
      * @param productionName - Left-hand side of the completed production.
      * @param stateActions - ACTION map for the state.
-     * @param conflicts - Conflict list to append to when actions disagree.
+     * @param conflicts - Resolved conflict list to append to when actions disagree.
      */
     public static setAcceptAction(
         state: number,
@@ -170,10 +170,10 @@ export class TableBuilderBase
     }
 
     /**
-     * Inserts one ACTION entry, recording a conflict when the slot is already occupied.
+     * Inserts one ACTION entry, resolving shift/reduce and reduce/reduce conflicts.
      *
      * @param stateActions - ACTION map for the current state.
-     * @param conflicts - Conflict list to append to when actions disagree.
+     * @param conflicts - Resolved conflict list to append to when actions disagree.
      * @param state - Parser state index.
      * @param symbol - Encoded terminal or `$eof` key.
      * @param incoming - Candidate parse action.
@@ -194,18 +194,37 @@ export class TableBuilderBase
             return;
         }
 
-        // Identical re-insertions are ignored; disagreeing actions become conflicts.
+        // Identical re-insertions are ignored; disagreeing actions are resolved by conflict kind.
         if (parseActionsEqual(existing, incoming))
         {
             return;
         }
 
+        const conflictKind = classifyParseConflict(existing, incoming);
+
+        if (conflictKind === 'shift-reduce')
+        {
+            const shiftAction = existing.kind === 'shift' ? existing : incoming;
+            stateActions.set(symbol, shiftAction);
+            conflicts.push({
+                kind: 'shift-reduce',
+                state,
+                symbol,
+                existing,
+                incoming,
+                resolution: 'shift',
+            });
+            return;
+        }
+
+        // Reduce/reduce: keep the first reduce action already in the table.
         conflicts.push({
-            kind: classifyParseConflict(existing, incoming),
+            kind: 'reduce-reduce',
             state,
             symbol,
             existing,
             incoming,
+            resolution: 'reduce',
         });
     }
 

@@ -4,7 +4,6 @@ import type { TokenRule } from '../grammar/token-rule.js';
 import { desugarEbnf } from './bnf/desugar-ebnf.js';
 import { buildLrTable } from './build-lr-table.js';
 import type { LrAlgorithm } from './lr-algorithm.js';
-import { ParseTableBuildError } from './parse-table-build-error.js';
 import { ParseTableError } from './parse-table-error.js';
 import {
     isParseTableJsonV2,
@@ -15,10 +14,10 @@ import {
 } from './parse-table-json.js';
 import {
     encodeProductionRhs,
-    formatLrConflicts,
+    formatParseConflictWarning,
     type LrParseTable,
 } from './table/lr-parse-table.js';
-import type { ParseAction } from './table/parse-action.js';
+import type { ParseAction, ParseConflict } from './table/parse-action.js';
 import { tokenInventory } from './token-inventory.js';
 
 /** Current on-disk JSON schema version for lexer-only parse tables. */
@@ -69,6 +68,7 @@ export class ParseTable
      * @param productions - Flat BNF production metadata for reduce actions.
      * @param actions - ACTION entries keyed by state and terminal symbol.
      * @param gotos - GOTO entries keyed by state and non-terminal name.
+     * @param conflicts - Shift/reduce and reduce/reduce conflicts resolved during construction.
      */
     public constructor(
         public readonly grammarName: string,
@@ -82,6 +82,7 @@ export class ParseTable
         productions: readonly ParseTableProductionJson[] = [],
         actions: ReadonlyMap<number, ReadonlyMap<string, ParseAction>> = new Map(),
         gotos: ReadonlyMap<number, ReadonlyMap<string, number>> = new Map(),
+        public readonly conflicts: readonly ParseConflict[] = [],
     )
     {
         this.actionByState = actions;
@@ -106,6 +107,22 @@ export class ParseTable
     }
 
     /**
+     * Whether the table was built without conflicts.
+     */
+    public get isConflictFree(): boolean
+    {
+        return this.conflicts.length === 0;
+    }
+
+    /**
+     * Returns conflict warning lines for this table.
+     */
+    public formatConflictWarnings(): readonly string[]
+    {
+        return this.conflicts.map((conflict) => formatParseConflictWarning(conflict));
+    }
+
+    /**
      * Builds a parse table from a parsed grammar.
      *
      * @param grammar - Parsed `.grammar` file model.
@@ -119,11 +136,6 @@ export class ParseTable
     {
         const bnf = desugarEbnf(grammar);
         const lrTable = buildLrTable(bnf, algorithm);
-
-        if (!lrTable.isConflictFree)
-        {
-            throw new ParseTableBuildError(algorithm, formatLrConflicts(lrTable));
-        }
 
         return ParseTable.fromLrParseTable(grammar, lrTable);
     }
@@ -298,7 +310,7 @@ export class ParseTable
      * Creates a {@link ParseTable} from a built LR table and source grammar.
      *
      * @param grammar - Parsed `.grammar` file model.
-     * @param lrTable - Conflict-free LR parse table.
+     * @param lrTable - Built LR parse table, including any resolved conflict warnings.
      */
     private static fromLrParseTable(grammar: Grammar, lrTable: LrParseTable): ParseTable
     {
@@ -322,6 +334,7 @@ export class ParseTable
             productions,
             lrTable.actions,
             lrTable.gotos,
+            [...lrTable.conflicts],
         );
     }
 

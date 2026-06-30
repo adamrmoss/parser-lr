@@ -153,12 +153,26 @@ describe('classic grammars — LR table construction', () =>
         expect(buildLrTable(grammar, 'slr').isConflictFree).toBe(true);
     });
 
-    it('reports shift-reduce conflicts for the dangling-else grammar', () =>
+    it('warns on dangling else under SLR, LR(1), and LALR with shift resolution', () =>
     {
         const grammar = danglingElseGrammar();
 
-        expect(buildLrTable(grammar, 'slr').isConflictFree).toBe(false);
-        expect(buildLrTable(grammar, 'lr1').isConflictFree).toBe(false);
+        const slr = buildLrTable(grammar, 'slr');
+        const lr1 = buildLrTable(grammar, 'lr1');
+        const lalr = buildLrTable(grammar, 'lalr');
+
+        expect(slr.isConflictFree).toBe(false);
+        expect(lr1.isConflictFree).toBe(false);
+        expect(lalr.isConflictFree).toBe(false);
+
+        for (const table of [slr, lr1, lalr])
+        {
+            const elseConflicts = table.conflicts.filter(
+                (conflict) => conflict.kind === 'shift-reduce' && conflict.symbol === '"else"',
+            );
+            expect(elseConflicts.length).toBeGreaterThan(0);
+            expect(elseConflicts.every((conflict) => conflict.resolution === 'shift')).toBe(true);
+        }
     });
 
     it('builds conflict-free tables for nested parentheses', () =>
@@ -304,5 +318,41 @@ grammar
         const tokens = ParseContext.fromGrammar(PRECEDENCE_GRAMMAR, 'lr1').lex('x + y');
 
         expect(parseWithTable(table, tokens)?.symbol).toBe('expr');
+    });
+
+    const DANGLING_ELSE_GRAMMAR = `
+name "ifelse" ;
+
+tokens
+    if = /if/ ;
+    then = /then/ ;
+    else = /else/ ;
+    id = /[a-zA-Z]+/ ;
+
+skip
+    whitespace = /[ \\t\\n]+/ ;
+
+start s ;
+
+grammar
+    s =
+        if id then s
+      | if id then s else s
+      | id
+    ;
+`;
+
+    it('parses nested if-then-else with else bound to the inner if', () =>
+    {
+        const context = ParseContext.fromGrammar(DANGLING_ELSE_GRAMMAR, 'lr1');
+        const tree = context.parser.parseCst(context.lex('if x then if y then a else b'));
+
+        expect(tree).not.toBeNull();
+        expect(tree?.productionId).toBe(0);
+        expect(tree?.children).toHaveLength(4);
+        expect(tree?.children[3]?.symbol).toBe('s');
+        expect(tree?.children[3]?.productionId).toBe(1);
+        expect(tree?.children[3]?.children[3]?.children[0]?.text).toBe('a');
+        expect(tree?.children[3]?.children[5]?.children[0]?.text).toBe('b');
     });
 });

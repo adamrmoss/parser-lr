@@ -4,7 +4,6 @@ import { join } from 'node:path';
 
 import { ParseContext } from './parse-context.js';
 import { readGrammar } from './grammar/read-grammar.js';
-import { ParseTableBuildError } from './parse-table/parse-table-build-error.js';
 import { ParseTable } from './parse-table/parse-table.js';
 import { parseWithTable, parseWithTableResult } from './shift-reduce/shift-reduce-engine.js';
 import { transformCst } from './transform/cst-transformer.js';
@@ -49,9 +48,12 @@ describe('parser stress — sample grammars across LR algorithms', () =>
 
             if (!conflictFree.includes('lr0'))
             {
-                it('reports LR(0) shift-reduce conflicts', () =>
+                it('reports LR(0) shift-reduce conflicts as warnings', () =>
                 {
-                    expect(() => ParseTable.fromGrammar(grammar, 'lr0')).toThrow(ParseTableBuildError);
+                    const table = ParseTable.fromGrammar(grammar, 'lr0');
+
+                    expect(table.isConflictFree).toBe(false);
+                    expect(table.conflicts.length).toBeGreaterThan(0);
                 });
             }
 
@@ -276,7 +278,11 @@ grammar
     ;
 `;
 
-        expect(() => ParseContext.fromGrammar(grammarSource, 'lr1')).toThrow(ParseTableBuildError);
+        const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+
+        expect(context.table.isConflictFree).toBe(false);
+        expect(context.table.conflicts.some((conflict) => conflict.kind === 'reduce-reduce')).toBe(true);
+        expect(context.table.formatConflictWarnings().length).toBeGreaterThan(0);
     });
 });
 

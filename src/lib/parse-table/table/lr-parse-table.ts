@@ -20,7 +20,7 @@ export class LrParseTable
      * @param stateCount - Number of parser states in the item set collection.
      * @param actions - ACTION entries keyed by state and terminal symbol.
      * @param gotos - GOTO entries keyed by state and non-terminal name.
-     * @param conflicts - Shift/reduce and reduce/reduce conflicts encountered while building.
+     * @param conflicts - Shift/reduce and reduce/reduce conflicts resolved during construction.
      */
     public constructor(
         public readonly algorithm: LrAlgorithm,
@@ -35,7 +35,7 @@ export class LrParseTable
     }
 
     /**
-     * Whether the table has no unresolved conflicts.
+     * Whether the table was built without conflicts.
      */
     public get isConflictFree(): boolean
     {
@@ -115,7 +115,54 @@ export function formatLrConflicts(table: LrParseTable): readonly string[]
     return table.conflicts.map((conflict) =>
         `${String(conflict.state)}/${conflict.symbol} `
         + `${formatParseAction(conflict.existing)} vs ${formatParseAction(conflict.incoming)} `
-        + `(${conflict.kind})`);
+        + `(${conflict.kind}, resolved as ${conflict.resolution})`);
+}
+
+/**
+ * Returns conflict warning lines for a built parse table.
+ *
+ * @param table - LR parse table to format.
+ */
+export function formatLrConflictWarnings(table: LrParseTable): readonly string[]
+{
+    return table.conflicts.map((conflict) => formatParseConflictWarning(conflict));
+}
+
+/**
+ * Formats one resolved conflict as a warning line.
+ *
+ * @param conflict - Resolved shift/reduce or reduce/reduce conflict.
+ */
+export function formatParseConflictWarning(conflict: ParseConflict): string
+{
+    const tokenLabel = formatConflictTokenLabel(conflict.symbol);
+
+    if (conflict.kind === 'shift-reduce')
+    {
+        return `state ${String(conflict.state)}: shift/reduce conflict on ${tokenLabel} resolved as shift`;
+    }
+
+    const keptProduction = conflict.existing.kind === 'reduce'
+        ? conflict.existing.productionId
+        : (conflict.incoming as Extract<typeof conflict.incoming, { kind: 'reduce' }>).productionId;
+
+    return `state ${String(conflict.state)}: reduce/reduce conflict on ${tokenLabel} `
+        + `resolved using rule ${String(keptProduction)}`;
+}
+
+/**
+ * Returns a readable terminal label for conflict warning text.
+ *
+ * @param symbol - Encoded terminal or `$eof` key from the ACTION table.
+ */
+function formatConflictTokenLabel(symbol: string): string
+{
+    if (symbol === '$eof')
+    {
+        return 'token $eof';
+    }
+
+    return `token ${symbol}`;
 }
 
 /**
