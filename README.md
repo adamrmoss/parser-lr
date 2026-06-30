@@ -2,6 +2,14 @@
 
 Shift-reduce parser library for EBNF grammars. Build an LR parse table from a grammar, then parse source into an AST.
 
+## Layout
+
+| Path | Role |
+|------|------|
+| `grammars/` | EBNF grammar specs (`grammar.grammar` meta-grammar, plus sample grammars) |
+| `src/lib/` | Library API (Node and browser) — see [`src/lib/README.md`](src/lib/README.md) |
+| `src/cli/` | Node CLI — see [`src/cli/README.md`](src/cli/README.md) |
+
 ## Library API
 
 | Type | Purpose |
@@ -14,8 +22,28 @@ Shift-reduce parser library for EBNF grammars. Build an LR parse table from a gr
 | `ParseTable` | Serializable LR table metadata with token inventory |
 | `ParserLr` | Shift-reduce parser (table build and parse) |
 
-Source lives under `src/lib/`. See [`src/lib/README.md`](src/lib/README.md) for layout.
+## Build and test
 
 ```bash
+npm run build    # tsc → dist/lib/, Rollup → bin/parser-lr.js
 npm test
 ```
+
+## Bootstrap
+
+Grammar files are lexed with a bootstrapped table checked in at `src/lib/grammar/grammar.json`. Regenerate it after changing `grammars/grammar.grammar`:
+
+```bash
+npm run bootstrap
+```
+
+The hand-written `readGrammar` parser still builds the `Grammar` model until LR shift-reduce parsing is wired.
+
+## CLI
+
+```bash
+parser-lr table generate -g grammars/lisp.grammar -o table.json
+parser-lr parse -i source.txt -g grammars/lisp.grammar
+```
+
+Until shift-reduce parsing is wired, `parse` outputs the lexed token stream as JSON.
