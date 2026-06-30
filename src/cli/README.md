@@ -1,33 +1,25 @@
-# CLI (`src/cli`)
+# CLI
 
-Node-only command-line tool. Rollup bundles to `bin/parser-lr.js` (npm `bin` entry).
+Node command-line tool (`parser-lr`). Bundled to `bin/parser-lr.js`.
 
-This layer is **orchestration only**: read files, call `src/lib`, write results. Parsing, lexing, table building, and output formatting live in the library.
+User-facing install, table generation, and parse workflows are documented in the [project README](../../README.md). Grammar syntax: [`docs/grammar.md`](../../docs/grammar.md).
 
-## Commands
-
-### `parser-lr table generate`
-
-Build a parse table from an EBNF grammar and write JSON to disk.
+## `table generate`
 
 | Option | Required | Description |
 |--------|----------|-------------|
-| `-g, --grammar <path>` | yes | EBNF grammar file |
+| `-g, --grammar <path>` | yes | `.grammar` file |
 | `-o, --output <path>` | no | Write table JSON (default: stdout) |
 | `-a, --algorithm <name>` | no | `lr0`, `slr`, `lalr`, or `lr1` (default: `lr1`) |
 
-Saved tables include the full token inventory plus lexer `tokenRules` and `skipRules`, so `parse -t` can run without the grammar file.
-
-### `parser-lr parse`
-
-Parse a source file using a grammar or a saved parse table.
+## `parse`
 
 | Option | Required | Description |
 |--------|----------|-------------|
 | `-i, --input <path>` | yes | Source file to parse |
-| `-g, --grammar <path>` | one of grammar/table | Build a table in memory from a grammar file |
-| `-t, --table <path>` | one of grammar/table | Load a serialized parse table JSON file |
+| `-g, --grammar <path>` | one of grammar/table | Build table from grammar |
+| `-t, --table <path>` | one of grammar/table | Load serialized table JSON |
 | `-o, --output <path>` | no | Write output (default: stdout) |
 | `--format <name>` | no | Output format (default: `json`) |
 
-Until shift-reduce parsing is wired, `parse` outputs the lexed token stream as JSON.
+Output: `{ "ast": … }` or `{ "ast": null }` on syntax error.

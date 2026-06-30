@@ -2,6 +2,8 @@ import { Command } from 'commander';
 
 import packageDefinition from '../../package.json' with { type: 'json' };
 
+import { formatUserError } from '../lib/index.js';
+
 import { registerParseCommand, registerTableCommands } from './commands/index.js';
 
 /**
@@ -31,5 +33,13 @@ export async function runProgram(argv: string[] = process.argv): Promise<void>
 {
     const program = createProgram();
 
-    await program.parseAsync(argv);
+    try
+    {
+        await program.parseAsync(argv);
+    }
+    catch (error)
+    {
+        console.error(formatUserError(error));
+        process.exitCode = 1;
+    }
 }

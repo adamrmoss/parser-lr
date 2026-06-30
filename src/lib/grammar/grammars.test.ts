@@ -67,10 +67,11 @@ describe('grammars/', () =>
             expect(grammar.hasProduction('transform_rule')).toBe(true);
         });
 
-        it('omits optional ast and transform sections in the meta-grammar itself', () =>
+        it('defines ast and transform sections for the meta-grammar', () =>
         {
-            expect(grammar.astSchema).toBeNull();
-            expect(grammar.transformSchema).toBeNull();
+            expect(grammar.astSchema).not.toBeNull();
+            expect(grammar.transformSchema).not.toBeNull();
+            expect(grammar.transformSchema?.rule('grammar_file$repeat_0')).toBeDefined();
         });
     });
 
@@ -111,17 +112,21 @@ describe('grammars/', () =>
         {
             expect(grammar.production('program')?.expression).toEqual({
                 kind: 'repeat',
-                element: { kind: 'reference', name: 'form' },
+                element: {
+                    kind: 'boundReference',
+                    binding: 'item',
+                    name: 'form',
+                },
             });
             expect(grammar.production('form')?.expression).toEqual({
                 kind: 'choice',
                 alternatives: [
                     {
-                        label: null,
+                        label: 'list',
                         expression: { kind: 'reference', name: 'list' },
                     },
                     {
-                        label: null,
+                        label: 'atom',
                         expression: { kind: 'reference', name: 'atom' },
                     },
                 ],
@@ -129,31 +134,57 @@ describe('grammars/', () =>
             expect(grammar.production('list')?.expression).toEqual({
                 kind: 'sequence',
                 elements: [
-                    { kind: 'reference', name: 'lpar' },
+                    {
+                        kind: 'boundReference',
+                        binding: 'open',
+                        name: 'lpar',
+                    },
                     {
                         kind: 'repeat',
-                        element: { kind: 'reference', name: 'form' },
+                        element: {
+                            kind: 'boundReference',
+                            binding: 'element',
+                            name: 'form',
+                        },
                     },
-                    { kind: 'reference', name: 'rpar' },
+                    {
+                        kind: 'boundReference',
+                        binding: 'close',
+                        name: 'rpar',
+                    },
                 ],
             });
             expect(grammar.production('atom')?.expression).toEqual({
                 kind: 'choice',
                 alternatives: [
                     {
-                        label: null,
-                        expression: { kind: 'reference', name: 'number' },
+                        label: 'number',
+                        expression: {
+                            kind: 'boundReference',
+                            binding: 'value',
+                            name: 'number',
+                        },
                     },
                     {
-                        label: null,
-                        expression: { kind: 'reference', name: 'symbol' },
+                        label: 'symbol',
+                        expression: {
+                            kind: 'boundReference',
+                            binding: 'value',
+                            name: 'symbol',
+                        },
                     },
                     {
-                        label: null,
-                        expression: { kind: 'reference', name: 'string' },
+                        label: 'string',
+                        expression: {
+                            kind: 'boundReference',
+                            binding: 'value',
+                            name: 'string',
+                        },
                     },
                 ],
             });
+            expect(grammar.astSchema).not.toBeNull();
+            expect(grammar.transformSchema).not.toBeNull();
         });
     });
 
@@ -176,7 +207,9 @@ describe('grammars/', () =>
                 'hash',
                 'lpar',
                 'rpar',
-                'mnemonic',
+                'implied_op',
+                'branch_op',
+                'memory_op',
                 'identifier',
                 'hex_number',
                 'x_reg',
@@ -199,18 +232,31 @@ describe('grammars/', () =>
                         expression: {
                             kind: 'sequence',
                             elements: [
-                                { kind: 'reference', name: 'label' },
-                                { kind: 'reference', name: 'colon' },
                                 {
-                                    kind: 'optional',
-                                    element: { kind: 'reference', name: 'instruction' },
+                                    kind: 'boundReference',
+                                    binding: 'label',
+                                    name: 'label',
+                                },
+                                {
+                                    kind: 'boundReference',
+                                    binding: 'colon',
+                                    name: 'colon',
+                                },
+                                {
+                                    kind: 'boundReference',
+                                    binding: 'insn',
+                                    name: 'instruction',
                                 },
                             ],
                         },
                     },
                     {
                         label: 'code',
-                        expression: { kind: 'reference', name: 'instruction' },
+                        expression: {
+                            kind: 'boundReference',
+                            binding: 'insn',
+                            name: 'instruction',
+                        },
                     },
                 ],
             });
@@ -226,6 +272,8 @@ describe('grammars/', () =>
                 'indirect_x',
                 'relative',
             ]);
+            expect(grammar.astSchema).not.toBeNull();
+            expect(grammar.transformSchema).not.toBeNull();
         });
 
         it('defines immediate and relative instruction shapes', () =>
@@ -233,16 +281,36 @@ describe('grammars/', () =>
             expect(grammar.production('immediate')?.expression).toEqual({
                 kind: 'sequence',
                 elements: [
-                    { kind: 'reference', name: 'mnemonic' },
-                    { kind: 'reference', name: 'hash' },
-                    { kind: 'reference', name: 'hex_number' },
+                    {
+                        kind: 'boundReference',
+                        binding: 'op',
+                        name: 'memory_op',
+                    },
+                    {
+                        kind: 'boundReference',
+                        binding: 'hash',
+                        name: 'hash',
+                    },
+                    {
+                        kind: 'boundReference',
+                        binding: 'value',
+                        name: 'hex_number',
+                    },
                 ],
             });
             expect(grammar.production('relative')?.expression).toEqual({
                 kind: 'sequence',
                 elements: [
-                    { kind: 'reference', name: 'mnemonic' },
-                    { kind: 'reference', name: 'identifier' },
+                    {
+                        kind: 'boundReference',
+                        binding: 'op',
+                        name: 'branch_op',
+                    },
+                    {
+                        kind: 'boundReference',
+                        binding: 'target',
+                        name: 'identifier',
+                    },
                 ],
             });
         });

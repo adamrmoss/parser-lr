@@ -22,7 +22,9 @@ tokens
     lpar = /\(/ ;
     rpar = /\)/ ;
 
-    mnemonic = /[A-Z]{3}/ ;
+    implied_op = /INX|DEX|BRK|NOP/ ;
+    branch_op = /BNE|BEQ|BCS|BCC|JMP|JSR/ ;
+    memory_op = /LDA|STA|LDX|STX|LDY|STY|ADC|SBC|AND|ORA|EOR|CMP|CPX|CPY/ ;
     identifier = /[A-Za-z_][A-Za-z0-9_]*/ ;
     hex_number = /\$[0-9A-Fa-f]+/ ;
     x_reg = /[Xx]/ ;
@@ -36,23 +38,23 @@ start program ;
 
 grammar
     program =
-        { line }
+        { [line]:line }
     ;
 
     line =
         #directive directive
-      | #labeled label colon [ instruction ]
-      | #code instruction
+      | #labeled [label]:label [colon]:colon [insn]:instruction
+      | #code [insn]:instruction
     ;
 
     directive =
-        dot
-        identifier
-        hex_number
+        [dotTok]:dot
+        [sym]:identifier
+        [value]:hex_number
     ;
 
     label =
-        identifier
+        [sym]:identifier
     ;
 
     instruction =
@@ -66,44 +68,166 @@ grammar
     ;
 
     implied =
-        mnemonic
+        [op]:implied_op
     ;
 
     immediate =
-        mnemonic
-        hash
-        hex_number
+        [op]:memory_op
+        [hash]:hash
+        [value]:hex_number
     ;
 
     absolute =
-        mnemonic
-        hex_number
+        [op]:memory_op
+        [addr]:hex_number
     ;
 
     indexed_x =
-        mnemonic
-        hex_number
-        comma
-        x_reg
+        [op]:memory_op
+        [addr]:hex_number
+        [comma]:comma
+        [index]:x_reg
     ;
 
     indexed_y =
-        mnemonic
-        hex_number
-        comma
-        y_reg
+        [op]:memory_op
+        [addr]:hex_number
+        [comma]:comma
+        [index]:y_reg
     ;
 
     indirect_x =
-        mnemonic
-        lpar
-        hex_number
-        comma
-        x_reg
-        rpar
+        [op]:memory_op
+        [open]:lpar
+        [addr]:hex_number
+        [comma]:comma
+        [index]:x_reg
+        [close]:rpar
     ;
 
     relative =
-        mnemonic
-        identifier
+        [op]:branch_op
+        [target]:identifier
     ;
+
+ast
+    program =
+        { line }
+    ;
+
+    line =
+        #directive directive
+      | #labeled [label]:label [colon]:colon [insn]:instruction
+      | #code [insn]:instruction
+    ;
+
+    directive =
+        [dotTok]:dot
+        [sym]:identifier
+        [value]:hex_number
+    ;
+
+    label =
+        [sym]:identifier
+    ;
+
+    instruction =
+        #implied implied
+      | #immediate immediate
+      | #absolute absolute
+      | #indexed_x indexed_x
+      | #indexed_y indexed_y
+      | #indirect_x indirect_x
+      | #relative relative
+    ;
+
+    implied =
+        [op]:implied_op
+    ;
+
+    immediate =
+        [op]:memory_op
+        [hash]:hash
+        [value]:hex_number
+    ;
+
+    absolute =
+        [op]:memory_op
+        [addr]:hex_number
+    ;
+
+    indexed_x =
+        [op]:memory_op
+        [addr]:hex_number
+        [comma]:comma
+        [index]:x_reg
+    ;
+
+    indexed_y =
+        [op]:memory_op
+        [addr]:hex_number
+        [comma]:comma
+        [index]:y_reg
+    ;
+
+    indirect_x =
+        [op]:memory_op
+        [open]:lpar
+        [addr]:hex_number
+        [comma]:comma
+        [index]:x_reg
+        [close]:rpar
+    ;
+
+    relative =
+        [op]:branch_op
+        [target]:identifier
+    ;
+
+transform
+    program ->
+        #main pass(program$repeat_0) ;
+
+    program$repeat_0 ->
+        #main flatten(program.#program, line, program$repeat_0) ;
+
+    line ->
+        #directive line.#directive(directive)
+      | #labeled line.#labeled(label, colon, insn)
+      | #code line.#code(insn) ;
+
+    directive ->
+        #main directive.#directive(dotTok, sym, value) ;
+
+    label ->
+        #main pass(sym) ;
+
+    instruction ->
+        #implied pass(implied)
+      | #immediate pass(immediate)
+      | #absolute pass(absolute)
+      | #indexed_x pass(indexed_x)
+      | #indexed_y pass(indexed_y)
+      | #indirect_x pass(indirect_x)
+      | #relative pass(relative) ;
+
+    implied ->
+        #main instruction.#implied(op) ;
+
+    immediate ->
+        #main instruction.#immediate(op, hash, value) ;
+
+    absolute ->
+        #main instruction.#absolute(op, addr) ;
+
+    indexed_x ->
+        #main instruction.#indexed_x(op, addr, comma, index) ;
+
+    indexed_y ->
+        #main instruction.#indexed_y(op, addr, comma, index) ;
+
+    indirect_x ->
+        #main instruction.#indirect_x(op, open, addr, comma, index, close) ;
+
+    relative ->
+        #main instruction.#relative(op, target) ;

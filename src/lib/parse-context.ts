@@ -1,3 +1,5 @@
+import type { AstNode } from './ast/ast-node.js';
+import { ParseContextError } from './parse-context-error.js';
 import { readGrammar } from './grammar/read-grammar.js';
 import type { Lexer } from './lexer/lexer.js';
 import type { Token } from './lexer/token.js';
@@ -37,9 +39,10 @@ export class ParseContext
     ): ParseContext
     {
         const grammar = readGrammar(source);
-        const parser = new ParserLr(grammar);
+        const table = ParseTable.fromGrammar(grammar, algorithm);
+        const parser = new ParserLr(grammar, table);
 
-        return new ParseContext(parser, parser.buildParseTable(algorithm));
+        return new ParseContext(parser, table);
     }
 
     /**
@@ -77,7 +80,7 @@ export class ParseContext
             return ParseContext.fromTableJson(options.tableJson);
         }
 
-        throw new Error('required: grammar source or table JSON');
+        throw new ParseContextError('required: grammar source or table JSON');
     }
 
     /**
@@ -143,6 +146,28 @@ export class ParseContext
     public async lexChunkStreamAsync(chunks: AsyncIterable<string>): Promise<readonly Token[]>
     {
         return this.parser.lexChunkStreamAsync(chunks);
+    }
+
+    /**
+     * Parses a token stream into a concrete syntax tree.
+     *
+     * @param tokens - Token stream ending with `$eof`.
+     * @returns Parse tree rooted at the grammar start symbol, or null on syntax error.
+     */
+    public parse(tokens: readonly Token[]): AstNode | null
+    {
+        return this.parser.parse(tokens);
+    }
+
+    /**
+     * Lexes and parses source text into a concrete syntax tree.
+     *
+     * @param source - Input text to parse.
+     * @returns Parse tree rooted at the grammar start symbol, or null on syntax error.
+     */
+    public parseSource(source: string): AstNode | null
+    {
+        return this.parser.parseSource(source);
     }
 }
 

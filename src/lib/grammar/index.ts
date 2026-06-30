@@ -13,6 +13,7 @@ export type {
     TerminalExpression,
 } from './expression.js';
 export { Grammar } from './grammar.js';
+export { grammarFromCst } from './grammar-from-cst.js';
 export { readGrammar } from './read-grammar.js';
 export { ReadGrammarError } from './read-grammar-error.js';
 export type { Production } from './production.js';

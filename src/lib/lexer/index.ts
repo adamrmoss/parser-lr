@@ -1,4 +1,6 @@
 export { LexerCompileError } from './lexer-compile-error.js';
+export { LexerInputError } from './lexer-input-error.js';
+export { LexerStateError } from './lexer-state-error.js';
 export {
     DEFAULT_LEXER_STATE,
     compileLexerRules,

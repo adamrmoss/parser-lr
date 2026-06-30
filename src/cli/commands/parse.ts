@@ -32,7 +32,8 @@ export function registerParseCommand(program: Command): void
 
             const context = await loadContextFromPaths(options);
             const tokens = await context.lexChunkStreamAsync(readTextChunks(options.input));
-            const output = formatParseOutput(tokens, options.format);
+            const tree = context.parse(tokens);
+            const output = formatParseOutput(tree, options.format);
 
             // Write output to disk or stdout.
             if (options.output !== undefined)

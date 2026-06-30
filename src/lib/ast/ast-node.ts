@@ -24,6 +24,8 @@ export class AstNode
      * @param text - Lexeme or literal text for leaves; null for interior nodes.
      * @param location - Optional source span.
      * @param variant - `#` alternative label when present.
+     * @param productionId - Parse table production id for CST nodes, or null after transform.
+     * @param origin - Source production or synthetic construct name for CST nodes.
      */
     public constructor(
         public readonly symbol: string,
@@ -31,6 +33,8 @@ export class AstNode
         public readonly text: string | null = null,
         public readonly location: SourceLocation | null = null,
         public readonly variant: string | null = null,
+        public readonly productionId: number | null = null,
+        public readonly origin: string | null = null,
     )
     {
     }
@@ -50,15 +54,19 @@ export class AstNode
      * @param children - Reduced child subtrees.
      * @param location - Optional source span covering the full production.
      * @param variant - `#` alternative label when present.
+     * @param productionId - Parse table production id for CST nodes.
+     * @param origin - Source production or synthetic construct name for CST nodes.
      */
     public static rule(
         symbol: string,
         children: readonly AstNode[],
         location: SourceLocation | null = null,
         variant: string | null = null,
+        productionId: number | null = null,
+        origin: string | null = null,
     ): AstNode
     {
-        return new AstNode(symbol, children, null, location, variant);
+        return new AstNode(symbol, children, null, location, variant, productionId, origin);
     }
 
     /**

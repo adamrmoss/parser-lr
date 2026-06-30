@@ -48,10 +48,10 @@ describe('Lexer with grammars/', () =>
         expect(tokens.map((value) => value.name)).toEqual([
             'identifier',
             'colon',
-            'mnemonic',
+            'memory_op',
             'hash',
             'hex_number',
-            'mnemonic',
+            'implied_op',
             EOF_TOKEN_NAME,
         ]);
         expect(tokens[0]?.text).toBe('start');

@@ -1,30 +1,44 @@
-# Library (`src/lib`)
+# Library API
 
-Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundled ESM for consumer tree-shaking.
+Browser- and Node-safe ESM (`import from 'parser-lr'`). Built to `dist/lib/` on `npm run build`.
 
-## Layout
+## Quick start
 
-| Path | Role |
+```typescript
+import { ParseContext } from 'parser-lr';
+
+const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+const ast = context.parseSource(sourceText);
+```
+
+Load a serialized table instead:
+
+```typescript
+const context = ParseContext.fromTableJson(tableJson);
+const ast = context.parse(tokens);
+```
+
+## Main types
+
+| Type | Role |
 |------|------|
-| `index.ts` | Public exports |
-| `parser-lr.ts` | `ParserLr` shift-reduce parser |
-| `parse-context.ts` | `ParseContext` — load parser + table from grammar or JSON |
-| `parse-output.ts` | Format parse results for interchange |
-| `ast/ast-node.ts` | `AstNode` parse tree nodes |
-| `grammar/` | `.grammar` file model; bootstrap table in `grammar.json`; `readGrammar` parser |
-| `lexer/` | Stream tokenizer (`Lexer`, `Token`, `$eof`) driven by grammar `tokens` / `skip` / `states` |
-| `parse-table/` | Serializable LR table metadata (`ParseTable`, token inventory) |
+| `ParseContext` | Parser + table from grammar text or table JSON; `lex`, `parse`, `parseSource` |
+| `ParserLr` | Lower-level parser bound to a `Grammar` and optional `ParseTable` |
+| `Grammar` | Parsed `.grammar` file: lexer rules, productions, optional AST and transform schemas |
+| `ParseTable` | Serializable LR table; `fromGrammar`, `fromJson`, `toJsonString` |
+| `AstNode` | Parse tree node (CST or AST after transform) |
+| `Lexer` | Tokenize source using grammar `tokens`, `skip`, and `states` |
 
-## Core types
+Grammar file syntax: [`docs/grammar.md`](../../docs/grammar.md).
 
-- **`AstNode`** — tree node from parsing: symbol name, child subtrees, optional terminal lexeme text and source span.
-- **`Grammar`** — parsed `.grammar` file: name, `tokens` / `skip` / `states`, start symbol, parse productions, optional **`AstSchema`**.
-- **`AstSchema`** — AST types from the `ast` section; same expression syntax as productions, with `#` variants and `[slot]:` bindings.
-- **`TransformSchema`** — CST-to-AST rules from the `transform` section (`pass`, `drop`, `fold-left`, `fold-right`, `flatten`, `type.#variant(…)`).
-- **`AstNode`** — single tree node class for CST (parse output) and AST (post-transform); `symbol` + optional `variant` (`#` label).
-- **`ParseContext`** — parser and table loaded from grammar text or serialized table JSON.
-- **`Token`** — lexeme from the lexer: rule name, matched text, and source span; streams end with `$eof`.
-- **`Lexer`** — push source chunks, call `finish()`, read tokens via `next()` or `lexChunks` / `lexChunksAsync`.
-- **`ParseTable`** — serialized table metadata; JSON includes `tokens`, `tokenRules`, and `skipRules`.
+## Parse pipeline
 
-Co-located tests: `*.test.ts` next to the module under test. Run `npm test` from the project root.
+1. **Lex** — `Lexer` or `ParseContext.lex` tokenizes input using `tokens` and `skip` from the grammar or table.
+2. **Parse** — shift-reduce over the LR table produces a CST (`AstNode` tree).
+3. **Transform** — when the grammar defines `transform` rules, `ParserLr.parse` / `ParseContext.parse` apply them and return an AST.
+
+`readGrammar(source)` parses a `.grammar` file into a `Grammar` model without building a user-language table.
+
+## Errors
+
+Domain errors extend `ParserLrError`. Use `formatUserError(error)` for CLI-safe messages without stack traces.

@@ -29,22 +29,67 @@ start program ;
 
 grammar
     program =
+        { [item]:form }
+    ;
+
+    form =
+        #list list
+      | #atom atom
+    ;
+
+    list =
+        [open]:lpar
+        { [element]:form }
+        [close]:rpar
+    ;
+
+    atom =
+        #number [value]:number
+      | #symbol [value]:symbol
+      | #string [value]:string
+    ;
+
+ast
+    program =
         { form }
     ;
 
     form =
-        list
-      | atom
+        #list list
+      | #atom atom
     ;
 
     list =
-        lpar
-        { form }
-        rpar
+        [open]:lpar
+        { [element]:form }
+        [close]:rpar
     ;
 
     atom =
-        number
-      | symbol
-      | string
+        #number [value]:number
+      | #symbol [value]:symbol
+      | #string [value]:string
+    ;
+
+transform
+    program ->
+        #main pass(program$repeat_0) ;
+
+    program$repeat_0 ->
+        #main flatten(program.#program, item, program$repeat_0) ;
+
+    form ->
+        #list pass(list)
+      | #atom pass(atom) ;
+
+    list ->
+        #main list.#list(open, list$repeat_1, close) ;
+
+    list$repeat_1 ->
+        #main flatten(form.#elements, element, list$repeat_1) ;
+
+    atom ->
+        #number atom.#number(value)
+      | #symbol atom.#symbol(value)
+      | #string atom.#string(value)
     ;
