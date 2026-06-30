@@ -69,6 +69,16 @@ export function mergeChildLocations(children: readonly AstNode[]): SourceLocatio
 }
 
 /**
+ * Outcome of a shift-reduce parse attempt.
+ */
+export interface ShiftReduceParseResult
+{
+    readonly cst: AstNode | null;
+    readonly errorOffset: number | null;
+    readonly errorMessage: string | null;
+}
+
+/**
  * Table-driven shift-reduce parser shared by all LR table algorithms.
  */
 export class ShiftReduceEngine
@@ -82,14 +92,37 @@ export class ShiftReduceEngine
      */
     public static parse(table: ParseTable, tokens: readonly Token[]): AstNode | null
     {
+        return ShiftReduceEngine.parseWithResult(table, tokens).cst;
+    }
+
+    /**
+     * Parses a token stream and reports the first syntax error location.
+     *
+     * @param table - Parse table with ACTION, GOTO, and production metadata.
+     * @param tokens - Token stream ending with `$eof`.
+     * @returns Parse tree on success, or error offset and message on failure.
+     */
+    public static parseWithResult(
+        table: ParseTable,
+        tokens: readonly Token[],
+    ): ShiftReduceParseResult
+    {
         if (!table.hasParserTable)
         {
-            return null;
+            return {
+                cst: null,
+                errorOffset: 0,
+                errorMessage: 'Parse table has no parser entries',
+            };
         }
 
         if (tokens.length === 0 || !isEofToken(tokens[tokens.length - 1]))
         {
-            return null;
+            return {
+                cst: null,
+                errorOffset: tokens[0]?.location.offset ?? 0,
+                errorMessage: 'Token stream must end with $eof',
+            };
         }
 
         const stateStack: number[] = [0];
@@ -104,7 +137,11 @@ export class ShiftReduceEngine
 
             if (action === null)
             {
-                return null;
+                return {
+                    cst: null,
+                    errorOffset: currentToken.location.offset,
+                    errorMessage: `Unexpected ${currentToken.name}`,
+                };
             }
 
             switch (action.kind)
@@ -128,7 +165,11 @@ export class ShiftReduceEngine
 
                     if (node === null)
                     {
-                        return null;
+                        return {
+                            cst: null,
+                            errorOffset: currentToken.location.offset,
+                            errorMessage: 'Invalid reduce action',
+                        };
                     }
 
                     break;
@@ -138,10 +179,18 @@ export class ShiftReduceEngine
                 {
                     if (valueStack.length === 0)
                     {
-                        return null;
+                        return {
+                            cst: null,
+                            errorOffset: currentToken.location.offset,
+                            errorMessage: 'Empty parse result',
+                        };
                     }
 
-                    return valueStack[valueStack.length - 1];
+                    return {
+                        cst: valueStack[valueStack.length - 1],
+                        errorOffset: null,
+                        errorMessage: null,
+                    };
                 }
             }
         }
@@ -240,4 +289,18 @@ export class ShiftReduceEngine
 export function parseWithTable(table: ParseTable, tokens: readonly Token[]): AstNode | null
 {
     return ShiftReduceEngine.parse(table, tokens);
+}
+
+/**
+ * Parses a token stream and reports the first syntax error location.
+ *
+ * @param table - Parse table with ACTION, GOTO, and production metadata.
+ * @param tokens - Token stream ending with `$eof`.
+ */
+export function parseWithTableResult(
+    table: ParseTable,
+    tokens: readonly Token[],
+): ShiftReduceParseResult
+{
+    return ShiftReduceEngine.parseWithResult(table, tokens);
 }

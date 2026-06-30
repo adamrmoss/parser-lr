@@ -21,10 +21,11 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 
 | File | Role |
 |------|------|
-| `grammar.json` | Bootstrapped meta-grammar parse table (lexer rules; copied to `dist/lib/grammar/` on build) |
+| `grammar.json` | Bootstrapped meta-grammar parse table (copied to `dist/lib/grammar/` on build) |
 | `meta-grammar-table.ts` | Loads `grammar.json`, lexes `.grammar` source via `Lexer` |
 | `grammar-literals.ts` | String and regex literal decoding for grammar files |
-| `read-grammar.ts` | Hand-written recursive-descent parser → `Grammar` model |
+| `grammar-from-cst.ts` | Meta-grammar CST → `Grammar` model |
+| `read-grammar.ts` | Lexes and parses `.grammar` files into `Grammar` |
 | `grammar.ts`, `expression.ts`, … | Grammar AST types and schemas |
 
 Source specs: [`grammars/`](../../grammars/). Regenerate `grammar.json` with `npm run bootstrap` after editing `grammars/grammar.grammar`.

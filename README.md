@@ -31,13 +31,13 @@ npm test
 
 ## Bootstrap
 
-Grammar files are lexed with a bootstrapped table checked in at `src/lib/grammar/grammar.json`. Regenerate it after changing `grammars/grammar.grammar`:
+Grammar files are lexed and parsed with a bootstrapped meta-grammar table checked in at `src/lib/grammar/grammar.json`. Regenerate it after changing `grammars/grammar.grammar`:
 
 ```bash
 npm run bootstrap
 ```
 
-The hand-written `readGrammar` parser still builds the `Grammar` model used to bootstrap table generation.
+The meta-grammar LR parser builds the `Grammar` model used to bootstrap table generation.
 
 ## CLI
 
