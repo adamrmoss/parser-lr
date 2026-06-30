@@ -1,9 +1,17 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "Shift-reduce parser library for EBNF grammars",
     "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/adamrmoss/parser-lr.git"
+    },
+    "homepage": "https://github.com/adamrmoss/parser-lr#readme",
+    "bugs": {
+        "url": "https://github.com/adamrmoss/parser-lr/issues"
+    },
     "type": "module",
     "sideEffects": false,
     "engines": {

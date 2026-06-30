@@ -2,7 +2,7 @@
 
 Shift-reduce parser for EBNF grammars. Describe your language with a `.grammar` file, build an LR parse table, then lex and parse source into a concrete syntax tree or AST, for execution or code generation.
 
-Grammar file syntax is documented in [`docs/grammar.md`](docs/grammar.md).
+Grammar file syntax is documented in the [`.grammar` file syntax](https://github.com/adamrmoss/parser-lr/blob/main/docs/grammar.md) guide.
 
 ## Install
 
@@ -98,8 +98,8 @@ const source = await readFile('program.txt', 'utf8');
 const ast = context.parse(context.lex(source));
 ```
 
-`ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See [`src/lib/README.md`](src/lib/README.md) for the main types.
+`ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See the [library API overview](https://github.com/adamrmoss/parser-lr/blob/main/src/lib/README.md).
 
 ## Example grammars
 
-Sample `.grammar` files ship in [`grammars/`](grammars/) (`calc.grammar`, `lisp.grammar`, `6502.grammar`, and the meta-grammar `grammar.grammar`). Use them as templates when writing your own language.
+Sample `.grammar` files are in the [grammars](https://github.com/adamrmoss/parser-lr/tree/main/grammars) directory (`calc.grammar`, `lisp.grammar`, `6502.grammar`, and the meta-grammar `grammar.grammar`). Use them as templates when writing your own language.
