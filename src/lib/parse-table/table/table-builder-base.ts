@@ -2,7 +2,7 @@ import { EOF_TOKEN_NAME } from '../../lexer/token.js';
 
 import { AUGMENTED_START_SYMBOL, type BnfGrammar } from '../bnf/bnf-grammar.js';
 import { bnfParserSymbolKey } from '../bnf/bnf-symbol.js';
-import { lr0Goto, Lr0ItemSetBuilder, type Lr0Item } from '../lr0/lr0-item-set.js';
+import { lr0Goto, Lr0ItemSetBuilder, symbolsAfterDot, type Lr0Item } from '../lr0/lr0-item-set.js';
 
 import {
     classifyParseConflict,
@@ -36,14 +36,13 @@ export class TableBuilderBase
     ): ReadonlyMap<string, number>
     {
         const targets = new Map<string, number>();
-        const symbols = Lr0ItemSetBuilder.grammarSymbolKeys(grammar);
 
-        // Precompute GOTO for every state and grammar symbol.
+        // Precompute GOTO for every state and symbol reachable from its items.
         for (let state = 0; state < itemSets.length; state += 1)
         {
             const itemSet = itemSets[state] ?? [];
 
-            for (const symbolKey of symbols)
+            for (const symbolKey of symbolsAfterDot(grammar, itemSet))
             {
                 const gotoSet = gotoItems(grammar, itemSet, symbolKey);
 

@@ -1,0 +1,991 @@
+// Ferrite — a C-like language with C#-style structs, namespaces, and pointer semantics.
+// No preprocessor; sources compile as single units (namespaces + using, like C# assemblies).
+//
+// Example:
+//
+//   namespace Ferrite.Math {
+//       struct Vec2 {
+//           float32 x;
+//           float32 y;
+//           float32 dot(Vec2* other) {
+//               return x * other->x + y * other->y;
+//           }
+//       }
+//   }
+//
+//   using Ferrite.Math;
+//
+//   int32 main() {
+//       Vec2 a = { 1.0, 2.0 };
+//       Vec2* p = &a;
+//       return (int32)p->dot(&a);
+//   }
+
+name "ferrite" ;
+
+tokens
+    kw_struct = /struct/ ;
+    kw_namespace = /namespace/ ;
+    kw_using = /using/ ;
+    kw_if = /if/ ;
+    kw_else = /else/ ;
+    kw_while = /while/ ;
+    kw_for = /for/ ;
+    kw_return = /return/ ;
+    kw_break = /break/ ;
+    kw_continue = /continue/ ;
+    kw_new = /new/ ;
+    kw_null = /null/ ;
+    kw_true = /true/ ;
+    kw_false = /false/ ;
+    kw_void = /void/ ;
+    kw_bool = /bool/ ;
+    kw_int8 = /int8/ ;
+    kw_int16 = /int16/ ;
+    kw_int32 = /int32/ ;
+    kw_int64 = /int64/ ;
+    kw_uint8 = /uint8/ ;
+    kw_uint16 = /uint16/ ;
+    kw_uint32 = /uint32/ ;
+    kw_uint64 = /uint64/ ;
+    kw_float32 = /float32/ ;
+    kw_float64 = /float64/ ;
+    kw_char = /char/ ;
+
+    identifier = /[A-Za-z_][A-Za-z0-9_]*/ ;
+    int_literal = /0x[0-9A-Fa-f]+|0b[01]+|[0-9]+/ ;
+    float_literal = /[0-9]+\.[0-9]+([Ee][+-]?[0-9]+)?|[0-9]+[Ee][+-]?[0-9]+/ ;
+    char_literal = /'(?:\\.|[^'\\])'/ ;
+    string_literal = /"(?:\\.|[^"\\])*"/ ;
+
+    lbrace = /\{/ ;
+    rbrace = /\}/ ;
+    lpar = /\(/ ;
+    rpar = /\)/ ;
+    lbrack = /\[/ ;
+    rbrack = /\]/ ;
+    semicolon = /;/ ;
+    comma = /,/ ;
+    dot = /\./ ;
+    colon = /:/ ;
+
+    arrow = /->/ ;
+    inc = /\+\+/ ;
+    dec = /--/ ;
+    plus = /\+/ ;
+    minus = /-/ ;
+    star = /\*/ ;
+    slash = /\// ;
+    percent = /%/ ;
+    amp = /&/ ;
+    pipe = /\|/ ;
+    caret = /\^/ ;
+    tilde = /~/ ;
+    bang = /!/ ;
+    lt = /</ ;
+    gt = />/ ;
+    assign = /=/ ;
+    question = /\?/ ;
+
+    eq = /==/ ;
+    ne = /!=/ ;
+    le = /<=/ ;
+    ge = />=/ ;
+    lshift = /<</ ;
+    rshift = />>/ ;
+    andand = /&&/ ;
+    oror = /\|\|/ ;
+    pluseq = /\+=/ ;
+    minuseq = /-=/ ;
+    stareq = /\*=/ ;
+    slasheq = /\/=/ ;
+    ampeq = /&=/ ;
+    pipeeq = /\|=/ ;
+    careteq = /\^=/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+    line_comment = /\/\/[^\n\r]*/ ;
+    block_comment = /\/\*[\s\S]*?\*\// ;
+
+start program ;
+
+grammar
+    program =
+        { [decl]:top_decl }
+    ;
+
+    top_decl =
+        #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
+      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
+      | #struct struct_decl
+      | #function function_decl
+    ;
+
+    namespace_body =
+        [open]:lbrace
+        { [member]:namespace_member }
+        [close]:rbrace
+    ;
+
+    namespace_member =
+        #struct struct_decl
+      | #function function_decl
+      | #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
+      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
+      | #statement [stmt]:statement
+    ;
+
+    qualified_name =
+        [head]:identifier { name_part }
+    ;
+
+    name_part =
+        [dotTok]:dot [part]:identifier
+    ;
+
+    struct_decl =
+        [structKw]:kw_struct
+        [sym]:identifier
+        [body]:struct_body
+        [semi]:semicolon
+    ;
+
+    struct_body =
+        [open]:lbrace
+        { [member]:struct_member }
+        [close]:rbrace
+    ;
+
+    struct_member =
+        #field field_decl
+      | #method method_decl
+    ;
+
+    field_decl =
+        [type]:type_spec
+        [sym]:identifier
+        [semi]:semicolon
+    ;
+
+    method_decl =
+        #method
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [close]:rpar
+        [body]:block
+      | #methodParams
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [params]:param_list
+        [close]:rpar
+        [body]:block
+    ;
+
+    function_decl =
+        #defined
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [close]:rpar
+        [body]:block
+      | #definedParams
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [params]:param_list
+        [close]:rpar
+        [body]:block
+      | #prototype
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [close]:rpar
+        [semi]:semicolon
+      | #prototypeParams
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [params]:param_list
+        [close]:rpar
+        [semi]:semicolon
+    ;
+
+    param_list =
+        #list [first]:param { param_sep }
+    ;
+
+    param_sep =
+        [commaTok]:comma [rest]:param
+    ;
+
+    param =
+        [type]:type_spec
+        [sym]:identifier
+    ;
+
+    type_spec =
+        #voidType [voidKw]:kw_void { [ptr]:star }
+      | #bool [boolKw]:kw_bool { [ptr]:star }
+      | #int8 [int8Kw]:kw_int8 { [ptr]:star }
+      | #int16 [int16Kw]:kw_int16 { [ptr]:star }
+      | #int32 [int32Kw]:kw_int32 { [ptr]:star }
+      | #int64 [int64Kw]:kw_int64 { [ptr]:star }
+      | #uint8 [uint8Kw]:kw_uint8 { [ptr]:star }
+      | #uint16 [uint16Kw]:kw_uint16 { [ptr]:star }
+      | #uint32 [uint32Kw]:kw_uint32 { [ptr]:star }
+      | #uint64 [uint64Kw]:kw_uint64 { [ptr]:star }
+      | #float32 [float32Kw]:kw_float32 { [ptr]:star }
+      | #float64 [float64Kw]:kw_float64 { [ptr]:star }
+      | #char [charKw]:kw_char { [ptr]:star }
+      | #named [sym]:identifier { [ptr]:star }
+      | #array [elem]:type_spec [open]:lbrack [size]:int_literal [close]:rbrack { [ptr]:star }
+      | #arrayUnsized [elem]:type_spec [open]:lbrack [close]:rbrack { [ptr]:star }
+    ;
+
+    block =
+        [open]:lbrace
+        { [stmt]:statement }
+        [close]:rbrace
+    ;
+
+    statement =
+        #block [body]:block
+      | #varDecl [type]:type_spec [sym]:identifier [ [init]:var_init ] [semi]:semicolon
+      | #if [ifKw]:kw_if [cond]:lpar [condition]:expression [condEnd]:rpar [then]:statement [ [elseKw]:kw_else [elseBody]:statement ]
+      | #while [whileKw]:kw_while [cond]:lpar [condition]:expression [condEnd]:rpar [body]:statement
+      | #for [forKw]:kw_for [openFor]:lpar [ [init]:for_init ] [semi1]:semicolon [ [test]:expression ] [semi2]:semicolon [ [step]:expression ] [closeFor]:rpar [body]:statement
+      | #return [returnKw]:kw_return [ [expr]:expression ] [semi]:semicolon
+      | #break [breakKw]:kw_break [semi]:semicolon
+      | #continue [continueKw]:kw_continue [semi]:semicolon
+      | #exprStmt [expr]:expression [semi]:semicolon
+    ;
+
+    var_init =
+        #assign [eqTok]:assign [value]:expression
+      | #braceInit [eqTok]:assign [open]:lbrace [ [values]:init_list ] [close]:rbrace
+    ;
+
+    init_list =
+        #list [first]:expression { expr_sep }
+    ;
+
+    expr_sep =
+        [commaTok]:comma [rest]:expression
+    ;
+
+    for_init =
+        #var [type]:type_spec [sym]:identifier [ [vinit]:var_init ]
+      | #expr [expr]:expression
+    ;
+
+    expression =
+        [value]:assignment_expr
+    ;
+
+    assignment_expr =
+        #plain [value]:logical_or_expr
+      | #assign [left]:unary_expr [op]:assign_op [right]:assignment_expr
+    ;
+
+    assign_op =
+        #eq [tok]:assign
+      | #pluseq [tok]:pluseq
+      | #minuseq [tok]:minuseq
+      | #stareq [tok]:stareq
+      | #slasheq [tok]:slasheq
+      | #ampeq [tok]:ampeq
+      | #pipeeq [tok]:pipeeq
+      | #careteq [tok]:careteq
+    ;
+
+    logical_or_expr =
+        #single [value]:logical_and_expr
+      | #chain [left]:logical_or_expr [op]:oror [right]:logical_and_expr
+    ;
+
+    logical_and_expr =
+        #single [value]:bitwise_or_expr
+      | #chain [left]:logical_and_expr [op]:andand [right]:bitwise_or_expr
+    ;
+
+    bitwise_or_expr =
+        #single [value]:bitwise_xor_expr
+      | #chain [left]:bitwise_or_expr [op]:pipe [right]:bitwise_xor_expr
+    ;
+
+    bitwise_xor_expr =
+        #single [value]:bitwise_and_expr
+      | #chain [left]:bitwise_xor_expr [op]:caret [right]:bitwise_and_expr
+    ;
+
+    bitwise_and_expr =
+        #single [value]:equality_expr
+      | #chain [left]:bitwise_and_expr [op]:amp [right]:equality_expr
+    ;
+    equality_expr =
+        #single [value]:relational_expr
+      | #chain [head]:relational_expr [op]:equality_op [tail]:relational_expr
+    ;
+
+    equality_op =
+        #eq [tok]:eq
+      | #ne [tok]:ne
+    ;
+
+    relational_expr =
+        #single [value]:shift_expr
+      | #chain [head]:shift_expr [op]:relational_op [tail]:shift_expr
+    ;
+
+    relational_op =
+        #lt [tok]:lt
+      | #gt [tok]:gt
+      | #le [tok]:le
+      | #ge [tok]:ge
+    ;
+
+    shift_expr =
+        #single [value]:additive_expr
+      | #chain [head]:additive_expr [op]:shift_op [tail]:additive_expr
+    ;
+
+    shift_op =
+        #lshift [tok]:lshift
+      | #rshift [tok]:rshift
+    ;
+
+    additive_expr =
+        #single [value]:multiplicative_expr
+      | #chain [left]:additive_expr [op]:additive_op [right]:multiplicative_expr
+    ;
+
+    additive_op =
+        #plus [tok]:plus
+      | #minus [tok]:minus
+    ;
+
+    multiplicative_expr =
+        #single [value]:unary_expr
+      | #chain [left]:multiplicative_expr [op]:multiplicative_op [right]:unary_expr
+    ;
+
+    multiplicative_op =
+        #star [tok]:star
+      | #slash [tok]:slash
+      | #percent [tok]:percent
+    ;
+
+    unary_expr =
+        #postfix [value]:postfix_expr
+      | #cast [open]:lpar [type]:type_spec [close]:rpar [value]:unary_expr
+      | #preInc [op]:inc [value]:unary_expr
+      | #preDec [op]:dec [value]:unary_expr
+      | #addr [op]:amp [value]:unary_expr
+      | #deref [op]:star [value]:unary_expr
+      | #not [op]:bang [value]:unary_expr
+      | #bitNot [op]:tilde [value]:unary_expr
+      | #neg [op]:minus [value]:unary_expr
+      | #plus [op]:plus [value]:unary_expr
+    ;
+
+    postfix_expr =
+        #primary [value]:primary_expr { [suffix]:postfix_suffix }
+    ;
+
+    postfix_suffix =
+        #index [open]:lbrack [index]:expression [close]:rbrack
+      | #call [open]:lpar [close]:rpar
+      | #callArgs [open]:lpar [args]:arg_list [close]:rpar
+      | #member [dotTok]:dot [sym]:identifier
+      | #arrow [arrowTok]:arrow [sym]:identifier
+      | #postInc [op]:inc
+      | #postDec [op]:dec
+    ;
+
+    arg_list =
+        #list [first]:expression { expr_sep }
+    ;
+
+    primary_expr =
+        #ident [sym]:identifier
+      | #int [value]:int_literal
+      | #float [value]:float_literal
+      | #char [value]:char_literal
+      | #string [value]:string_literal
+      | #true [trueKw]:kw_true
+      | #false [falseKw]:kw_false
+      | #null [nullKw]:kw_null
+      | #paren [open]:lpar [inner]:expression [close]:rpar
+      | #new [newKw]:kw_new [type]:type_spec [open]:lpar [close]:rpar
+      | #newArgs [newKw]:kw_new [type]:type_spec [open]:lpar [args]:arg_list [close]:rpar
+    ;
+
+ast
+    program =
+        { top_decl }
+    ;
+
+    top_decl =
+        #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
+      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
+      | #struct struct_decl
+      | #function function_decl
+    ;
+
+    namespace_body =
+        [open]:lbrace
+        { [member]:namespace_member }
+        [close]:rbrace
+    ;
+
+    namespace_member =
+        #struct struct_decl
+      | #function function_decl
+      | #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
+      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
+      | #statement [stmt]:statement
+    ;
+
+    qualified_name =
+        [head]:identifier { name_part }
+    ;
+
+    name_part =
+        [dotTok]:dot [part]:identifier
+    ;
+
+    struct_decl =
+        [structKw]:kw_struct
+        [sym]:identifier
+        [body]:struct_body
+        [semi]:semicolon
+    ;
+
+    struct_body =
+        [open]:lbrace
+        { [member]:struct_member }
+        [close]:rbrace
+    ;
+
+    struct_member =
+        #field field_decl
+      | #method method_decl
+    ;
+
+    field_decl =
+        [type]:type_spec
+        [sym]:identifier
+        [semi]:semicolon
+    ;
+
+    method_decl =
+        #method
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [close]:rpar
+        [body]:block
+      | #methodParams
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [params]:param_list
+        [close]:rpar
+        [body]:block
+    ;
+
+    function_decl =
+        #defined
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [close]:rpar
+        [body]:block
+      | #definedParams
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [params]:param_list
+        [close]:rpar
+        [body]:block
+      | #prototype
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [close]:rpar
+        [semi]:semicolon
+      | #prototypeParams
+        [type]:type_spec
+        [sym]:identifier
+        [open]:lpar
+        [params]:param_list
+        [close]:rpar
+        [semi]:semicolon
+    ;
+
+    param_list =
+        #list [first]:param { param_sep }
+    ;
+
+    param_sep =
+        [commaTok]:comma [rest]:param
+    ;
+
+    param =
+        [type]:type_spec
+        [sym]:identifier
+    ;
+
+    type_spec =
+        #voidType [voidKw]:kw_void { [ptr]:star }
+      | #bool [boolKw]:kw_bool { [ptr]:star }
+      | #int8 [int8Kw]:kw_int8 { [ptr]:star }
+      | #int16 [int16Kw]:kw_int16 { [ptr]:star }
+      | #int32 [int32Kw]:kw_int32 { [ptr]:star }
+      | #int64 [int64Kw]:kw_int64 { [ptr]:star }
+      | #uint8 [uint8Kw]:kw_uint8 { [ptr]:star }
+      | #uint16 [uint16Kw]:kw_uint16 { [ptr]:star }
+      | #uint32 [uint32Kw]:kw_uint32 { [ptr]:star }
+      | #uint64 [uint64Kw]:kw_uint64 { [ptr]:star }
+      | #float32 [float32Kw]:kw_float32 { [ptr]:star }
+      | #float64 [float64Kw]:kw_float64 { [ptr]:star }
+      | #char [charKw]:kw_char { [ptr]:star }
+      | #named [sym]:identifier { [ptr]:star }
+      | #array [elem]:type_spec [open]:lbrack [size]:int_literal [close]:rbrack { [ptr]:star }
+      | #arrayUnsized [elem]:type_spec [open]:lbrack [close]:rbrack { [ptr]:star }
+    ;
+
+    block =
+        [open]:lbrace
+        { statement }
+        [close]:rbrace
+    ;
+
+    statement =
+        #block [body]:block
+      | #varDecl [type]:type_spec [sym]:identifier [ [init]:var_init ] [semi]:semicolon
+      | #if [ifKw]:kw_if [cond]:lpar [condition]:expression [condEnd]:rpar [then]:statement [ [elseKw]:kw_else [elseBody]:statement ]
+      | #while [whileKw]:kw_while [cond]:lpar [condition]:expression [condEnd]:rpar [body]:statement
+      | #for [forKw]:kw_for [openFor]:lpar [ [init]:for_init ] [semi1]:semicolon [ [test]:expression ] [semi2]:semicolon [ [step]:expression ] [closeFor]:rpar [body]:statement
+      | #return [returnKw]:kw_return [ [expr]:expression ] [semi]:semicolon
+      | #break [breakKw]:kw_break [semi]:semicolon
+      | #continue [continueKw]:kw_continue [semi]:semicolon
+      | #exprStmt [expr]:expression [semi]:semicolon
+    ;
+
+    var_init =
+        #assign [eqTok]:assign [value]:expression
+      | #braceInit [eqTok]:assign [open]:lbrace [ [values]:init_list ] [close]:rbrace
+    ;
+
+    init_list =
+        #list [first]:expression { expr_sep }
+    ;
+
+    expr_sep =
+        [commaTok]:comma [rest]:expression
+    ;
+
+    for_init =
+        #var [type]:type_spec [sym]:identifier [ [vinit]:var_init ]
+      | #expr [expr]:expression
+    ;
+
+    expression =
+        [value]:assignment_expr
+    ;
+
+    assignment_expr =
+        #plain [value]:logical_or_expr
+      | #assign [left]:unary_expr [op]:assign_op [right]:assignment_expr
+    ;
+
+    assign_op =
+        #eq [tok]:assign
+      | #pluseq [tok]:pluseq
+      | #minuseq [tok]:minuseq
+      | #stareq [tok]:stareq
+      | #slasheq [tok]:slasheq
+      | #ampeq [tok]:ampeq
+      | #pipeeq [tok]:pipeeq
+      | #careteq [tok]:careteq
+    ;
+
+    logical_or_expr =
+        #single [value]:logical_and_expr
+      | #chain [left]:logical_or_expr [op]:oror [right]:logical_and_expr
+    ;
+
+    logical_and_expr =
+        #single [value]:bitwise_or_expr
+      | #chain [left]:logical_and_expr [op]:andand [right]:bitwise_or_expr
+    ;
+
+    bitwise_or_expr =
+        #single [value]:bitwise_xor_expr
+      | #chain [left]:bitwise_or_expr [op]:pipe [right]:bitwise_xor_expr
+    ;
+
+    bitwise_xor_expr =
+        #single [value]:bitwise_and_expr
+      | #chain [left]:bitwise_xor_expr [op]:caret [right]:bitwise_and_expr
+    ;
+
+    bitwise_and_expr =
+        #single [value]:equality_expr
+      | #chain [left]:bitwise_and_expr [op]:amp [right]:equality_expr
+    ;
+    equality_expr =
+        #single [value]:relational_expr
+      | #chain [head]:relational_expr [op]:equality_op [tail]:relational_expr
+    ;
+
+    equality_op =
+        #eq [tok]:eq
+      | #ne [tok]:ne
+    ;
+
+    relational_expr =
+        #single [value]:shift_expr
+      | #chain [head]:shift_expr [op]:relational_op [tail]:shift_expr
+    ;
+
+    relational_op =
+        #lt [tok]:lt
+      | #gt [tok]:gt
+      | #le [tok]:le
+      | #ge [tok]:ge
+    ;
+
+    shift_expr =
+        #single [value]:additive_expr
+      | #chain [head]:additive_expr [op]:shift_op [tail]:additive_expr
+    ;
+
+    shift_op =
+        #lshift [tok]:lshift
+      | #rshift [tok]:rshift
+    ;
+
+    additive_expr =
+        #single [value]:multiplicative_expr
+      | #chain [left]:additive_expr [op]:additive_op [right]:multiplicative_expr
+    ;
+
+    additive_op =
+        #plus [tok]:plus
+      | #minus [tok]:minus
+    ;
+
+    multiplicative_expr =
+        #single [value]:unary_expr
+      | #chain [left]:multiplicative_expr [op]:multiplicative_op [right]:unary_expr
+    ;
+
+    multiplicative_op =
+        #star [tok]:star
+      | #slash [tok]:slash
+      | #percent [tok]:percent
+    ;
+
+    unary_expr =
+        #postfix [value]:postfix_expr
+      | #cast [open]:lpar [type]:type_spec [close]:rpar [value]:unary_expr
+      | #preInc [op]:inc [value]:unary_expr
+      | #preDec [op]:dec [value]:unary_expr
+      | #addr [op]:amp [value]:unary_expr
+      | #deref [op]:star [value]:unary_expr
+      | #not [op]:bang [value]:unary_expr
+      | #bitNot [op]:tilde [value]:unary_expr
+      | #neg [op]:minus [value]:unary_expr
+      | #plus [op]:plus [value]:unary_expr
+    ;
+
+    postfix_expr =
+        #primary [value]:primary_expr { postfix_suffix }
+    ;
+
+    postfix_suffix =
+        #index [open]:lbrack [index]:expression [close]:rbrack
+      | #call [open]:lpar [close]:rpar
+      | #callArgs [open]:lpar [args]:arg_list [close]:rpar
+      | #member [dotTok]:dot [sym]:identifier
+      | #arrow [arrowTok]:arrow [sym]:identifier
+      | #postInc [op]:inc
+      | #postDec [op]:dec
+    ;
+
+    arg_list =
+        #list [first]:expression { expr_sep }
+    ;
+
+    primary_expr =
+        #ident [sym]:identifier
+      | #int [value]:int_literal
+      | #float [value]:float_literal
+      | #char [value]:char_literal
+      | #string [value]:string_literal
+      | #true [trueKw]:kw_true
+      | #false [falseKw]:kw_false
+      | #null [nullKw]:kw_null
+      | #paren [open]:lpar [inner]:expression [close]:rpar
+      | #new [newKw]:kw_new [type]:type_spec [open]:lpar [close]:rpar
+      | #newArgs [newKw]:kw_new [type]:type_spec [open]:lpar [args]:arg_list [close]:rpar
+    ;
+
+transform
+    program ->
+        #main pass(program$repeat_0) ;
+
+    program$repeat_0 ->
+        #main flatten(program.#program, decl, program$repeat_0) ;
+
+    top_decl ->
+        #namespace top_decl.#namespace(nsKw, qname, body)
+      | #using top_decl.#using(useKw, qname, semi)
+      | #struct pass(struct_decl)
+      | #function pass(function_decl) ;
+
+    namespace_body ->
+        #main namespace_body.#namespace_body(open, namespace_body$repeat_0, close) ;
+
+    namespace_body$repeat_0 ->
+        #main flatten(namespace_body.#namespace_body, member, namespace_body$repeat_0) ;
+
+    namespace_member ->
+        #struct pass(struct_decl)
+      | #function pass(function_decl)
+      | #namespace namespace_member.#namespace(nsKw, qname, body)
+      | #using namespace_member.#using(useKw, qname, semi)
+      | #statement pass(stmt) ;
+
+    qualified_name ->
+        #main qualified_name.#qualified_name(head, qualified_name$repeat_1) ;
+
+    qualified_name$repeat_1 ->
+        #main flatten(qualified_name.#qualified_name, name_part, qualified_name$repeat_1) ;
+
+    name_part ->
+        #main name_part.#part(dotTok, part) ;
+
+    struct_decl ->
+        #main struct_decl.#struct_decl(structKw, sym, body, semi) ;
+
+    struct_body ->
+        #main struct_body.#struct_body(open, struct_body$repeat_0, close) ;
+
+    struct_body$repeat_0 ->
+        #main flatten(struct_body.#struct_body, member, struct_body$repeat_0) ;
+
+    struct_member ->
+        #field pass(field_decl)
+      | #method pass(method_decl) ;
+
+    field_decl ->
+        #main field_decl.#field_decl(type, sym, semi) ;
+
+    method_decl ->
+        #method method_decl.#method(type, sym, open, close, body)
+      | #methodParams method_decl.#method(type, sym, open, params, close, body) ;
+
+    function_decl ->
+        #defined function_decl.#defined(type, sym, open, close, body)
+      | #definedParams function_decl.#defined(type, sym, open, params, close, body)
+      | #prototype function_decl.#prototype(type, sym, open, close, semi)
+      | #prototypeParams function_decl.#prototype(type, sym, open, params, close, semi) ;
+
+    param_list ->
+        #main flatten(param_list.#list, first, param_list$repeat_0) ;
+
+    param_list$repeat_0 ->
+        #main flatten(param_list.#list, param_sep, param_list$repeat_0) ;
+
+    param_sep ->
+        #main param_sep.#sep(commaTok, rest) ;
+
+    param ->
+        #main param.#param(type, sym) ;
+
+    type_spec ->
+        #voidType type_spec.#voidType(voidKw, type_spec$repeat_0)
+      | #bool type_spec.#bool(boolKw, type_spec$repeat_0)
+      | #int8 type_spec.#int8(int8Kw, type_spec$repeat_0)
+      | #int16 type_spec.#int16(int16Kw, type_spec$repeat_0)
+      | #int32 type_spec.#int32(int32Kw, type_spec$repeat_0)
+      | #int64 type_spec.#int64(int64Kw, type_spec$repeat_0)
+      | #uint8 type_spec.#uint8(uint8Kw, type_spec$repeat_0)
+      | #uint16 type_spec.#uint16(uint16Kw, type_spec$repeat_0)
+      | #uint32 type_spec.#uint32(uint32Kw, type_spec$repeat_0)
+      | #uint64 type_spec.#uint64(uint64Kw, type_spec$repeat_0)
+      | #float32 type_spec.#float32(float32Kw, type_spec$repeat_0)
+      | #float64 type_spec.#float64(float64Kw, type_spec$repeat_0)
+      | #char type_spec.#char(charKw, type_spec$repeat_0)
+      | #named type_spec.#named(sym, type_spec$repeat_0)
+      | #array type_spec.#array(elem, size, open, close, type_spec$repeat_0)
+      | #arrayUnsized type_spec.#array(elem, open, close, type_spec$repeat_0) ;
+
+    type_spec$repeat_0 ->
+        #main flatten(type_spec.#pointers, ptr, type_spec$repeat_0) ;
+
+    block ->
+        #main block.#block(open, block$repeat_0, close) ;
+
+    block$repeat_0 ->
+        #main flatten(block.#block, stmt, block$repeat_0) ;
+
+    statement ->
+        #block pass(body)
+      | #varDecl statement.#varDecl(type, sym, init, semi)
+      | #if statement.#if(ifKw, cond, condition, condEnd, then, elseKw, elseBody)
+      | #while statement.#while(whileKw, cond, condition, condEnd, body)
+      | #for statement.#for(forKw, openFor, init, semi1, test, semi2, step, closeFor, body)
+      | #return statement.#return(returnKw, expr, semi)
+      | #break statement.#break(breakKw, semi)
+      | #continue statement.#continue(continueKw, semi)
+      | #exprStmt statement.#exprStmt(expr, semi) ;
+
+    var_init ->
+        #assign var_init.#assign(eqTok, value)
+      | #braceInit var_init.#braceInit(eqTok, open, values, close) ;
+
+    init_list ->
+        #main flatten(init_list.#list, first, init_list$repeat_0) ;
+
+    init_list$repeat_0 ->
+        #main flatten(init_list.#list, expr_sep, init_list$repeat_0) ;
+
+    expr_sep ->
+        #main expr_sep.#sep(commaTok, rest) ;
+
+    for_init ->
+        #var for_init.#var(type, sym, vinit)
+      | #expr pass(expr) ;
+
+    expression ->
+        #main pass(value) ;
+
+    assignment_expr ->
+        #plain pass(value)
+      | #assign assignment_expr.#assign(left, op, right) ;
+
+    assign_op ->
+        #eq pass(tok)
+      | #pluseq pass(tok)
+      | #minuseq pass(tok)
+      | #stareq pass(tok)
+      | #slasheq pass(tok)
+      | #ampeq pass(tok)
+      | #pipeeq pass(tok)
+      | #careteq pass(tok) ;
+
+    logical_or_expr ->
+        #single pass(value)
+      | #chain logical_or_expr.#chain(left, op, right) ;
+
+    logical_and_expr ->
+        #single pass(value)
+      | #chain logical_and_expr.#chain(left, op, right) ;
+
+    bitwise_or_expr ->
+        #single pass(value)
+      | #chain bitwise_or_expr.#chain(left, op, right) ;
+
+    bitwise_xor_expr ->
+        #single pass(value)
+      | #chain bitwise_xor_expr.#chain(left, op, right) ;
+
+    bitwise_and_expr ->
+        #single pass(value)
+      | #chain bitwise_and_expr.#chain(left, op, right) ;
+
+    equality_expr ->
+        #single pass(value)
+      | #chain equality_expr.#chain(head, op, tail) ;
+
+    equality_op ->
+        #eq pass(tok)
+      | #ne pass(tok) ;
+
+    relational_expr ->
+        #single pass(value)
+      | #chain relational_expr.#chain(head, op, tail) ;
+
+    relational_op ->
+        #lt pass(tok)
+      | #gt pass(tok)
+      | #le pass(tok)
+      | #ge pass(tok) ;
+
+    shift_expr ->
+        #single pass(value)
+      | #chain shift_expr.#chain(head, op, tail) ;
+
+    shift_op ->
+        #lshift pass(tok)
+      | #rshift pass(tok) ;
+
+    additive_expr ->
+        #single pass(value)
+      | #chain additive_expr.#chain(left, op, right) ;
+
+    additive_op ->
+        #plus pass(tok)
+      | #minus pass(tok) ;
+
+    multiplicative_expr ->
+        #single pass(value)
+      | #chain multiplicative_expr.#chain(left, op, right) ;
+
+    multiplicative_op ->
+        #star pass(tok)
+      | #slash pass(tok)
+      | #percent pass(tok) ;
+
+    unary_expr ->
+        #postfix pass(value)
+      | #cast unary_expr.#cast(open, type, close, value)
+      | #preInc unary_expr.#preInc(op, value)
+      | #preDec unary_expr.#preDec(op, value)
+      | #addr unary_expr.#addr(op, value)
+      | #deref unary_expr.#deref(op, value)
+      | #not unary_expr.#not(op, value)
+      | #bitNot unary_expr.#bitNot(op, value)
+      | #neg unary_expr.#neg(op, value)
+      | #plus unary_expr.#plus(op, value) ;
+
+    postfix_expr ->
+        #primary postfix_expr.#primary(value, postfix_expr$repeat_0) ;
+
+    postfix_expr$repeat_0 ->
+        #primary flatten(postfix_expr.#primary, suffix, postfix_expr$repeat_0) ;
+
+    postfix_suffix ->
+        #index postfix_suffix.#index(open, index, close)
+      | #call postfix_suffix.#call(open, close)
+      | #callArgs postfix_suffix.#call(open, args, close)
+      | #member postfix_suffix.#member(dotTok, sym)
+      | #arrow postfix_suffix.#arrow(arrowTok, sym)
+      | #postInc pass(op)
+      | #postDec pass(op) ;
+
+    arg_list ->
+        #main flatten(arg_list.#list, first, arg_list$repeat_0) ;
+
+    arg_list$repeat_0 ->
+        #main flatten(arg_list.#list, expr_sep, arg_list$repeat_0) ;
+
+    primary_expr ->
+        #ident pass(sym)
+      | #int pass(value)
+      | #float pass(value)
+      | #char pass(value)
+      | #string pass(value)
+      | #true pass(trueKw)
+      | #false pass(falseKw)
+      | #null pass(nullKw)
+      | #paren pass(inner)
+      | #new primary_expr.#new(newKw, type, open, close)
+      | #newArgs primary_expr.#new(newKw, type, open, args, close) ;

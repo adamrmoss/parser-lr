@@ -61,6 +61,18 @@ export function productionSlots(production: ParseTableProductionJson): readonly 
 }
 
 /**
+ * Returns the shared `$repeat` prefix for a numbered synthetic repeat symbol or reference.
+ *
+ * @param name - Repeat non-terminal or transform reference name.
+ */
+export function repeatSymbolPrefix(name: string): string | null
+{
+    const match = /^(.+\$repeat)_\d+$/.exec(name);
+
+    return match?.[1] ?? null;
+}
+
+/**
  * Finds the child index for a transform reference name.
  *
  * @param production - Parse table production metadata.
@@ -84,6 +96,19 @@ export function referenceSlotIndex(
         if (slot.binding === null && slot.symbol === reference)
         {
             return slot.index;
+        }
+    }
+
+    const repeatPrefix = repeatSymbolPrefix(reference);
+
+    if (repeatPrefix !== null)
+    {
+        for (const slot of productionSlots(production))
+        {
+            if (slot.binding === null && repeatSymbolPrefix(slot.symbol) === repeatPrefix)
+            {
+                return slot.index;
+            }
         }
     }
 

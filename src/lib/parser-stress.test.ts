@@ -179,7 +179,7 @@ describe('parser stress — meta-grammar bootstrap', () =>
     {
         const context = ParseContext.fromGrammar(metaSource, 'lr1');
 
-        for (const filename of ['calc.grammar', 'lisp.grammar', '6502.grammar', 'grammar.grammar'])
+        for (const filename of ['calc.grammar', 'lisp.grammar', '6502.grammar', 'ferrite.grammar', 'grammar.grammar'])
         {
             const source = readGrammarFile(filename);
             const ast = context.parseSource(source);

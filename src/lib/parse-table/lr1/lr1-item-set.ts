@@ -2,7 +2,7 @@ import type { GrammarAnalysis } from '../analysis/first-follow.js';
 import type { BnfGrammar } from '../bnf/bnf-grammar.js';
 import { bnfParserSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
 import type { Lr0Item } from '../lr0/lr0-item-set.js';
-import { sortLr0Items } from '../lr0/lr0-item-set.js';
+import { sortLr0Items, symbolsAfterDot } from '../lr0/lr0-item-set.js';
 import { TableBuilderBase } from '../table/table-builder-base.js';
 
 /**
@@ -84,11 +84,14 @@ export function lr1ItemIdentity(item: Lr1Item): string
  * Returns a stable identity string for an LR(1) item set.
  *
  * @param items - Closed item set.
+ * @param alreadySorted - When true, skips re-sorting because items are canonical.
  * @returns A pipe-separated, sorted identity string for canonical set comparison.
  */
-export function lr1SetIdentity(items: readonly Lr1Item[]): string
+export function lr1SetIdentity(items: readonly Lr1Item[], alreadySorted = false): string
 {
-    return sortLr1Items(items)
+    const sorted = alreadySorted ? items : sortLr1Items(items);
+
+    return sorted
         .map((item) => lr1ItemIdentity(item))
         .join('|');
 }
@@ -158,49 +161,45 @@ export function lr1Closure(
 {
     const result = sortLr1Items(items);
     const itemKeys = new Set(result.map((item) => lr1ItemIdentity(item)));
-    let changed = true;
+    const pendingIndices: number[] = result.map((_, index) => index);
 
-    // Fixed-point: add closure items until no new (production, dot, lookahead) triples appear.
-    while (changed)
+    // Expand closure from each newly discovered item only.
+    while (pendingIndices.length > 0)
     {
-        changed = false;
+        const item = result[pendingIndices.pop()!]!;
+        const production = grammar.production(item.productionId);
 
-        for (const item of [...result])
+        if (production === null)
         {
-            const production = grammar.production(item.productionId);
+            continue;
+        }
 
-            if (production === null)
+        const nextSymbol = production.rhs[item.dot];
+
+        if (nextSymbol === undefined || nextSymbol.kind !== 'nonTerminal')
+        {
+            continue;
+        }
+
+        const beta = production.rhs.slice(item.dot + 1);
+
+        // For each production of the non-terminal after the dot, propagate lookaheads.
+        for (const candidate of grammar.productionsFor(nextSymbol.name))
+        {
+            for (const lookahead of firstAfterSymbols(beta, item.lookahead, analysis))
             {
-                continue;
-            }
+                const closureItem: Lr1Item = {
+                    productionId: candidate.id,
+                    dot: 0,
+                    lookahead,
+                };
+                const identity = lr1ItemIdentity(closureItem);
 
-            const nextSymbol = production.rhs[item.dot];
-
-            if (nextSymbol === undefined || nextSymbol.kind !== 'nonTerminal')
-            {
-                continue;
-            }
-
-            const beta = production.rhs.slice(item.dot + 1);
-
-            // For each production of the non-terminal after the dot, propagate lookaheads.
-            for (const candidate of grammar.productionsFor(nextSymbol.name))
-            {
-                for (const lookahead of firstAfterSymbols(beta, item.lookahead, analysis))
+                if (!itemKeys.has(identity))
                 {
-                    const closureItem: Lr1Item = {
-                        productionId: candidate.id,
-                        dot: 0,
-                        lookahead,
-                    };
-                    const identity = lr1ItemIdentity(closureItem);
-
-                    if (!itemKeys.has(identity))
-                    {
-                        itemKeys.add(identity);
-                        result.push(closureItem);
-                        changed = true;
-                    }
+                    itemKeys.add(identity);
+                    pendingIndices.push(result.length);
+                    result.push(closureItem);
                 }
             }
         }
@@ -264,19 +263,37 @@ export function lr1Goto(
  */
 export class Lr1ItemSetCollection
 {
+    private readonly indexByIdentity: ReadonlyMap<string, number>;
+
     /**
      * Creates a collection from an ordered list of closed item sets.
      *
      * @param grammar - Grammar the item sets were built from.
      * @param itemSets - Closed LR(1) item sets in discovery order.
+     * @param indexByIdentity - Optional precomputed identity-to-state map.
      */
     public constructor(
         /** Grammar analyzed when the item sets were constructed. */
         public readonly grammar: BnfGrammar,
         /** Closed LR(1) item sets indexed by parser state number. */
         public readonly itemSets: readonly (readonly Lr1Item[])[],
+        indexByIdentity?: ReadonlyMap<string, number>,
     )
     {
+        if (indexByIdentity !== undefined)
+        {
+            this.indexByIdentity = indexByIdentity;
+            return;
+        }
+
+        const builtIndex = new Map<string, number>();
+
+        for (let index = 0; index < itemSets.length; index += 1)
+        {
+            builtIndex.set(lr1SetIdentity(itemSets[index] ?? [], true), index);
+        }
+
+        this.indexByIdentity = builtIndex;
     }
 
     /**
@@ -287,17 +304,7 @@ export class Lr1ItemSetCollection
      */
     public indexOf(items: readonly Lr1Item[]): number | null
     {
-        const target = lr1SetIdentity(items);
-
-        for (let index = 0; index < this.itemSets.length; index += 1)
-        {
-            if (lr1SetIdentity(this.itemSets[index]) === target)
-            {
-                return index;
-            }
-        }
-
-        return null;
+        return this.indexByIdentity.get(lr1SetIdentity(items, true)) ?? null;
     }
 
     /**
@@ -355,43 +362,39 @@ export class Lr1ItemSetBuilder
             lookahead: startLookahead,
         }]);
         const itemSets: Lr1Item[][] = [[...initial]];
-        const itemSetKeys = new Map<string, number>([
-            [lr1SetIdentity(initial), 0],
+        const indexByIdentity = new Map<string, number>([
+            [lr1SetIdentity(initial, true), 0],
         ]);
-        const symbols = grammar.terminalKeys().concat(grammar.nonTerminalNames()).sort();
-        let changed = true;
+        const pendingStates: number[] = [0];
 
-        // Discover new states by GOTO until the collection stops growing.
-        while (changed)
+        // Discover new states from each state exactly once.
+        while (pendingStates.length > 0)
         {
-            changed = false;
+            const stateIndex = pendingStates.pop()!;
+            const itemSet = itemSets[stateIndex] ?? [];
 
-            for (const itemSet of [...itemSets])
+            for (const symbolKey of symbolsAfterDot(grammar, itemSet))
             {
-                for (const symbolKey of symbols)
+                const gotoSet = lr1Goto(grammar, analysis, itemSet, symbolKey);
+
+                if (gotoSet.length === 0)
                 {
-                    const gotoSet = lr1Goto(grammar, analysis, itemSet, symbolKey);
+                    continue;
+                }
 
-                    if (gotoSet.length === 0)
-                    {
-                        continue;
-                    }
+                const gotoKey = lr1SetIdentity(gotoSet, true);
 
-                    const gotoKey = lr1SetIdentity(gotoSet);
-                    const existingIndex = itemSetKeys.get(gotoKey);
-
-                    if (existingIndex === undefined)
-                    {
-                        const nextIndex = itemSets.length;
-                        itemSetKeys.set(gotoKey, nextIndex);
-                        itemSets.push([...gotoSet]);
-                        changed = true;
-                    }
+                if (!indexByIdentity.has(gotoKey))
+                {
+                    const nextIndex = itemSets.length;
+                    indexByIdentity.set(gotoKey, nextIndex);
+                    itemSets.push([...gotoSet]);
+                    pendingStates.push(nextIndex);
                 }
             }
         }
 
-        return new Lr1ItemSetCollection(grammar, itemSets);
+        return new Lr1ItemSetCollection(grammar, itemSets, indexByIdentity);
     }
 }
 
@@ -468,7 +471,6 @@ export function buildLalrGotoTargets(
 ): ReadonlyMap<string, number>
 {
     const targets = new Map<string, number>();
-    const symbols = grammar.terminalKeys().concat(grammar.nonTerminalNames()).sort();
 
     // Recompute LR(1) GOTOs and remap each target through the LR(1) → LALR index map.
     for (let lr1State = 0; lr1State < lr1Collection.itemSets.length; lr1State += 1)
@@ -482,7 +484,7 @@ export function buildLalrGotoTargets(
 
         const itemSet = lr1Collection.itemSets[lr1State] ?? [];
 
-        for (const symbolKey of symbols)
+        for (const symbolKey of symbolsAfterDot(grammar, itemSet))
         {
             const gotoSet = lr1Goto(grammar, analysis, itemSet, symbolKey);
 

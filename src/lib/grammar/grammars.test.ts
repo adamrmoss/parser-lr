@@ -315,4 +315,32 @@ describe('grammars/', () =>
             });
         });
     });
+
+    describe('ferrite.grammar', () =>
+    {
+        const grammar = readGrammar(readGrammarFile('ferrite.grammar'));
+
+        it('declares the ferrite grammar name and start symbol', () =>
+        {
+            expect(grammar.name).toBe('ferrite');
+            expect(grammar.startSymbol).toBe('program');
+        });
+
+        it('defines core declaration and expression productions', () =>
+        {
+            expect(grammar.hasProduction('top_decl')).toBe(true);
+            expect(grammar.hasProduction('struct_decl')).toBe(true);
+            expect(grammar.hasProduction('function_decl')).toBe(true);
+            expect(grammar.hasProduction('type_spec')).toBe(true);
+            expect(grammar.hasProduction('assignment_expr')).toBe(true);
+            expect(grammar.hasProduction('postfix_suffix')).toBe(true);
+        });
+
+        it('defines ast and transform sections', () =>
+        {
+            expect(grammar.astSchema).not.toBeNull();
+            expect(grammar.transformSchema).not.toBeNull();
+            expect(grammar.transformSchema?.rule('program$repeat_0')).toBeDefined();
+        });
+    });
 });

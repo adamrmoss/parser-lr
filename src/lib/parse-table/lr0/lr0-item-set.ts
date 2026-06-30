@@ -76,6 +76,42 @@ export function sortLr0Items(items: readonly Lr0Item[]): Lr0Item[]
 }
 
 /**
+ * Returns encoded symbol keys that appear immediately after the dot in an item set.
+ *
+ * @param grammar - BNF grammar containing referenced productions.
+ * @param items - Closed item set.
+ * @returns Sorted terminal and non-terminal keys eligible for GOTO from this state.
+ */
+export function symbolsAfterDot(
+    grammar: BnfGrammar,
+    items: readonly Lr0Item[],
+): readonly string[]
+{
+    const keys = new Set<string>();
+
+    for (const item of items)
+    {
+        const production = grammar.production(item.productionId);
+
+        if (production === null)
+        {
+            continue;
+        }
+
+        const nextSymbol = production.rhs[item.dot];
+
+        if (nextSymbol === undefined)
+        {
+            continue;
+        }
+
+        keys.add(bnfParserSymbolKey(nextSymbol));
+    }
+
+    return [...keys].sort();
+}
+
+/**
  * Computes the LR(0) closure of an item set.
  *
  * @param grammar - Plain or augmented BNF grammar.
@@ -86,43 +122,39 @@ export function lr0Closure(grammar: BnfGrammar, items: readonly Lr0Item[]): read
 {
     const result = sortLr0Items(items);
     const itemKeys = new Set(result.map((item) => Lr0ItemSetBuilder.itemIdentity(item)));
-    let changed = true;
+    const pendingIndices: number[] = result.map((_, index) => index);
 
-    // Fixed-point: add `[B → · γ]` for every `[A → α · B β]` until no new items appear.
-    while (changed)
+    // Expand closure from each newly discovered item only.
+    while (pendingIndices.length > 0)
     {
-        changed = false;
+        const item = result[pendingIndices.pop()!]!;
+        const production = grammar.production(item.productionId);
 
-        for (const item of [...result])
+        if (production === null)
         {
-            const production = grammar.production(item.productionId);
+            continue;
+        }
 
-            if (production === null)
+        const nextSymbol = production.rhs[item.dot];
+
+        if (nextSymbol === undefined || nextSymbol.kind !== 'nonTerminal')
+        {
+            continue;
+        }
+
+        for (const candidate of grammar.productionsFor(nextSymbol.name))
+        {
+            const closureItem: Lr0Item = {
+                productionId: candidate.id,
+                dot: 0,
+            };
+            const identity = Lr0ItemSetBuilder.itemIdentity(closureItem);
+
+            if (!itemKeys.has(identity))
             {
-                continue;
-            }
-
-            const nextSymbol = production.rhs[item.dot];
-
-            if (nextSymbol === undefined || nextSymbol.kind !== 'nonTerminal')
-            {
-                continue;
-            }
-
-            for (const candidate of grammar.productionsFor(nextSymbol.name))
-            {
-                const closureItem: Lr0Item = {
-                    productionId: candidate.id,
-                    dot: 0,
-                };
-                const identity = Lr0ItemSetBuilder.itemIdentity(closureItem);
-
-                if (!itemKeys.has(identity))
-                {
-                    itemKeys.add(identity);
-                    result.push(closureItem);
-                    changed = true;
-                }
+                itemKeys.add(identity);
+                pendingIndices.push(result.length);
+                result.push(closureItem);
             }
         }
     }
@@ -182,19 +214,40 @@ export function lr0Goto(
  */
 export class Lr0ItemSetCollection
 {
+    private readonly indexByIdentity: ReadonlyMap<string, number>;
+
     /**
      * Creates a collection from an ordered list of closed item sets.
      *
      * @param grammar - Grammar the item sets were built from.
      * @param itemSets - Closed LR(0) item sets in discovery order.
+     * @param indexByIdentity - Optional precomputed identity-to-state map.
      */
     public constructor(
         /** Grammar analyzed when the item sets were constructed. */
         public readonly grammar: BnfGrammar,
         /** Closed LR(0) item sets indexed by parser state number. */
         public readonly itemSets: readonly (readonly Lr0Item[])[],
+        indexByIdentity?: ReadonlyMap<string, number>,
     )
     {
+        if (indexByIdentity !== undefined)
+        {
+            this.indexByIdentity = indexByIdentity;
+            return;
+        }
+
+        const builtIndex = new Map<string, number>();
+
+        for (let index = 0; index < itemSets.length; index += 1)
+        {
+            builtIndex.set(
+                Lr0ItemSetBuilder.setIdentity(itemSets[index] ?? [], true),
+                index,
+            );
+        }
+
+        this.indexByIdentity = builtIndex;
     }
 
     /**
@@ -204,17 +257,9 @@ export class Lr0ItemSetCollection
      */
     public indexOf(items: readonly Lr0Item[]): number | null
     {
-        const target = Lr0ItemSetBuilder.setIdentity(items);
+        const target = Lr0ItemSetBuilder.setIdentity(items, true);
 
-        for (let index = 0; index < this.itemSets.length; index += 1)
-        {
-            if (Lr0ItemSetBuilder.setIdentity(this.itemSets[index]) === target)
-            {
-                return index;
-            }
-        }
-
-        return null;
+        return this.indexByIdentity.get(target) ?? null;
     }
 }
 
@@ -244,43 +289,39 @@ export class Lr0ItemSetBuilder
             dot: 0,
         }]);
         const itemSets: Lr0Item[][] = [[...initial]];
-        const itemSetKeys = new Map<string, number>([
-            [Lr0ItemSetBuilder.setIdentity(initial), 0],
+        const indexByIdentity = new Map<string, number>([
+            [Lr0ItemSetBuilder.setIdentity(initial, true), 0],
         ]);
-        const symbols = Lr0ItemSetBuilder.grammarSymbolKeys(grammar);
-        let changed = true;
+        const pendingStates: number[] = [0];
 
-        // Discover new states by GOTO until the collection stops growing.
-        while (changed)
+        // Discover new states from each state exactly once.
+        while (pendingStates.length > 0)
         {
-            changed = false;
+            const stateIndex = pendingStates.pop()!;
+            const itemSet = itemSets[stateIndex] ?? [];
 
-            for (const itemSet of [...itemSets])
+            for (const symbolKey of symbolsAfterDot(grammar, itemSet))
             {
-                for (const symbolKey of symbols)
+                const gotoSet = lr0Goto(grammar, itemSet, symbolKey);
+
+                if (gotoSet.length === 0)
                 {
-                    const gotoSet = lr0Goto(grammar, itemSet, symbolKey);
+                    continue;
+                }
 
-                    if (gotoSet.length === 0)
-                    {
-                        continue;
-                    }
+                const gotoKey = Lr0ItemSetBuilder.setIdentity(gotoSet, true);
 
-                    const gotoKey = Lr0ItemSetBuilder.setIdentity(gotoSet);
-                    const existingIndex = itemSetKeys.get(gotoKey);
-
-                    if (existingIndex === undefined)
-                    {
-                        const nextIndex = itemSets.length;
-                        itemSetKeys.set(gotoKey, nextIndex);
-                        itemSets.push([...gotoSet]);
-                        changed = true;
-                    }
+                if (!indexByIdentity.has(gotoKey))
+                {
+                    const nextIndex = itemSets.length;
+                    indexByIdentity.set(gotoKey, nextIndex);
+                    itemSets.push([...gotoSet]);
+                    pendingStates.push(nextIndex);
                 }
             }
         }
 
-        return new Lr0ItemSetCollection(grammar, itemSets);
+        return new Lr0ItemSetCollection(grammar, itemSets, indexByIdentity);
     }
 
     /**
@@ -314,10 +355,13 @@ export class Lr0ItemSetBuilder
      * Returns a stable identity string for an item set.
      *
      * @param items - Closed item set.
+     * @param alreadySorted - When true, skips re-sorting because items are canonical.
      */
-    public static setIdentity(items: readonly Lr0Item[]): string
+    public static setIdentity(items: readonly Lr0Item[], alreadySorted = false): string
     {
-        return sortLr0Items(items)
+        const sorted = alreadySorted ? items : sortLr0Items(items);
+
+        return sorted
             .map((item) => Lr0ItemSetBuilder.itemIdentity(item))
             .join('|');
     }
