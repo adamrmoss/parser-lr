@@ -2,7 +2,7 @@ import { EOF_TOKEN_NAME } from '../../lexer/token.js';
 
 import { AUGMENTED_START_SYMBOL, type BnfGrammar } from '../bnf/bnf-grammar.js';
 import { bnfParserSymbolKey } from '../bnf/bnf-symbol.js';
-import { lr0Goto, Lr0ItemSetBuilder, symbolsAfterDot, type Lr0Item } from '../lr0/lr0-item-set.js';
+import { lr0Goto, symbolsAfterDot, type Lr0Item } from '../lr0/lr0-item-set.js';
 
 import {
     classifyParseConflict,

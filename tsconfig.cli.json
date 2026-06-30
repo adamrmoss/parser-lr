@@ -8,5 +8,6 @@
         "declarationMap": false,
         "noEmit": true
     },
-    "include": ["src/cli/**/*.ts", "src/lib/**/*.ts"]
+    "include": ["src/cli/**/*.ts", "src/lib/**/*.ts"],
+    "exclude": ["src/lib/**/*.test.ts", "src/cli/**/*.test.ts"]
 }

@@ -6,7 +6,7 @@ import { eofToken } from '../lexer/token.js';
 import { ParseTableBuildError } from '../parse-table/parse-table-build-error.js';
 import { ParseTable } from '../parse-table/parse-table.js';
 import { tokenInventory } from '../parse-table/token-inventory.js';
-import { formatParseAction } from '../parse-table/table/parse-action.js';
+import { formatParseAction, type ParseAction } from '../parse-table/table/parse-action.js';
 import { parseWithTableResult } from '../shift-reduce/shift-reduce-engine.js';
 
 describe('ParseTable coverage gaps', () =>
@@ -93,7 +93,7 @@ describe('shift-reduce parse diagnostics', () =>
                 variant: null,
                 origin: 'S',
             }],
-            new Map([
+            new Map<number, Map<string, ParseAction>>([
                 [0, new Map([['a', { kind: 'shift', state: 1 }]])],
                 [1, new Map([['$eof', { kind: 'reduce', productionId: 999 }]])],
             ]),

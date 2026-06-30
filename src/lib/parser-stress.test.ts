@@ -46,7 +46,7 @@ describe('parser stress — sample grammars across LR algorithms', () =>
                 });
             }
 
-            if (!conflictFree.includes('lr0'))
+            if (conflictFree.every((algorithm) => algorithm !== 'lr0'))
             {
                 it('reports LR(0) shift-reduce conflicts as warnings', () =>
                 {
