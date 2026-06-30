@@ -48,3 +48,4 @@ export type { ParseContextSources } from './parse-context.js';
 export { formatParseOutput } from './parse-output.js';
 export { ParserLr } from './parser-lr.js';
 export { parseWithTable, ShiftReduceEngine } from './shift-reduce/index.js';
+export { transformCst, CstTransformer } from './transform/index.js';

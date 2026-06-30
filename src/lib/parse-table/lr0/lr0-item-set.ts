@@ -1,5 +1,5 @@
 import type { BnfGrammar } from '../bnf/bnf-grammar.js';
-import { bnfSymbolKey } from '../bnf/bnf-symbol.js';
+import { bnfParserSymbolKey, bnfSymbolKey } from '../bnf/bnf-symbol.js';
 
 /**
  * One LR(0) item: a production with the dot before `dot` right-hand side symbols.
@@ -150,7 +150,7 @@ export function lr0Goto(
 
         const nextSymbol = production.rhs[item.dot];
 
-        if (nextSymbol === undefined || bnfSymbolKey(nextSymbol) !== symbolKey)
+        if (nextSymbol === undefined || bnfParserSymbolKey(nextSymbol) !== symbolKey)
         {
             continue;
         }

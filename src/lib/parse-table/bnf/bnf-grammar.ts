@@ -1,5 +1,5 @@
 import type { BnfProduction } from './bnf-production.js';
-import { bnfSymbolKey, type BnfSymbol } from './bnf-symbol.js';
+import { bnfParserSymbolKey, bnfSymbolKey, type BnfSymbol } from './bnf-symbol.js';
 
 /** Sentinel non-terminal introducing the augmented start production. */
 export const AUGMENTED_START_SYMBOL = '$accept';
@@ -107,7 +107,7 @@ export class BnfGrammar
             {
                 if (symbol.kind === 'terminal' || symbol.kind === 'token')
                 {
-                    keys.add(bnfSymbolKey(symbol));
+                    keys.add(bnfParserSymbolKey(symbol));
                 }
             }
         }
@@ -169,7 +169,7 @@ export class BnfGrammar
         {
             for (const symbol of production.rhs)
             {
-                if (symbol.kind !== 'nonTerminal' && bnfSymbolKey(symbol) === key)
+                if (symbol.kind !== 'nonTerminal' && bnfParserSymbolKey(symbol) === key)
                 {
                     return symbol;
                 }

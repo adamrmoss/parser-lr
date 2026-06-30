@@ -9,6 +9,7 @@ Browser- and Node-safe parser API. Built with `tsc` into `dist/lib/` as unbundle
 | `index.ts` | Public exports |
 | `parser-lr.ts` | `ParserLr` shift-reduce parser |
 | `shift-reduce/` | Table-driven shift-reduce interpreter |
+| `transform/` | CST-to-AST transform engine |
 | `parse-context.ts` | `ParseContext` — load parser + table from grammar or JSON |
 | `parse-output.ts` | Format parse results for interchange |
 | `ast/ast-node.ts` | `AstNode` parse tree nodes |

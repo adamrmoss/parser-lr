@@ -52,11 +52,15 @@ grammar
                             text: '1',
                             location: { offset: 0, length: 1 },
                             variant: null,
+                            productionId: null,
+                            origin: null,
                         },
                     ],
                     text: null,
                     location: { offset: 0, length: 1 },
                     variant: null,
+                    productionId: 1,
+                    origin: 'expr',
                 },
                 {
                     symbol: 'plus',
@@ -64,6 +68,8 @@ grammar
                     text: '+',
                     location: { offset: 2, length: 1 },
                     variant: null,
+                    productionId: null,
+                    origin: null,
                 },
                 {
                     symbol: 'number',
@@ -71,11 +77,15 @@ grammar
                     text: '2',
                     location: { offset: 4, length: 1 },
                     variant: null,
+                    productionId: null,
+                    origin: null,
                 },
             ],
             text: null,
             location: { offset: 0, length: 5 },
             variant: null,
+            productionId: 0,
+            origin: 'expr',
         });
     });
 
@@ -110,11 +120,15 @@ grammar
                     text: '7',
                     location: { offset: 0, length: 1 },
                     variant: null,
+                    productionId: null,
+                    origin: null,
                 },
             ],
             text: null,
             location: { offset: 0, length: 1 },
             variant: null,
+            productionId: 1,
+            origin: 'expr',
         });
     });
 

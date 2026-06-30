@@ -1,6 +1,6 @@
 import type { GrammarAnalysis } from '../analysis/first-follow.js';
 import type { BnfGrammar } from '../bnf/bnf-grammar.js';
-import { bnfSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
+import { bnfParserSymbolKey, bnfSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
 import type { Lr0Item } from '../lr0/lr0-item-set.js';
 import { sortLr0Items } from '../lr0/lr0-item-set.js';
 import { TableBuilderBase } from '../table/table-builder-base.js';
@@ -220,7 +220,7 @@ export function lr1Goto(
 
         const nextSymbol = production.rhs[item.dot];
 
-        if (nextSymbol === undefined || bnfSymbolKey(nextSymbol) !== symbolKey)
+        if (nextSymbol === undefined || bnfParserSymbolKey(nextSymbol) !== symbolKey)
         {
             continue;
         }

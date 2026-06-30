@@ -225,6 +225,8 @@ export class ShiftReduceEngine
             children,
             mergeChildLocations(children),
             production.variant,
+            production.id,
+            production.origin,
         );
     }
 }

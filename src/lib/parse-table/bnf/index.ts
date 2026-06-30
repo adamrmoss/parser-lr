@@ -1,4 +1,4 @@
-export { bnfSymbolKey } from './bnf-symbol.js';
+export { bnfParserSymbolKey, bnfSymbolKey } from './bnf-symbol.js';
 export type {
     BnfNonTerminalSymbol,
     BnfSymbol,

@@ -11,25 +11,24 @@ import type { Token } from './lexer/token.js';
 import type { LrAlgorithm } from './parse-table/lr-algorithm.js';
 import { ParseTable } from './parse-table/parse-table.js';
 import { parseWithTable } from './shift-reduce/shift-reduce-engine.js';
+import { transformCst } from './transform/cst-transformer.js';
 
 /**
  * Shift-reduce parser for EBNF grammars.
  */
 export class ParserLr
 {
-    private readonly grammar: Grammar;
-    private readonly table: ParseTable | null;
-
     /**
      * Creates a parser bound to a grammar and optional parse table.
      *
      * @param grammar - Parsed `.grammar` file supplying lexer and parser rules.
      * @param table - Optional parse table used for shift-reduce parsing.
      */
-    public constructor(grammar: Grammar, table: ParseTable | null = null)
+    public constructor(
+        public readonly grammar: Grammar,
+        private readonly table: ParseTable | null = null,
+    )
     {
-        this.grammar = grammar;
-        this.table = table;
     }
 
     /**
@@ -114,7 +113,7 @@ export class ParserLr
      * @param tokens - Token stream ending with `$eof`.
      * @returns Parse tree rooted at the grammar start symbol, or null on syntax error.
      */
-    public parse(tokens: readonly Token[]): AstNode | null
+    public parseCst(tokens: readonly Token[]): AstNode | null
     {
         if (this.table === null)
         {
@@ -125,10 +124,44 @@ export class ParserLr
     }
 
     /**
-     * Lexes and parses source text into a concrete syntax tree.
+     * Parses a token stream into an AST when transform rules are declared.
+     *
+     * @param tokens - Token stream ending with `$eof`.
+     * @returns Transformed AST, CST when no transform section exists, or null on failure.
+     */
+    public parseAst(tokens: readonly Token[]): AstNode | null
+    {
+        const cst = this.parseCst(tokens);
+
+        if (cst === null)
+        {
+            return null;
+        }
+
+        if (this.grammar.transformSchema === null || this.table === null)
+        {
+            return cst;
+        }
+
+        return transformCst(cst, this.grammar.transformSchema, this.table);
+    }
+
+    /**
+     * Parses a token stream, applying CST-to-AST transforms when configured.
+     *
+     * @param tokens - Token stream ending with `$eof`.
+     * @returns AST or CST parse tree, or null on syntax error.
+     */
+    public parse(tokens: readonly Token[]): AstNode | null
+    {
+        return this.parseAst(tokens);
+    }
+
+    /**
+     * Lexes and parses source text, applying CST-to-AST transforms when configured.
      *
      * @param source - Input text to parse.
-     * @returns Parse tree rooted at the grammar start symbol, or null on syntax error.
+     * @returns AST or CST parse tree, or null on syntax error.
      */
     public parseSource(source: string): AstNode | null
     {

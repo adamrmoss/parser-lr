@@ -2,7 +2,7 @@ import { EOF_TOKEN_NAME } from '../../lexer/token.js';
 
 import { AUGMENTED_START_SYMBOL, type BnfGrammar } from '../bnf/bnf-grammar.js';
 import type { BnfProduction } from '../bnf/bnf-production.js';
-import { bnfSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
+import { bnfParserSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
 
 /**
  * Nullable non-terminals and FIRST/FOLLOW sets for a BNF grammar.
@@ -101,7 +101,7 @@ export class GrammarAnalysis
             return this.firstOfNonTerminal(symbol.name);
         }
 
-        return new Set<string>([bnfSymbolKey(symbol)]);
+        return new Set<string>([bnfParserSymbolKey(symbol)]);
     }
 
     /**
@@ -321,7 +321,7 @@ export class GrammarAnalysis
             }
             else
             {
-                result.add(bnfSymbolKey(symbol));
+                result.add(bnfParserSymbolKey(symbol));
                 allNullable = false;
                 break;
             }
