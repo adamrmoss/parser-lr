@@ -1,49 +1,105 @@
 # parser-lr
 
-Shift-reduce parser library for EBNF grammars. Build an LR parse table from a grammar, then parse source into an AST.
+Shift-reduce parser for EBNF grammars. Describe your language with a `.grammar` file, build an LR parse table, then lex and parse source into a concrete syntax tree or AST, for execution or code generation.
 
-## Layout
+Grammar file syntax is documented in [`docs/grammar.md`](docs/grammar.md).
 
-| Path | Role |
-|------|------|
-| `grammars/` | EBNF grammar specs (`grammar.grammar` meta-grammar, plus sample grammars) |
-| `src/lib/` | Library API (Node and browser) — see [`src/lib/README.md`](src/lib/README.md) |
-| `src/cli/` | Node CLI — see [`src/cli/README.md`](src/cli/README.md) |
+## Install
 
-## Library API
-
-| Type | Purpose |
-|------|---------|
-| `Grammar` | Parsed `.grammar` file (lexer, parse productions, optional `AstSchema`) |
-| `AstSchema` | AST types from the `ast` section |
-| `TransformSchema` | CST-to-AST rules from the `transform` section |
-| `AstNode` | Parse tree node (interior symbols and terminal leaves) |
-| `Token` | Lexeme from tokenization (name, text, source span) |
-| `ParseTable` | Serializable LR table metadata with token inventory |
-| `ParserLr` | Shift-reduce parser (table build and parse) |
-
-## Build and test
+From npm:
 
 ```bash
-npm run build    # tsc → dist/lib/, Rollup → bin/parser-lr.js
-npm test
+npm install parser-lr
 ```
 
-## Bootstrap
-
-Grammar files are lexed and parsed with a bootstrapped meta-grammar table checked in at `src/lib/grammar/grammar.json`. Regenerate it after changing `grammars/grammar.grammar`:
+From a clone of this repository:
 
 ```bash
-npm run bootstrap
+npm install
+npm run build
 ```
-
-The meta-grammar LR parser builds the `Grammar` model used to bootstrap table generation.
 
 ## CLI
 
+The `parser-lr` command is published as the package `bin` entry. After a local build, link it globally:
+
 ```bash
-parser-lr table generate -g grammars/lisp.grammar -o table.json
-parser-lr parse -i source.txt -g grammars/lisp.grammar
+npm link
 ```
 
-The `parse` command outputs a concrete syntax tree as JSON (`{ "ast": … }`).
+You can then run `parser-lr` from any directory. Without linking, use `npx parser-lr` (published install) or `node node_modules/parser-lr/bin/parser-lr.js`.
+
+### Build a parse table
+
+Generate a serialized LR table from a grammar file:
+
+```bash
+parser-lr table generate -g mylang.grammar -o mylang.table.json
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `-g, --grammar <path>` | `.grammar` file (required) |
+| `-o, --output <path>` | Output path (default: stdout) |
+| `-a, --algorithm <name>` | `lr0`, `slr`, `lalr`, or `lr1` (default: `lr1`) |
+
+The JSON table includes lexer token rules, skip rules, and the full ACTION/GOTO table. You can ship this file without the original grammar.
+
+### Parse a source file
+
+Parse input using either the grammar (table built in memory) or a saved table:
+
+```bash
+parser-lr parse -i program.txt -g mylang.grammar
+parser-lr parse -i program.txt -t mylang.table.json
+```
+
+Options:
+
+| Option | Description |
+|--------|-------------|
+| `-i, --input <path>` | Source file to parse (required) |
+| `-g, --grammar <path>` | `.grammar` file (one of grammar or table) |
+| `-t, --table <path>` | Serialized table JSON from `table generate` |
+| `-o, --output <path>` | Output path (default: stdout) |
+| `--format <name>` | Output format (default: `json`) |
+
+Output is a JSON object `{ "ast": … }`. On a syntax error, `ast` is `null`.
+
+When the grammar defines `ast` and `transform` sections, the CLI applies CST-to-AST transforms and returns the abstract tree.
+
+## Library
+
+Import from `parser-lr` in Node or bundler projects (ESM). The API is browser-safe; the CLI is Node-only.
+
+```typescript
+import { readFile } from 'node:fs/promises';
+import { ParseContext } from 'parser-lr';
+
+const grammarSource = await readFile('mylang.grammar', 'utf8');
+const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+
+const source = await readFile('program.txt', 'utf8');
+const ast = context.parseSource(source);
+```
+
+Load a pre-built table instead of a grammar file:
+
+```typescript
+import { readFile } from 'node:fs/promises';
+import { ParseContext } from 'parser-lr';
+
+const tableJson = await readFile('mylang.table.json', 'utf8');
+const context = ParseContext.fromTableJson(tableJson);
+
+const source = await readFile('program.txt', 'utf8');
+const ast = context.parse(context.lex(source));
+```
+
+`ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See [`src/lib/README.md`](src/lib/README.md) for the main types.
+
+## Example grammars
+
+Sample `.grammar` files ship in [`grammars/`](grammars/) (`calc.grammar`, `lisp.grammar`, `6502.grammar`, and the meta-grammar `grammar.grammar`). Use them as templates when writing your own language.
