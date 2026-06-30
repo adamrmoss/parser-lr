@@ -22,6 +22,7 @@ export class TableBuilderBase
      * @param grammar - Augmented BNF grammar.
      * @param itemSets - Canonical item set collection.
      * @param gotoItems - Computes the GOTO item set for one state and symbol.
+     * @returns Map from `state:symbol` keys to target state indices.
      */
     public static buildGotoTargets(
         grammar: BnfGrammar,
@@ -37,6 +38,7 @@ export class TableBuilderBase
         const targets = new Map<string, number>();
         const symbols = Lr0ItemSetBuilder.grammarSymbolKeys(grammar);
 
+        // Precompute GOTO for every state and grammar symbol.
         for (let state = 0; state < itemSets.length; state += 1)
         {
             const itemSet = itemSets[state] ?? [];
@@ -85,6 +87,7 @@ export class TableBuilderBase
         conflicts: ParseConflict[],
     ): void
     {
+        // Derive shift and GOTO entries from every incomplete item in the state.
         for (const item of itemSet)
         {
             const production = grammar.production(item.productionId);
@@ -109,6 +112,7 @@ export class TableBuilderBase
                 continue;
             }
 
+            // Non-terminal symbols populate GOTO; terminals populate ACTION shift entries.
             if (nextSymbol.kind === 'nonTerminal')
             {
                 stateGotos.set(nextSymbol.name, targetState);
@@ -190,6 +194,7 @@ export class TableBuilderBase
             return;
         }
 
+        // Identical re-insertions are ignored; disagreeing actions become conflicts.
         if (parseActionsEqual(existing, incoming))
         {
             return;

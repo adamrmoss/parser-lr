@@ -33,6 +33,7 @@ export class GrammarAnalysis
      * Returns whether a non-terminal can derive the empty string.
      *
      * @param name - Non-terminal name to test.
+     * @returns True when the non-terminal can derive ε.
      */
     public isNullable(name: string): boolean
     {
@@ -63,12 +64,14 @@ export class GrammarAnalysis
      * Returns FIRST symbols for a symbol sequence.
      *
      * @param symbols - Right-hand side prefix or full sequence.
+     * @returns Encoded terminal keys in FIRST of the sequence.
      */
     public firstOfSequence(symbols: readonly BnfSymbol[]): ReadonlySet<string>
     {
         const result = new Set<string>();
         let allNullable = true;
 
+        // Accumulate FIRST of each prefix symbol until a non-nullable symbol stops propagation.
         for (const symbol of symbols)
         {
             const symbolFirst = this.firstOfSymbol(symbol);
@@ -81,6 +84,7 @@ export class GrammarAnalysis
             }
         }
 
+        // Every symbol is nullable, so end-of-input is in FIRST.
         if (allNullable)
         {
             result.add(EOF_TOKEN_NAME);
@@ -123,12 +127,14 @@ export class GrammarAnalysis
      * Computes nullable non-terminals by fixed-point iteration.
      *
      * @param grammar - Plain BNF grammar to analyze.
+     * @returns The set of non-terminal names that derive ε.
      */
     private static computeNullable(grammar: BnfGrammar): ReadonlySet<string>
     {
         const nullable = new Set<string>();
         let changed = true;
 
+        // Fixed-point: mark A nullable when every production A → α has nullable α.
         while (changed)
         {
             changed = false;
@@ -162,6 +168,7 @@ export class GrammarAnalysis
      *
      * @param grammar - Plain BNF grammar to analyze.
      * @param nullable - Nullable non-terminal names.
+     * @returns FIRST set for every non-terminal name.
      */
     private static computeFirst(
         grammar: BnfGrammar,
@@ -177,6 +184,7 @@ export class GrammarAnalysis
 
         let changed = true;
 
+        // Fixed-point: add FIRST(α) into FIRST(A) for each production A → α.
         while (changed)
         {
             changed = false;
@@ -205,6 +213,7 @@ export class GrammarAnalysis
      * @param grammar - Plain BNF grammar to analyze.
      * @param firstByNonTerminal - Precomputed FIRST sets.
      * @param nullable - Nullable non-terminal names.
+     * @returns FOLLOW set for every non-terminal name.
      */
     private static computeFollow(
         grammar: BnfGrammar,
@@ -219,12 +228,14 @@ export class GrammarAnalysis
             followByNonTerminal.set(name, new Set<string>());
         }
 
+        // Seed FOLLOW of the start symbol with end-of-input.
         const startFollow = followByNonTerminal.get(grammar.startSymbol) ?? new Set<string>();
         startFollow.add(EOF_TOKEN_NAME);
         followByNonTerminal.set(grammar.startSymbol, startFollow);
 
         let changed = true;
 
+        // Fixed-point: propagate FOLLOW through every production A → α B β.
         while (changed)
         {
             changed = false;
@@ -251,6 +262,7 @@ export class GrammarAnalysis
 
                     GrammarAnalysis.addAll(follow, betaFirst);
 
+                    // When β is empty or nullable, inherit FOLLOW of the production lhs.
                     if (beta.length === 0 || GrammarAnalysis.isSequenceNullableStatic(beta, nullable))
                     {
                         const lhsFollow = followByNonTerminal.get(production.name) ?? new Set<string>();
@@ -374,6 +386,7 @@ export class GrammarAnalysis
  * Computes nullable, FIRST, and FOLLOW sets for a BNF grammar.
  *
  * @param grammar - Plain BNF grammar to analyze.
+ * @returns Nullable, FIRST, and FOLLOW analysis for the grammar.
  */
 export function analyzeGrammar(grammar: BnfGrammar): GrammarAnalysis
 {

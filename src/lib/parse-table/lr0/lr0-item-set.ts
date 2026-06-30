@@ -6,7 +6,10 @@ import { bnfParserSymbolKey, bnfSymbolKey } from '../bnf/bnf-symbol.js';
  */
 export interface Lr0Item
 {
+    /** Stable production id assigned during BNF desugaring. */
     readonly productionId: number;
+
+    /** Number of right-hand side symbols before the dot. */
     readonly dot: number;
 }
 
@@ -15,6 +18,7 @@ export interface Lr0Item
  *
  * @param grammar - Grammar containing the referenced production.
  * @param item - LR(0) item to encode.
+ * @returns A human-readable dotted production string for diagnostics.
  */
 export function lr0ItemKey(grammar: BnfGrammar, item: Lr0Item): string
 {
@@ -76,6 +80,7 @@ export function sortLr0Items(items: readonly Lr0Item[]): Lr0Item[]
  *
  * @param grammar - Plain or augmented BNF grammar.
  * @param items - Seed items.
+ * @returns The seed items plus all items implied by dotted non-terminal prefixes.
  */
 export function lr0Closure(grammar: BnfGrammar, items: readonly Lr0Item[]): readonly Lr0Item[]
 {
@@ -83,6 +88,7 @@ export function lr0Closure(grammar: BnfGrammar, items: readonly Lr0Item[]): read
     const itemKeys = new Set(result.map((item) => Lr0ItemSetBuilder.itemIdentity(item)));
     let changed = true;
 
+    // Fixed-point: add `[B → · γ]` for every `[A → α · B β]` until no new items appear.
     while (changed)
     {
         changed = false;
@@ -130,6 +136,7 @@ export function lr0Closure(grammar: BnfGrammar, items: readonly Lr0Item[]): read
  * @param grammar - Plain or augmented BNF grammar.
  * @param items - Closed item set.
  * @param symbolKey - Encoded terminal or non-terminal symbol.
+ * @returns The closed item set reached after advancing the dot past `symbolKey`.
  */
 export function lr0Goto(
     grammar: BnfGrammar,
@@ -139,6 +146,7 @@ export function lr0Goto(
 {
     const moved: Lr0Item[] = [];
 
+    // Advance the dot on every item expecting `symbolKey`.
     for (const item of items)
     {
         const production = grammar.production(item.productionId);
@@ -181,7 +189,9 @@ export class Lr0ItemSetCollection
      * @param itemSets - Closed LR(0) item sets in discovery order.
      */
     public constructor(
+        /** Grammar analyzed when the item sets were constructed. */
         public readonly grammar: BnfGrammar,
+        /** Closed LR(0) item sets indexed by parser state number. */
         public readonly itemSets: readonly (readonly Lr0Item[])[],
     )
     {
@@ -217,6 +227,7 @@ export class Lr0ItemSetBuilder
      * Builds the canonical LR(0) collection for a grammar.
      *
      * @param grammar - Augmented or plain BNF grammar.
+     * @returns The canonical LR(0) item set collection for the grammar.
      */
     public static build(grammar: BnfGrammar): Lr0ItemSetCollection
     {
@@ -227,6 +238,7 @@ export class Lr0ItemSetBuilder
             return new Lr0ItemSetCollection(grammar, []);
         }
 
+        // Seed state 0 from the start production at dot zero.
         const initial = lr0Closure(grammar, [{
             productionId: startProductions[0].id,
             dot: 0,
@@ -238,6 +250,7 @@ export class Lr0ItemSetBuilder
         const symbols = Lr0ItemSetBuilder.grammarSymbolKeys(grammar);
         let changed = true;
 
+        // Discover new states by GOTO until the collection stops growing.
         while (changed)
         {
             changed = false;
@@ -314,6 +327,7 @@ export class Lr0ItemSetBuilder
  * Builds the canonical LR(0) item set collection for a grammar.
  *
  * @param grammar - Augmented or plain BNF grammar.
+ * @returns The canonical LR(0) item set collection for the grammar.
  */
 export function buildLr0ItemSets(grammar: BnfGrammar): Lr0ItemSetCollection
 {

@@ -43,6 +43,7 @@
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
         "build:lib": "tsc -p tsconfig.lib.json && cp src/lib/grammar/grammar.json dist/lib/grammar/",
         "build:cli": "rollup -c rollup.cli.config.js && chmod +x bin/parser-lr.js",
+        "cloc": "cloc src --exclude-dir=node_modules,dist",
         "test": "jest",
         "prepack": "npm run build"
     },

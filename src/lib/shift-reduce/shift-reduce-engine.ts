@@ -8,6 +8,7 @@ import type { ParseTable } from '../parse-table/parse-table.js';
  * Returns the ACTION table key for a lexer token.
  *
  * @param token - Current input token.
+ * @returns The ACTION table key for the token, or `$eof` for end-of-input.
  */
 export function tokenActionKey(token: Token): string
 {
@@ -23,6 +24,7 @@ export function tokenActionKey(token: Token): string
  * Builds a terminal CST node from a shifted token.
  *
  * @param token - Lexer token that was shifted.
+ * @returns A terminal CST node carrying the token name, text, and location.
  */
 export function astNodeFromToken(token: Token): AstNode
 {
@@ -33,12 +35,14 @@ export function astNodeFromToken(token: Token): AstNode
  * Merges child spans into one source location.
  *
  * @param children - Reduced child subtrees.
+ * @returns The smallest span covering all child locations, or null when none exist.
  */
 export function mergeChildLocations(children: readonly AstNode[]): SourceLocation | null
 {
     let offset: number | null = null;
     let end: number | null = null;
 
+    // Walk children to find the earliest offset and latest end position.
     for (const child of children)
     {
         if (child.location === null)
@@ -73,8 +77,13 @@ export function mergeChildLocations(children: readonly AstNode[]): SourceLocatio
  */
 export interface ShiftReduceParseResult
 {
+    /** Concrete syntax tree on success, or null on syntax error. */
     readonly cst: AstNode | null;
+
+    /** Source offset of the first error token, or null on success. */
     readonly errorOffset: number | null;
+
+    /** Human-readable syntax error message, or null on success. */
     readonly errorMessage: string | null;
 }
 
@@ -129,6 +138,7 @@ export class ShiftReduceEngine
         const valueStack: AstNode[] = [];
         let tokenIndex = 0;
 
+        // Drive the parser until accept, error, or an unrecoverable reduce failure.
         while (true)
         {
             const state = stateStack[stateStack.length - 1];
@@ -203,6 +213,7 @@ export class ShiftReduceEngine
      * @param productionId - Production to reduce by.
      * @param stateStack - Parser state stack.
      * @param valueStack - Semantic value stack.
+     * @returns The reduced subtree pushed onto the value stack, or null on stack underflow.
      */
     private static reduce(
         table: ParseTable,
@@ -221,6 +232,7 @@ export class ShiftReduceEngine
         const rhsLength = production.rhs.length;
         const children: AstNode[] = [];
 
+        // Pop one state and value per right-hand side symbol.
         for (let index = 0; index < rhsLength; index += 1)
         {
             if (stateStack.length === 0 || valueStack.length === 0)
@@ -244,6 +256,7 @@ export class ShiftReduceEngine
             return null;
         }
 
+        // Follow GOTO for the production left-hand side and push the new subtree.
         const gotoState = table.goto(stateStack[stateStack.length - 1], production.name);
 
         if (gotoState === null)
@@ -263,6 +276,7 @@ export class ShiftReduceEngine
      *
      * @param production - Reduced production metadata.
      * @param children - Child subtrees matching the production right-hand side.
+     * @returns A rule CST node spanning the reduced children.
      */
     private static nodeFromProduction(
         production: ParseTableProductionJson,
@@ -285,6 +299,7 @@ export class ShiftReduceEngine
  *
  * @param table - Parse table with ACTION, GOTO, and production metadata.
  * @param tokens - Token stream ending with `$eof`.
+ * @returns The start symbol parse tree, or null on syntax error.
  */
 export function parseWithTable(table: ParseTable, tokens: readonly Token[]): AstNode | null
 {
@@ -296,6 +311,7 @@ export function parseWithTable(table: ParseTable, tokens: readonly Token[]): Ast
  *
  * @param table - Parse table with ACTION, GOTO, and production metadata.
  * @param tokens - Token stream ending with `$eof`.
+ * @returns Parse tree on success, or error offset and message on failure.
  */
 export function parseWithTableResult(
     table: ParseTable,
