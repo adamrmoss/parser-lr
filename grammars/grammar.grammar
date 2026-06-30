@@ -63,7 +63,7 @@ tokens
     rbrace = /\}/ ;
 
     // Lexer: / pattern / then zero or more flag letters from g i m s u y
-    regex_literal = /\/(\\.|[^\\\/])+\// ;
+    regex_literal = /\/(\\.|[^\\\/])+\/[gimsuy]*/ ;
     string_literal = /"(?:\\.|[^"\\])*"/ ;
 
 skip

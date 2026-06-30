@@ -342,5 +342,19 @@ describe('grammars/', () =>
             expect(grammar.transformSchema).not.toBeNull();
             expect(grammar.transformSchema?.rule('program$repeat_0')).toBeDefined();
         });
+
+        it('loads numeric literals with documented regex suffix flags', () =>
+        {
+            expect(grammar.tokenRules.find((rule) => rule.name === 'int_literal')).toEqual({
+                name: 'int_literal',
+                pattern: '0x[0-9A-F]+|0b[01]+|[0-9]+',
+                flags: 'i',
+            });
+            expect(grammar.tokenRules.find((rule) => rule.name === 'float_literal')).toEqual({
+                name: 'float_literal',
+                pattern: '[0-9]+\\.[0-9]+([E][+-]?[0-9]+)?|[0-9]+[E][+-]?[0-9]+',
+                flags: 'i',
+            });
+        });
     });
 });

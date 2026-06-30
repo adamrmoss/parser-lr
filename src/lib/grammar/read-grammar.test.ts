@@ -32,6 +32,44 @@ grammar
         expect(grammar.productions).toHaveLength(1);
     });
 
+    it('parses token rules with regex suffix flags', () =>
+    {
+        const grammar = readGrammar(`
+name "flags" ;
+
+tokens
+    kw_print = /PRINT/i ;
+
+start expr ;
+
+grammar
+    expr = identifier ;
+`);
+
+        expect(grammar.tokenRules).toEqual([
+            { name: 'kw_print', pattern: 'PRINT', flags: 'i' },
+        ]);
+    });
+
+    it('parses token rules with multiple flags and escaped slashes', () =>
+    {
+        const grammar = readGrammar(`
+name "flags" ;
+
+tokens
+    slash = /a\\/b/gim ;
+
+start expr ;
+
+grammar
+    expr = identifier ;
+`);
+
+        expect(grammar.tokenRules).toEqual([
+            { name: 'slash', pattern: 'a\\/b', flags: 'gim' },
+        ]);
+    });
+
     it('throws ReadGrammarError for invalid grammar syntax', () =>
     {
         expect(() => readGrammar(`
