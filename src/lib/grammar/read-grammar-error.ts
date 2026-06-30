@@ -1,7 +1,9 @@
+import { ParserLrError } from '../errors/parser-lr-error.js';
+
 /**
  * Error thrown when a `.grammar` file cannot be lexed or parsed.
  */
-export class ReadGrammarError extends Error
+export class ReadGrammarError extends ParserLrError
 {
     /**
      * Creates a grammar read error at a source offset.
@@ -15,6 +17,5 @@ export class ReadGrammarError extends Error
     )
     {
         super(message);
-        this.name = 'ReadGrammarError';
     }
 }

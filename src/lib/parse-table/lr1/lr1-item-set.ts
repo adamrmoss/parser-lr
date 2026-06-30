@@ -1,6 +1,6 @@
 import type { GrammarAnalysis } from '../analysis/first-follow.js';
 import type { BnfGrammar } from '../bnf/bnf-grammar.js';
-import { bnfParserSymbolKey, bnfSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
+import { bnfParserSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
 import type { Lr0Item } from '../lr0/lr0-item-set.js';
 import { sortLr0Items } from '../lr0/lr0-item-set.js';
 import { TableBuilderBase } from '../table/table-builder-base.js';

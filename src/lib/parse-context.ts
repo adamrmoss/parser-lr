@@ -1,4 +1,5 @@
 import type { AstNode } from './ast/ast-node.js';
+import { ParseContextError } from './parse-context-error.js';
 import { readGrammar } from './grammar/read-grammar.js';
 import type { Lexer } from './lexer/lexer.js';
 import type { Token } from './lexer/token.js';
@@ -79,7 +80,7 @@ export class ParseContext
             return ParseContext.fromTableJson(options.tableJson);
         }
 
-        throw new Error('required: grammar source or table JSON');
+        throw new ParseContextError('required: grammar source or table JSON');
     }
 
     /**

@@ -1,4 +1,5 @@
 import type { AstNode } from './ast/ast-node.js';
+import { ParseOutputError } from './parse-output-error.js';
 
 /**
  * Formats parse output for a named interchange format.
@@ -11,7 +12,7 @@ export function formatParseOutput(tree: AstNode | null, format: string): string
 {
     if (format !== 'json')
     {
-        throw new Error(`Unsupported output format ${JSON.stringify(format)}`);
+        throw new ParseOutputError(format);
     }
 
     return JSON.stringify({ ast: tree }, null, 4);

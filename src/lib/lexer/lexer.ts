@@ -10,6 +10,7 @@ import {
 } from './lexer-compile.js';
 import type { CompiledLexerRules } from './lexer-compile.js';
 import { LexerError } from './lexer-error.js';
+import { LexerInputError } from './lexer-input-error.js';
 import { eofToken, token } from './token.js';
 import type { Token } from './token.js';
 
@@ -68,7 +69,7 @@ export class Lexer
     {
         if (this.finished)
         {
-            throw new Error('Cannot push input after finish()');
+            throw new LexerInputError();
         }
 
         this.buffer += chunk;

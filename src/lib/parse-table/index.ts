@@ -8,7 +8,9 @@ export { buildLr0ItemSets, formatLr0ItemSet, Lr0ItemSetCollection } from './lr0/
 export type { Lr0Item } from './lr0/index.js';
 export { buildLr1ItemSets, Lr1ItemSetCollection } from './lr1/index.js';
 export type { Lr1Item } from './lr1/index.js';
+export { LrAlgorithmError } from './lr-algorithm-error.js';
 export { ParseTableBuildError } from './parse-table-build-error.js';
+export { ParseTableError } from './parse-table-error.js';
 export { isParseTableJsonV2 } from './parse-table-json.js';
 export type {
     ParseTableActionJson,

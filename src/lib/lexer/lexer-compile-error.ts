@@ -1,7 +1,9 @@
+import { ParserLrError } from '../errors/parser-lr-error.js';
+
 /**
  * Error thrown when lexer rules cannot be compiled from a grammar.
  */
-export class LexerCompileError extends Error
+export class LexerCompileError extends ParserLrError
 {
     /**
      * Creates a lexer compile error for one token rule.
@@ -15,6 +17,5 @@ export class LexerCompileError extends Error
     )
     {
         super(`Invalid lexer rule ${JSON.stringify(ruleName)}: ${message}`);
-        this.name = 'LexerCompileError';
     }
 }

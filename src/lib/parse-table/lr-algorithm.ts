@@ -1,3 +1,5 @@
+import { LrAlgorithmError } from './lr-algorithm-error.js';
+
 /**
  * LR table construction algorithm.
  */
@@ -32,7 +34,7 @@ export function parseLrAlgorithm(
 
     if (!isLrAlgorithm(algorithm))
     {
-        throw new Error(`Unsupported LR algorithm ${JSON.stringify(algorithm)}`);
+        throw new LrAlgorithmError(algorithm);
     }
 
     return algorithm;

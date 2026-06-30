@@ -2,7 +2,7 @@ import { EOF_TOKEN_NAME } from '../../lexer/token.js';
 
 import { AUGMENTED_START_SYMBOL, type BnfGrammar } from '../bnf/bnf-grammar.js';
 import type { BnfProduction } from '../bnf/bnf-production.js';
-import { bnfParserSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
+import { bnfParserSymbolKey, bnfSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
 
 /**
  * Nullable non-terminals and FIRST/FOLLOW sets for a BNF grammar.

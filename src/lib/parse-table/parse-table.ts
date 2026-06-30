@@ -6,6 +6,7 @@ import { buildLrTable } from './build-lr-table.js';
 import { EOF_TOKEN_NAME } from '../lexer/token.js';
 import type { LrAlgorithm } from './lr-algorithm.js';
 import { ParseTableBuildError } from './parse-table-build-error.js';
+import { ParseTableError } from './parse-table-error.js';
 import {
     isParseTableJsonV2,
     type ParseTableActionJson,
@@ -137,7 +138,7 @@ export class ParseTable
     {
         if (json.version !== PARSE_TABLE_VERSION && json.version !== PARSE_TABLE_VERSION_FULL)
         {
-            throw new Error(
+            throw new ParseTableError(
                 `Unsupported parse table version ${String(json.version)}; `
                 + `expected ${PARSE_TABLE_VERSION} or ${PARSE_TABLE_VERSION_FULL}`,
             );
@@ -179,7 +180,20 @@ export class ParseTable
      */
     public static fromJsonString(json: string): ParseTable
     {
-        return ParseTable.fromJson(JSON.parse(json) as ParseTableJson);
+        let parsed: unknown;
+
+        try
+        {
+            parsed = JSON.parse(json);
+        }
+        catch (error)
+        {
+            const message = error instanceof Error ? error.message : 'Invalid JSON';
+
+            throw new ParseTableError(`Invalid parse table JSON: ${message}`);
+        }
+
+        return ParseTable.fromJson(parsed as ParseTableJson);
     }
 
     /**

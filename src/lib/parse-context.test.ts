@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { Grammar } from './grammar/grammar.js';
+import { ParseContextError } from './parse-context-error.js';
 import { ParseContext } from './parse-context.js';
 import { ParseTable } from './parse-table/parse-table.js';
 
@@ -77,5 +78,10 @@ grammar
         });
 
         expect(context.table.grammarName).toBe('calc');
+    });
+
+    it('throws ParseContextError when neither grammar nor table is supplied', () =>
+    {
+        expect(() => ParseContext.fromSources({})).toThrow(ParseContextError);
     });
 });

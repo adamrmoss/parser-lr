@@ -2,6 +2,7 @@ import type { Grammar } from '../grammar/grammar.js';
 import type { TokenRule } from '../grammar/token-rule.js';
 
 import { LexerCompileError } from './lexer-compile-error.js';
+import { LexerStateError } from './lexer-state-error.js';
 
 /** Default lexer state when a grammar omits a `states` section. */
 export const DEFAULT_LEXER_STATE = 'initial';
@@ -291,6 +292,6 @@ export function assertLexerState(compiled: CompiledLexerRules, state: string): v
 {
     if (!compiled.states.includes(state))
     {
-        throw new Error(`Unknown lexer state ${JSON.stringify(state)}`);
+        throw new LexerStateError(state);
     }
 }

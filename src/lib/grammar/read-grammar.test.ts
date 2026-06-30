@@ -1,5 +1,6 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { ReadGrammarError } from './read-grammar-error.js';
 import { readGrammar } from './read-grammar.js';
 
 describe('readGrammar', () =>
@@ -29,5 +30,32 @@ grammar
             { name: 'plus', pattern: '\\+', flags: '' },
         ]);
         expect(grammar.productions).toHaveLength(1);
+    });
+
+    it('throws ReadGrammarError for invalid grammar syntax', () =>
+    {
+        expect(() => readGrammar(`
+name "calc" ;
+start expr ;
+grammar
+    expr = number ;
+oops
+`)).toThrow(ReadGrammarError);
+
+        try
+        {
+            readGrammar(`
+name "calc" ;
+start expr ;
+grammar
+    expr = number ;
+oops
+`);
+        }
+        catch (error)
+        {
+            expect(error).toBeInstanceOf(ReadGrammarError);
+            expect((error as ReadGrammarError).offset).toBeGreaterThanOrEqual(0);
+        }
     });
 });

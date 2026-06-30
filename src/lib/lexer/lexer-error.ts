@@ -1,7 +1,9 @@
+import { ParserLrError } from '../errors/parser-lr-error.js';
+
 /**
  * Error thrown when the lexer cannot match input at the current offset.
  */
-export class LexerError extends Error
+export class LexerError extends ParserLrError
 {
     /**
      * Creates a lexer error at a source offset.
@@ -15,6 +17,5 @@ export class LexerError extends Error
     )
     {
         super(message);
-        this.name = 'LexerError';
     }
 }

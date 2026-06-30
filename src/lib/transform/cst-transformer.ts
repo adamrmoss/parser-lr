@@ -35,8 +35,13 @@ export class CstTransformer
      * @param cst - Parse tree rooted at the grammar start symbol.
      * @returns Transformed AST, or null when transformation fails.
      */
-    public transform(cst: AstNode): AstNode | null
+    public transform(cst: AstNode | null): AstNode | null
     {
+        if (cst === null)
+        {
+            return null;
+        }
+
         return this.transformNode(cst);
     }
 
@@ -48,11 +53,16 @@ export class CstTransformer
      * @param table - Parse table supplying production metadata for reference lookup.
      */
     public static transform(
-        cst: AstNode,
+        cst: AstNode | null,
         schema: TransformSchema,
         table: ParseTable,
     ): AstNode | null
     {
+        if (cst === null)
+        {
+            return null;
+        }
+
         return new CstTransformer(schema, table).transform(cst);
     }
 
@@ -588,7 +598,7 @@ export class CstTransformer
  * @param table - Parse table supplying production metadata for reference lookup.
  */
 export function transformCst(
-    cst: AstNode,
+    cst: AstNode | null,
     schema: TransformSchema,
     table: ParseTable,
 ): AstNode | null
