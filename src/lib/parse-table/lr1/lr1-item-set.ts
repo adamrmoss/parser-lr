@@ -2,7 +2,7 @@ import type { GrammarAnalysis } from '../analysis/first-follow.js';
 import type { BnfGrammar } from '../bnf/bnf-grammar.js';
 import { bnfParserSymbolKey, type BnfSymbol } from '../bnf/bnf-symbol.js';
 import type { Lr0Item } from '../lr0/lr0-item-set.js';
-import { sortLr0Items } from '../lr0/lr0-item-set.js';
+import { sortLr0Items, symbolsAfterDot } from '../lr0/lr0-item-set.js';
 import { TableBuilderBase } from '../table/table-builder-base.js';
 
 /**
@@ -10,8 +10,13 @@ import { TableBuilderBase } from '../table/table-builder-base.js';
  */
 export interface Lr1Item
 {
+    /** Stable production id assigned during BNF desugaring. */
     readonly productionId: number;
+
+    /** Number of right-hand side symbols before the dot. */
     readonly dot: number;
+
+    /** Encoded terminal key governing reduce and shift in this state. */
     readonly lookahead: string;
 }
 
@@ -20,6 +25,7 @@ export interface Lr1Item
  *
  * @param left - First item.
  * @param right - Second item.
+ * @returns True when production id, dot, and lookahead match.
  */
 export function lr1ItemsEqual(left: Lr1Item, right: Lr1Item): boolean
 {
@@ -32,6 +38,7 @@ export function lr1ItemsEqual(left: Lr1Item, right: Lr1Item): boolean
  * Sorts LR(1) items for canonical set comparison.
  *
  * @param items - Items to sort.
+ * @returns A new array sorted by production id, dot, then lookahead.
  */
 export function sortLr1Items(items: readonly Lr1Item[]): Lr1Item[]
 {
@@ -55,6 +62,7 @@ export function sortLr1Items(items: readonly Lr1Item[]): Lr1Item[]
  * Returns the LR(0) core key for one LR(1) item.
  *
  * @param item - LR(1) item to encode.
+ * @returns A string `productionId:dot` shared by all lookaheads at the same dot position.
  */
 export function lr1CoreKey(item: Lr1Item): string
 {
@@ -65,6 +73,7 @@ export function lr1CoreKey(item: Lr1Item): string
  * Returns a stable identity string for one LR(1) item.
  *
  * @param item - Item to encode.
+ * @returns A string `productionId:dot:lookahead` for set membership tests.
  */
 export function lr1ItemIdentity(item: Lr1Item): string
 {
@@ -75,10 +84,14 @@ export function lr1ItemIdentity(item: Lr1Item): string
  * Returns a stable identity string for an LR(1) item set.
  *
  * @param items - Closed item set.
+ * @param alreadySorted - When true, skips re-sorting because items are canonical.
+ * @returns A pipe-separated, sorted identity string for canonical set comparison.
  */
-export function lr1SetIdentity(items: readonly Lr1Item[]): string
+export function lr1SetIdentity(items: readonly Lr1Item[], alreadySorted = false): string
 {
-    return sortLr1Items(items)
+    const sorted = alreadySorted ? items : sortLr1Items(items);
+
+    return sorted
         .map((item) => lr1ItemIdentity(item))
         .join('|');
 }
@@ -87,6 +100,7 @@ export function lr1SetIdentity(items: readonly Lr1Item[]): string
  * Returns the LR(0) core identity for an LR(1) item set.
  *
  * @param items - LR(1) item set.
+ * @returns A pipe-separated, sorted string of LR(0) cores with lookaheads removed.
  */
 export function lr1CoreSetIdentity(items: readonly Lr1Item[]): string
 {
@@ -101,6 +115,7 @@ export function lr1CoreSetIdentity(items: readonly Lr1Item[]): string
  * @param beta - Remaining right-hand side symbols after a non-terminal.
  * @param lookahead - Lookahead terminal following β.
  * @param analysis - Nullable and FIRST analysis for the grammar.
+ * @returns Terminal keys that may follow the dotted non-terminal in this item.
  */
 export function firstAfterSymbols(
     beta: readonly BnfSymbol[],
@@ -110,6 +125,7 @@ export function firstAfterSymbols(
 {
     const result = new Set<string>();
 
+    // Accumulate FIRST of each prefix symbol until a non-nullable symbol stops propagation.
     for (const symbol of beta)
     {
         for (const terminal of analysis.firstOfSymbol(symbol))
@@ -123,6 +139,7 @@ export function firstAfterSymbols(
         }
     }
 
+    // Every symbol in β is nullable, so the item's own lookahead is reachable.
     result.add(lookahead);
 
     return result;
@@ -134,6 +151,7 @@ export function firstAfterSymbols(
  * @param grammar - Augmented BNF grammar.
  * @param analysis - Nullable and FIRST analysis for the grammar.
  * @param items - Seed items.
+ * @returns The seed items plus all items implied by dotted non-terminal prefixes.
  */
 export function lr1Closure(
     grammar: BnfGrammar,
@@ -143,47 +161,45 @@ export function lr1Closure(
 {
     const result = sortLr1Items(items);
     const itemKeys = new Set(result.map((item) => lr1ItemIdentity(item)));
-    let changed = true;
+    const pendingIndices: number[] = result.map((_, index) => index);
 
-    while (changed)
+    // Expand closure from each newly discovered item only.
+    while (pendingIndices.length > 0)
     {
-        changed = false;
+        const item = result[pendingIndices.pop()!]!;
+        const production = grammar.production(item.productionId);
 
-        for (const item of [...result])
+        if (production === null)
         {
-            const production = grammar.production(item.productionId);
+            continue;
+        }
 
-            if (production === null)
+        const nextSymbol = production.rhs[item.dot];
+
+        if (nextSymbol === undefined || nextSymbol.kind !== 'nonTerminal')
+        {
+            continue;
+        }
+
+        const beta = production.rhs.slice(item.dot + 1);
+
+        // For each production of the non-terminal after the dot, propagate lookaheads.
+        for (const candidate of grammar.productionsFor(nextSymbol.name))
+        {
+            for (const lookahead of firstAfterSymbols(beta, item.lookahead, analysis))
             {
-                continue;
-            }
+                const closureItem: Lr1Item = {
+                    productionId: candidate.id,
+                    dot: 0,
+                    lookahead,
+                };
+                const identity = lr1ItemIdentity(closureItem);
 
-            const nextSymbol = production.rhs[item.dot];
-
-            if (nextSymbol === undefined || nextSymbol.kind !== 'nonTerminal')
-            {
-                continue;
-            }
-
-            const beta = production.rhs.slice(item.dot + 1);
-
-            for (const candidate of grammar.productionsFor(nextSymbol.name))
-            {
-                for (const lookahead of firstAfterSymbols(beta, item.lookahead, analysis))
+                if (!itemKeys.has(identity))
                 {
-                    const closureItem: Lr1Item = {
-                        productionId: candidate.id,
-                        dot: 0,
-                        lookahead,
-                    };
-                    const identity = lr1ItemIdentity(closureItem);
-
-                    if (!itemKeys.has(identity))
-                    {
-                        itemKeys.add(identity);
-                        result.push(closureItem);
-                        changed = true;
-                    }
+                    itemKeys.add(identity);
+                    pendingIndices.push(result.length);
+                    result.push(closureItem);
                 }
             }
         }
@@ -199,6 +215,7 @@ export function lr1Closure(
  * @param analysis - Nullable and FIRST analysis for the grammar.
  * @param items - Closed item set.
  * @param symbolKey - Encoded terminal or non-terminal symbol.
+ * @returns The closed item set reached after advancing the dot past `symbolKey`.
  */
 export function lr1Goto(
     grammar: BnfGrammar,
@@ -209,6 +226,7 @@ export function lr1Goto(
 {
     const moved: Lr1Item[] = [];
 
+    // Advance the dot on every item expecting `symbolKey`, preserving lookaheads.
     for (const item of items)
     {
         const production = grammar.production(item.productionId);
@@ -245,43 +263,55 @@ export function lr1Goto(
  */
 export class Lr1ItemSetCollection
 {
+    private readonly indexByIdentity: ReadonlyMap<string, number>;
+
     /**
      * Creates a collection from an ordered list of closed item sets.
      *
      * @param grammar - Grammar the item sets were built from.
      * @param itemSets - Closed LR(1) item sets in discovery order.
+     * @param indexByIdentity - Optional precomputed identity-to-state map.
      */
     public constructor(
+        /** Grammar analyzed when the item sets were constructed. */
         public readonly grammar: BnfGrammar,
+        /** Closed LR(1) item sets indexed by parser state number. */
         public readonly itemSets: readonly (readonly Lr1Item[])[],
+        indexByIdentity?: ReadonlyMap<string, number>,
     )
     {
+        if (indexByIdentity !== undefined)
+        {
+            this.indexByIdentity = indexByIdentity;
+            return;
+        }
+
+        const builtIndex = new Map<string, number>();
+
+        for (let index = 0; index < itemSets.length; index += 1)
+        {
+            builtIndex.set(lr1SetIdentity(itemSets[index] ?? [], true), index);
+        }
+
+        this.indexByIdentity = builtIndex;
     }
 
     /**
      * Returns the index of an item set matching `items`, or null when absent.
      *
      * @param items - Closed item set to locate.
+     * @returns State index, or null when no set has the same canonical identity.
      */
     public indexOf(items: readonly Lr1Item[]): number | null
     {
-        const target = lr1SetIdentity(items);
-
-        for (let index = 0; index < this.itemSets.length; index += 1)
-        {
-            if (lr1SetIdentity(this.itemSets[index]) === target)
-            {
-                return index;
-            }
-        }
-
-        return null;
+        return this.indexByIdentity.get(lr1SetIdentity(items, true)) ?? null;
     }
 
     /**
      * Returns LR(0) items derived from one LR(1) item set.
      *
      * @param items - LR(1) item set.
+     * @returns Deduplicated LR(0) cores with lookaheads stripped.
      */
     public static lr0Core(items: readonly Lr1Item[]): readonly Lr0Item[]
     {
@@ -310,6 +340,7 @@ export class Lr1ItemSetBuilder
      * @param grammar - Augmented BNF grammar.
      * @param analysis - Nullable and FIRST analysis for the grammar.
      * @param startLookahead - Lookahead terminal for the initial item.
+     * @returns The canonical LR(1) item set collection for the grammar.
      */
     public static build(
         grammar: BnfGrammar,
@@ -324,48 +355,46 @@ export class Lr1ItemSetBuilder
             return new Lr1ItemSetCollection(grammar, []);
         }
 
+        // Seed state 0 from the augmented start production and its initial lookahead.
         const initial = lr1Closure(grammar, analysis, [{
             productionId: startProductions[0].id,
             dot: 0,
             lookahead: startLookahead,
         }]);
         const itemSets: Lr1Item[][] = [[...initial]];
-        const itemSetKeys = new Map<string, number>([
-            [lr1SetIdentity(initial), 0],
+        const indexByIdentity = new Map<string, number>([
+            [lr1SetIdentity(initial, true), 0],
         ]);
-        const symbols = grammar.terminalKeys().concat(grammar.nonTerminalNames()).sort();
-        let changed = true;
+        const pendingStates: number[] = [0];
 
-        while (changed)
+        // Discover new states from each state exactly once.
+        while (pendingStates.length > 0)
         {
-            changed = false;
+            const stateIndex = pendingStates.pop()!;
+            const itemSet = itemSets[stateIndex] ?? [];
 
-            for (const itemSet of [...itemSets])
+            for (const symbolKey of symbolsAfterDot(grammar, itemSet))
             {
-                for (const symbolKey of symbols)
+                const gotoSet = lr1Goto(grammar, analysis, itemSet, symbolKey);
+
+                if (gotoSet.length === 0)
                 {
-                    const gotoSet = lr1Goto(grammar, analysis, itemSet, symbolKey);
+                    continue;
+                }
 
-                    if (gotoSet.length === 0)
-                    {
-                        continue;
-                    }
+                const gotoKey = lr1SetIdentity(gotoSet, true);
 
-                    const gotoKey = lr1SetIdentity(gotoSet);
-                    const existingIndex = itemSetKeys.get(gotoKey);
-
-                    if (existingIndex === undefined)
-                    {
-                        const nextIndex = itemSets.length;
-                        itemSetKeys.set(gotoKey, nextIndex);
-                        itemSets.push([...gotoSet]);
-                        changed = true;
-                    }
+                if (!indexByIdentity.has(gotoKey))
+                {
+                    const nextIndex = itemSets.length;
+                    indexByIdentity.set(gotoKey, nextIndex);
+                    itemSets.push([...gotoSet]);
+                    pendingStates.push(nextIndex);
                 }
             }
         }
 
-        return new Lr1ItemSetCollection(grammar, itemSets);
+        return new Lr1ItemSetCollection(grammar, itemSets, indexByIdentity);
     }
 }
 
@@ -375,6 +404,7 @@ export class Lr1ItemSetBuilder
  * @param grammar - Augmented BNF grammar.
  * @param analysis - Nullable and FIRST analysis for the grammar.
  * @param startLookahead - Lookahead terminal for the initial item.
+ * @returns The canonical LR(1) item set collection for the grammar.
  */
 export function buildLr1ItemSets(
     grammar: BnfGrammar,
@@ -389,6 +419,7 @@ export function buildLr1ItemSets(
  * Merges LR(1) item sets that share the same LR(0) core into LALR item sets.
  *
  * @param collection - Canonical LR(1) item set collection.
+ * @returns A new collection with LR(1) states merged by LR(0) core.
  */
 export function mergeLalrItemSets(collection: Lr1ItemSetCollection): Lr1ItemSetCollection
 {
@@ -396,6 +427,7 @@ export function mergeLalrItemSets(collection: Lr1ItemSetCollection): Lr1ItemSetC
     const lr1ToLalr = new Map<number, number>();
     const mergedItemSets: Lr1Item[][] = [];
 
+    // Assign each LR(1) state to an LALR state keyed by its LR(0) core identity.
     for (let lr1Index = 0; lr1Index < collection.itemSets.length; lr1Index += 1)
     {
         const itemSet = collection.itemSets[lr1Index] ?? [];
@@ -429,6 +461,7 @@ export function mergeLalrItemSets(collection: Lr1ItemSetCollection): Lr1ItemSetC
  * @param lr1Collection - Canonical LR(1) item set collection.
  * @param lalrCollection - Merged LALR item set collection.
  * @param lr1ToLalr - LR(1) state index to LALR state index map.
+ * @returns Map from `state:symbol` keys to LALR GOTO target state indices.
  */
 export function buildLalrGotoTargets(
     grammar: BnfGrammar,
@@ -438,8 +471,8 @@ export function buildLalrGotoTargets(
 ): ReadonlyMap<string, number>
 {
     const targets = new Map<string, number>();
-    const symbols = grammar.terminalKeys().concat(grammar.nonTerminalNames()).sort();
 
+    // Recompute LR(1) GOTOs and remap each target through the LR(1) → LALR index map.
     for (let lr1State = 0; lr1State < lr1Collection.itemSets.length; lr1State += 1)
     {
         const lalrState = lr1ToLalr.get(lr1State);
@@ -451,7 +484,7 @@ export function buildLalrGotoTargets(
 
         const itemSet = lr1Collection.itemSets[lr1State] ?? [];
 
-        for (const symbolKey of symbols)
+        for (const symbolKey of symbolsAfterDot(grammar, itemSet))
         {
             const gotoSet = lr1Goto(grammar, analysis, itemSet, symbolKey);
 
@@ -491,11 +524,13 @@ export namespace Lr1ItemSetBuilder
      *
      * @param left - Existing merged item set.
      * @param right - Additional LR(1) item set to merge in.
+     * @returns Items with lookaheads unioned for each shared LR(0) core.
      */
     export function mergeItems(left: readonly Lr1Item[], right: readonly Lr1Item[]): Lr1Item[]
     {
         const lookaheadsByCore = new Map<string, Set<string>>();
 
+        // Collect every lookahead grouped by dotted-production core.
         for (const item of [...left, ...right])
         {
             const core = lr1CoreKey(item);
@@ -506,6 +541,7 @@ export namespace Lr1ItemSetBuilder
 
         const merged: Lr1Item[] = [];
 
+        // Expand each core into one item per distinct lookahead.
         for (const [core, lookaheads] of lookaheadsByCore.entries())
         {
             const [productionIdText, dotText] = core.split(':');
@@ -530,6 +566,7 @@ export namespace Lr1ItemSetBuilder
      *
      * @param lr1Collection - Canonical LR(1) item set collection.
      * @param lalrCollection - Merged LALR item set collection.
+     * @returns Map from LR(1) state index to merged LALR state index.
      */
     export function buildLr1ToLalrMap(
         lr1Collection: Lr1ItemSetCollection,
@@ -538,6 +575,7 @@ export namespace Lr1ItemSetBuilder
     {
         const coreToLalrIndex = new Map<string, number>();
 
+        // Index LALR states by their LR(0) core identity.
         for (let lalrIndex = 0; lalrIndex < lalrCollection.itemSets.length; lalrIndex += 1)
         {
             coreToLalrIndex.set(
@@ -548,6 +586,7 @@ export namespace Lr1ItemSetBuilder
 
         const lr1ToLalr = new Map<number, number>();
 
+        // Map each LR(1) state to the LALR state sharing its core.
         for (let lr1Index = 0; lr1Index < lr1Collection.itemSets.length; lr1Index += 1)
         {
             const core = lr1CoreSetIdentity(lr1Collection.itemSets[lr1Index] ?? []);

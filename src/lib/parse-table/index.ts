@@ -21,8 +21,10 @@ export type {
 export { buildSlrTable, formatSlrActions, formatSlrConflicts, SlrTable } from './slr/index.js';
 export {
     formatLrActions,
+    formatLrConflictWarnings,
     formatLrConflicts,
     formatLrGotos,
+    formatParseConflictWarning,
     LrParseTable,
 } from './table/index.js';
 export type { ParseAction, ParseConflict } from './table/index.js';

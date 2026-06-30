@@ -33,7 +33,7 @@ Shift-reduce parser library for EBNF grammars. Builds parse tables and uses them
 - `npm run build:lib` — `tsc -p tsconfig.lib.json` → `dist/lib/`
 - `npm run build:cli` — `rollup -c rollup.cli.config.js` → `bin/parser-lr.js`
 - `npm run build` — both, in that order
-- `npm test` — Jest (`src/**/*.test.ts`, TypeScript via ts-jest)
+- `npm test` — Jest (`src/**/*.test.ts`, TypeScript via ts-jest). Expected errors must not reach the console; see **`testing.mdc`**
 
 ## Publish (npm)
 

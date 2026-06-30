@@ -12,7 +12,10 @@ import { tokenInventory } from '../token-inventory.js';
  */
 interface DesugarAlternative
 {
+    /** Flattened BNF symbol sequence for one alternative. */
     readonly symbols: readonly BnfSymbol[];
+
+    /** Choice label preserved from the source grammar, if any. */
     readonly variant: string | null;
 }
 
@@ -67,6 +70,7 @@ export class EbnfDesugarer
     {
         const alternatives = this.expandExpression(production.name, production.expression, null);
 
+        // Record one BNF production per desugared alternative.
         for (const alternative of alternatives)
         {
             this.addProduction(
@@ -186,6 +190,7 @@ export class EbnfDesugarer
     {
         let results: DesugarAlternative[] = [{ symbols: [], variant }];
 
+        // Cartesian product: combine each prefix alternative with each next-element alternative.
         for (const element of elements)
         {
             const elementAlternatives = this.expandExpression(ownerName, element, variant);

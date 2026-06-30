@@ -7,8 +7,10 @@ export type { ParseAction, ParseConflict, ParseConflictKind } from './parse-acti
 export {
     encodeProductionRhs,
     formatLrActions,
+    formatLrConflictWarnings,
     formatLrConflicts,
     formatLrGotos,
+    formatParseConflictWarning,
     lrActionTerminalKeys,
     lrGotoNonTerminalNames,
     lrProduction,

@@ -2,7 +2,7 @@ import { EOF_TOKEN_NAME } from '../../lexer/token.js';
 
 import { AUGMENTED_START_SYMBOL, type BnfGrammar } from '../bnf/bnf-grammar.js';
 import { bnfParserSymbolKey } from '../bnf/bnf-symbol.js';
-import { lr0Goto, Lr0ItemSetBuilder, type Lr0Item } from '../lr0/lr0-item-set.js';
+import { lr0Goto, symbolsAfterDot, type Lr0Item } from '../lr0/lr0-item-set.js';
 
 import {
     classifyParseConflict,
@@ -22,6 +22,7 @@ export class TableBuilderBase
      * @param grammar - Augmented BNF grammar.
      * @param itemSets - Canonical item set collection.
      * @param gotoItems - Computes the GOTO item set for one state and symbol.
+     * @returns Map from `state:symbol` keys to target state indices.
      */
     public static buildGotoTargets(
         grammar: BnfGrammar,
@@ -35,13 +36,13 @@ export class TableBuilderBase
     ): ReadonlyMap<string, number>
     {
         const targets = new Map<string, number>();
-        const symbols = Lr0ItemSetBuilder.grammarSymbolKeys(grammar);
 
+        // Precompute GOTO for every state and symbol reachable from its items.
         for (let state = 0; state < itemSets.length; state += 1)
         {
             const itemSet = itemSets[state] ?? [];
 
-            for (const symbolKey of symbols)
+            for (const symbolKey of symbolsAfterDot(grammar, itemSet))
             {
                 const gotoSet = gotoItems(grammar, itemSet, symbolKey);
 
@@ -73,7 +74,7 @@ export class TableBuilderBase
      * @param gotoTargets - Precomputed GOTO target indices.
      * @param stateActions - ACTION map for the state.
      * @param stateGotos - GOTO map for the state.
-     * @param conflicts - Conflict list to append to when actions disagree.
+     * @param conflicts - Resolved conflict list to append to when actions disagree.
      */
     public static fillShiftsAndGotos(
         grammar: BnfGrammar,
@@ -85,6 +86,7 @@ export class TableBuilderBase
         conflicts: ParseConflict[],
     ): void
     {
+        // Derive shift and GOTO entries from every incomplete item in the state.
         for (const item of itemSet)
         {
             const production = grammar.production(item.productionId);
@@ -109,6 +111,7 @@ export class TableBuilderBase
                 continue;
             }
 
+            // Non-terminal symbols populate GOTO; terminals populate ACTION shift entries.
             if (nextSymbol.kind === 'nonTerminal')
             {
                 stateGotos.set(nextSymbol.name, targetState);
@@ -131,7 +134,7 @@ export class TableBuilderBase
      * @param state - Parser state index.
      * @param productionName - Left-hand side of the completed production.
      * @param stateActions - ACTION map for the state.
-     * @param conflicts - Conflict list to append to when actions disagree.
+     * @param conflicts - Resolved conflict list to append to when actions disagree.
      */
     public static setAcceptAction(
         state: number,
@@ -166,10 +169,10 @@ export class TableBuilderBase
     }
 
     /**
-     * Inserts one ACTION entry, recording a conflict when the slot is already occupied.
+     * Inserts one ACTION entry, resolving shift/reduce and reduce/reduce conflicts.
      *
      * @param stateActions - ACTION map for the current state.
-     * @param conflicts - Conflict list to append to when actions disagree.
+     * @param conflicts - Resolved conflict list to append to when actions disagree.
      * @param state - Parser state index.
      * @param symbol - Encoded terminal or `$eof` key.
      * @param incoming - Candidate parse action.
@@ -190,17 +193,37 @@ export class TableBuilderBase
             return;
         }
 
+        // Identical re-insertions are ignored; disagreeing actions are resolved by conflict kind.
         if (parseActionsEqual(existing, incoming))
         {
             return;
         }
 
+        const conflictKind = classifyParseConflict(existing, incoming);
+
+        if (conflictKind === 'shift-reduce')
+        {
+            const shiftAction = existing.kind === 'shift' ? existing : incoming;
+            stateActions.set(symbol, shiftAction);
+            conflicts.push({
+                kind: 'shift-reduce',
+                state,
+                symbol,
+                existing,
+                incoming,
+                resolution: 'shift',
+            });
+            return;
+        }
+
+        // Reduce/reduce: keep the first reduce action already in the table.
         conflicts.push({
-            kind: classifyParseConflict(existing, incoming),
+            kind: 'reduce-reduce',
             state,
             symbol,
             existing,
             incoming,
+            resolution: 'reduce',
         });
     }
 

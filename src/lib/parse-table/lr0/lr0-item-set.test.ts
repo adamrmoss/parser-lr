@@ -61,8 +61,11 @@ describe('buildLr0ItemSets', () =>
         expect(formatLr0ItemSet(grammar, collection.itemSets[4])).toEqual([
             '$accept → S ·',
         ]);
-        expect(formatLr0ItemSet(grammar, collection.itemSets[6])).toEqual([
+        expect(formatLr0ItemSet(grammar, collection.itemSets[5])).toEqual([
             'S → B B ·',
+        ]);
+        expect(formatLr0ItemSet(grammar, collection.itemSets[6])).toEqual([
+            'B → "a" B ·',
         ]);
     });
 

@@ -11,7 +11,6 @@ import { ParseContextError } from '../parse-context-error.js';
 import { ParseContext } from '../parse-context.js';
 import { ParseOutputError } from '../parse-output-error.js';
 import { formatParseOutput } from '../parse-output.js';
-import { ParseTableBuildError } from '../parse-table/parse-table-build-error.js';
 import { ParseTableError } from '../parse-table/parse-table-error.js';
 import { ParseTable } from '../parse-table/parse-table.js';
 import { LrAlgorithmError, parseLrAlgorithm } from '../parse-table/index.js';
@@ -154,7 +153,7 @@ oops
         })).toThrow(ParseTableError);
     });
 
-    it('reports LR conflicts with ParseTableBuildError', () =>
+    it('reports LR conflicts as warnings without throwing', () =>
     {
         const grammar = readGrammar(`
 name "ambiguous" ;
@@ -172,18 +171,12 @@ grammar
     B = "a" ;
 `);
 
-        expect(() => ParseTable.fromGrammar(grammar, 'lr0')).toThrow(ParseTableBuildError);
+        const table = ParseTable.fromGrammar(grammar, 'lr0');
 
-        try
-        {
-            ParseTable.fromGrammar(grammar, 'lr0');
-        }
-        catch (error)
-        {
-            expectCleanUserError(error);
-            expect((error as ParseTableBuildError).algorithm).toBe('lr0');
-            expect((error as ParseTableBuildError).conflicts.length).toBeGreaterThan(0);
-        }
+        expect(table.isConflictFree).toBe(false);
+        expect(table.conflicts.length).toBeGreaterThan(0);
+        expect(table.conflicts.every((conflict) => conflict.kind === 'reduce-reduce')).toBe(true);
+        expect(table.formatConflictWarnings().length).toBe(table.conflicts.length);
     });
 
     it('reports missing parse context sources with ParseContextError', () =>

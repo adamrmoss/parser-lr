@@ -26,6 +26,7 @@ import { TableBuilderBase } from './table/table-builder-base.js';
  *
  * @param grammar - Plain BNF grammar to analyze.
  * @param algorithm - LR table construction algorithm.
+ * @returns A populated LR parse table, possibly recording conflicts.
  */
 export function buildLrTable(grammar: BnfGrammar, algorithm: LrAlgorithm): LrParseTable
 {
@@ -57,7 +58,7 @@ class LrTableBuilder
      * Builds an LR(0) parse table.
      *
      * @param grammar - Augmented BNF grammar.
-     * @param analysis - Nullable, FIRST, and FOLLOW analysis for the grammar.
+     * @returns An LR(0) parse table using all terminals as reduce lookaheads.
      */
     public static buildLr0(grammar: BnfGrammar): LrParseTable
     {
@@ -85,6 +86,7 @@ class LrTableBuilder
      *
      * @param grammar - Augmented BNF grammar.
      * @param analysis - Nullable, FIRST, and FOLLOW analysis for the grammar.
+     * @returns An SLR parse table using FOLLOW sets as reduce lookaheads.
      */
     public static buildSlr(grammar: BnfGrammar, analysis: GrammarAnalysis): LrParseTable
     {
@@ -111,6 +113,7 @@ class LrTableBuilder
      *
      * @param grammar - Augmented BNF grammar.
      * @param analysis - Nullable, FIRST, and FOLLOW analysis for the grammar.
+     * @returns An LR(1) parse table with per-item lookaheads.
      */
     public static buildLr1(grammar: BnfGrammar, analysis: GrammarAnalysis): LrParseTable
     {
@@ -129,6 +132,7 @@ class LrTableBuilder
      *
      * @param grammar - Augmented BNF grammar.
      * @param analysis - Nullable, FIRST, and FOLLOW analysis for the grammar.
+     * @returns An LALR parse table merged from the canonical LR(1) collection.
      */
     public static buildLalr(grammar: BnfGrammar, analysis: GrammarAnalysis): LrParseTable
     {
@@ -158,6 +162,7 @@ class LrTableBuilder
      * @param grammar - Augmented BNF grammar.
      * @param itemSets - Canonical LR(0) item set collection.
      * @param reduceLookaheads - Returns terminal keys for one completed production.
+     * @returns A parse table with ACTION, GOTO, and any recorded conflicts.
      */
     private static buildFromLr0ItemSets(
         algorithm: LrAlgorithm,
@@ -176,6 +181,7 @@ class LrTableBuilder
         const gotos = new Map<number, Map<string, number>>();
         const conflicts: ParseConflict[] = [];
 
+        // Fill ACTION and GOTO rows for every LR(0) state.
         for (let state = 0; state < itemSets.itemSets.length; state += 1)
         {
             const itemSet = itemSets.itemSets[state] ?? [];
@@ -194,6 +200,7 @@ class LrTableBuilder
                 conflicts,
             );
 
+            // Record reduce and accept actions for every completed item in the state.
             for (const item of itemSet)
             {
                 const production = grammar.production(item.productionId);
@@ -247,6 +254,7 @@ class LrTableBuilder
      * @param itemSets - LR(1) or merged LALR item set collection used for ACTION/GOTO rows.
      * @param lr1Collection - Canonical LR(1) collection used for LALR GOTO remapping.
      * @param gotoTargetsOverride - Optional precomputed GOTO indices for LALR.
+     * @returns A parse table with ACTION, GOTO, and any recorded conflicts.
      */
     private static buildFromLr1ItemSets(
         algorithm: LrAlgorithm,
@@ -267,6 +275,7 @@ class LrTableBuilder
         const gotos = new Map<number, Map<string, number>>();
         const conflicts: ParseConflict[] = [];
 
+        // Fill ACTION and GOTO rows for every LR(1) or merged LALR state.
         for (let state = 0; state < itemSets.itemSets.length; state += 1)
         {
             const itemSet = itemSets.itemSets[state] ?? [];
@@ -285,6 +294,7 @@ class LrTableBuilder
                 conflicts,
             );
 
+            // Record reduce or accept for each completed item using its lookahead.
             for (const item of itemSet)
             {
                 const production = grammar.production(item.productionId);

@@ -7,7 +7,7 @@ import type { ParseTableProductionJson } from '../parse-table/parse-table-json.j
 import type { ParseTable } from '../parse-table/parse-table.js';
 import { mergeChildLocations } from '../shift-reduce/shift-reduce-engine.js';
 
-import { productionSlots, referenceSlotIndex, type ProductionSlot } from './binding-map.js';
+import { productionSlots, referenceSlotIndex, repeatSymbolPrefix, type ProductionSlot } from './binding-map.js';
 
 /**
  * Applies CST-to-AST transform rules to a concrete syntax tree.
@@ -85,9 +85,7 @@ export class CstTransformer
                 : null;
         }
 
-        const rule = this.schema.rule(node.symbol) ?? (
-            node.origin === null ? null : this.schema.rule(node.origin)
-        );
+        const rule = this.resolveTransformRule(node);
 
         if (rule === null)
         {
@@ -494,6 +492,40 @@ export class CstTransformer
             if (child.symbol === node.symbol || child.origin === node.origin)
             {
                 return child;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolves a transform rule for a CST node, aliasing numbered repeat symbols to `$repeat_0`.
+     *
+     * @param node - CST node being transformed.
+     */
+    private resolveTransformRule(node: AstNode)
+    {
+        const candidates: string[] = [node.symbol];
+
+        if (node.origin !== null && node.origin !== node.symbol)
+        {
+            candidates.push(node.origin);
+        }
+
+        const repeatPrefix = repeatSymbolPrefix(node.symbol);
+
+        if (repeatPrefix !== null)
+        {
+            candidates.push(`${repeatPrefix}_0`);
+        }
+
+        for (const candidate of candidates)
+        {
+            const rule = this.schema.rule(candidate);
+
+            if (rule !== null)
+            {
+                return rule;
             }
         }
 

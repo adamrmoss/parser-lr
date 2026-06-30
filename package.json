@@ -1,7 +1,7 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.2.4",
+    "version": "0.3.0",
     "description": "Shift-reduce parser library for EBNF grammars",
     "license": "MIT",
     "repository": {
@@ -43,7 +43,9 @@
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
         "build:lib": "tsc -p tsconfig.lib.json && cp src/lib/grammar/grammar.json dist/lib/grammar/",
         "build:cli": "rollup -c rollup.cli.config.js && chmod +x bin/parser-lr.js",
+        "cloc": "cloc src --exclude-dir=node_modules,dist",
         "test": "jest",
+        "test:coverage": "jest --coverage",
         "prepack": "npm run build"
     },
     "dependencies": {},
