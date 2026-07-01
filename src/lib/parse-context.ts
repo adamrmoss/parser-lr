@@ -48,8 +48,8 @@ export class ParseContext
     /**
      * Builds a parse context from serialized parse table JSON.
      *
-     * @param json - Serialized parse table JSON.
-     * @returns Parser and parse table ready for lexing or parsing.
+     * @param json - Serialized parse table JSON including `ast` and `transform` when present.
+     * @returns Parser and parse table ready for lexing and full AST parsing.
      */
     public static fromTableJson(json: string): ParseContext
     {
@@ -149,10 +149,10 @@ export class ParseContext
     }
 
     /**
-     * Parses a token stream into a concrete syntax tree.
+     * Parses a token stream into an AST, applying transforms from the grammar or table when present.
      *
      * @param tokens - Token stream ending with `$eof`.
-     * @returns Parse tree rooted at the grammar start symbol, or null on syntax error.
+     * @returns Transformed AST, CST when no transform rules exist, or null on syntax error.
      */
     public parse(tokens: readonly Token[]): AstNode | null
     {
@@ -160,10 +160,10 @@ export class ParseContext
     }
 
     /**
-     * Lexes and parses source text into a concrete syntax tree.
+     * Lexes and parses source text into an AST, applying transforms when present.
      *
      * @param source - Input text to parse.
-     * @returns Parse tree rooted at the grammar start symbol, or null on syntax error.
+     * @returns Transformed AST, CST when no transform rules exist, or null on syntax error.
      */
     public parseSource(source: string): AstNode | null
     {

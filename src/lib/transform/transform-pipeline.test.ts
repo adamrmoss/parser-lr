@@ -17,6 +17,18 @@ describe('calc.grammar transform pipeline', () =>
         expect(ast?.variant).toBe('binary');
         expect(ast?.children).toHaveLength(3);
     });
+
+    it('parses and transforms from self-contained table JSON', () =>
+    {
+        const fromGrammar = ParseContext.fromGrammar(grammarSource, 'lr1');
+        const tableJson = fromGrammar.table.toJsonString();
+        const fromTable = ParseContext.fromTableJson(tableJson);
+        const ast = fromTable.parseSource('1 + 2');
+
+        expect(ast?.symbol).toBe('expr');
+        expect(ast?.variant).toBe('binary');
+        expect(ast?.children).toHaveLength(3);
+    });
 });
 
 describe('lisp.grammar transform pipeline', () =>

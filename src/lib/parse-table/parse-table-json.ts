@@ -1,3 +1,6 @@
+import type { AstType } from '../grammar/ast-type.js';
+import type { TransformRule } from '../grammar/transform-rule.js';
+
 import type { ParseTableJson } from './parse-table.js';
 
 /**
@@ -44,6 +47,8 @@ export interface ParseTableJsonV2 extends ParseTableJson
     readonly productions: readonly ParseTableProductionJson[];
     readonly actions: readonly ParseTableActionJson[];
     readonly gotos: readonly ParseTableGotoJson[];
+    readonly ast?: readonly AstType[];
+    readonly transform?: readonly TransformRule[];
 }
 
 /**

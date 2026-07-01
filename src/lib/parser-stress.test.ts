@@ -209,16 +209,14 @@ describe('parser stress — table JSON round-trip parity', () =>
 
     for (const { file, input } of cases)
     {
-        it(`produces identical CST shape for ${file} after JSON round-trip`, () =>
+        it(`produces identical AST for ${file} after JSON round-trip`, () =>
         {
             const grammarSource = readGrammarFile(file);
-            const grammar = readGrammar(grammarSource);
-            const memoryTable = ParseTable.fromGrammar(grammar, 'lr1');
-            const jsonTable = ParseTable.fromJsonString(memoryTable.toJsonString());
-            const tokens = ParseContext.fromGrammar(grammarSource, 'lr1').lex(input);
+            const memoryContext = ParseContext.fromGrammar(grammarSource, 'lr1');
+            const jsonTable = ParseContext.fromTableJson(memoryContext.table.toJsonString());
 
-            const fromMemory = parseWithTable(memoryTable, tokens);
-            const fromJson = parseWithTable(jsonTable, tokens);
+            const fromMemory = memoryContext.parseSource(input);
+            const fromJson = jsonTable.parseSource(input);
 
             expect(fromJson).toEqual(fromMemory);
         });

@@ -162,9 +162,9 @@ See [`grammars/calc.grammar`](../grammars/calc.grammar) for a small working gram
 ## Building and using a grammar
 
 ```bash
-parser-lr table generate -g mylang.grammar -o mylang.table.json
+parser-lr table generate -g mylang.grammar -o mylang.json
 parser-lr parse -i source.txt -g mylang.grammar
-parser-lr parse -i source.txt -t mylang.table.json
+parser-lr parse -i source.txt -t mylang.json
 ```
 
 See the [project README](../README.md) for install and library usage.

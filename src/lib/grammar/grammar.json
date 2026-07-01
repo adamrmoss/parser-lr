@@ -7946,5 +7946,1073 @@
             "symbol": "sequence",
             "target": 129
         }
+    ],
+    "ast": [
+        {
+            "name": "grammar_file",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "name_decl"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "section"
+                        }
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "start_decl"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "grammar_section"
+                    },
+                    {
+                        "kind": "optional",
+                        "element": {
+                            "kind": "reference",
+                            "name": "ast_section"
+                        }
+                    },
+                    {
+                        "kind": "optional",
+                        "element": {
+                            "kind": "reference",
+                            "name": "transform_section"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "name_decl",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "name_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "grammar_name"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "grammar_name",
+            "expression": {
+                "kind": "choice",
+                "alternatives": [
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "identifier"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "string_literal"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "section",
+            "expression": {
+                "kind": "choice",
+                "alternatives": [
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "token_section"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "skip_section"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "states_section"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "token_section",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "tokens_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "token_def"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "token_def"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "skip_section",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "skip_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "token_def"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "token_def"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "states_section",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "states_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "state_name"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "comma"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "state_name"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "token_def",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "equal"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "regex_literal"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "state_name",
+            "expression": {
+                "kind": "reference",
+                "name": "identifier"
+            }
+        },
+        {
+            "name": "start_decl",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "start_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "grammar_section",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "grammar_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "production"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "production"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ast_section",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "ast_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "ast_type"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "ast_type"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transform_section",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "transform_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "transform_rule"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "transform_rule"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "production",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "equal"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "expression"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "ast_type",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "equal"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "expression"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transform_rule",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "arrow"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "labeled_transform"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "bar"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "labeled_transform"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "semicolon"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "labeled_transform",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "hash"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "transform_expr"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "transform_expr",
+            "expression": {
+                "kind": "choice",
+                "alternatives": [
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "drop_kw"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "pass_expr"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "fold_left_expr"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "fold_right_expr"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "flatten_expr"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "build_expr"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "pass_expr",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "pass_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "lpar"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "reference"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rpar"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "fold_left_expr",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "fold_left_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "lpar"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "build_target"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "comma"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "reference_list"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rpar"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "fold_right_expr",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "fold_right_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "lpar"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "build_target"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "comma"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "reference_list"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rpar"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "flatten_expr",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "flatten_kw"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "lpar"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "build_target"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "comma"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "reference"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "comma"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "reference"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rpar"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "build_expr",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "build_target"
+                    },
+                    {
+                        "kind": "optional",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "lpar"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "reference_list"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "rpar"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "build_target",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "dot"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "hash"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "identifier"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "reference_list",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "reference"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "comma"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "reference"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "reference",
+            "expression": {
+                "kind": "reference",
+                "name": "identifier"
+            }
+        },
+        {
+            "name": "expression",
+            "expression": {
+                "kind": "reference",
+                "name": "choice"
+            }
+        },
+        {
+            "name": "choice",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "alternative"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "bar"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "alternative"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "alternative",
+            "expression": {
+                "kind": "reference",
+                "name": "labeled_alternative"
+            }
+        },
+        {
+            "name": "labeled_alternative",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "optional",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "hash"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "identifier"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "sequence"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "sequence",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "factor"
+                    },
+                    {
+                        "kind": "repeat",
+                        "element": {
+                            "kind": "reference",
+                            "name": "factor"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "factor",
+            "expression": {
+                "kind": "choice",
+                "alternatives": [
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "bracketed"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "repeat"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "group"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "primary"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "bracketed",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "lbracket"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "expression"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rbracket"
+                    },
+                    {
+                        "kind": "optional",
+                        "element": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "reference",
+                                    "name": "colon"
+                                },
+                                {
+                                    "kind": "reference",
+                                    "name": "identifier"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "repeat",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "lbrace"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "expression"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rbrace"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "group",
+            "expression": {
+                "kind": "sequence",
+                "elements": [
+                    {
+                        "kind": "reference",
+                        "name": "lpar"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "expression"
+                    },
+                    {
+                        "kind": "reference",
+                        "name": "rpar"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "primary",
+            "expression": {
+                "kind": "choice",
+                "alternatives": [
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "string_literal"
+                        }
+                    },
+                    {
+                        "label": null,
+                        "expression": {
+                            "kind": "reference",
+                            "name": "identifier"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "transform": [
+        {
+            "production": "grammar_file$repeat_0",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "grammar_file",
+                        "variant": "sections",
+                        "head": "section",
+                        "tail": "grammar_file$repeat_0"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "token_section$repeat_1",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "token_section",
+                        "variant": "definitions",
+                        "head": "token_def",
+                        "tail": "token_section$repeat_1"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "skip_section$repeat_2",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "skip_section",
+                        "variant": "definitions",
+                        "head": "token_def",
+                        "tail": "skip_section$repeat_2"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "grammar_section$repeat_4",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "grammar_section",
+                        "variant": "productions",
+                        "head": "production",
+                        "tail": "grammar_section$repeat_4"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "ast_section$repeat_5",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "ast_section",
+                        "variant": "types",
+                        "head": "ast_type",
+                        "tail": "ast_section$repeat_5"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "transform_section$repeat_6",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "transform_section",
+                        "variant": "rules",
+                        "head": "transform_rule",
+                        "tail": "transform_section$repeat_6"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "transform_rule$repeat_7",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "transform_rule",
+                        "variant": "alternatives",
+                        "head": "labeled_transform",
+                        "tail": "transform_rule$repeat_7"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "reference_list$repeat_8",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "reference_list",
+                        "variant": "references",
+                        "head": "reference",
+                        "tail": "reference_list$repeat_8"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "choice$repeat_9",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "choice",
+                        "variant": "alternatives",
+                        "head": "alternative",
+                        "tail": "choice$repeat_9"
+                    }
+                }
+            ]
+        },
+        {
+            "production": "sequence$repeat_10",
+            "alternatives": [
+                {
+                    "label": "main",
+                    "expression": {
+                        "kind": "flatten",
+                        "typeName": "sequence",
+                        "variant": "factors",
+                        "head": "factor",
+                        "tail": "sequence$repeat_10"
+                    }
+                }
+            ]
+        }
     ]
 }

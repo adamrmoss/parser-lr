@@ -1,5 +1,9 @@
+import { AstSchema } from '../grammar/ast-schema.js';
+import type { AstType } from '../grammar/ast-type.js';
 import { Grammar } from '../grammar/grammar.js';
 import type { TokenRule } from '../grammar/token-rule.js';
+import type { TransformRule } from '../grammar/transform-rule.js';
+import { TransformSchema } from '../grammar/transform-schema.js';
 
 import { desugarEbnf } from './bnf/desugar-ebnf.js';
 import { buildLrTable } from './build-lr-table.js';
@@ -43,6 +47,8 @@ export interface ParseTableJson
     readonly productions?: readonly ParseTableProductionJson[];
     readonly actions?: readonly ParseTableActionJson[];
     readonly gotos?: readonly ParseTableGotoJson[];
+    readonly ast?: readonly AstType[];
+    readonly transform?: readonly TransformRule[];
 }
 
 /**
@@ -69,6 +75,8 @@ export class ParseTable
      * @param actions - ACTION entries keyed by state and terminal symbol.
      * @param gotos - GOTO entries keyed by state and non-terminal name.
      * @param conflicts - Shift/reduce and reduce/reduce conflicts resolved during construction.
+     * @param astSchema - AST types from the `ast` section, or null when absent.
+     * @param transformSchema - CST-to-AST rules from the `transform` section, or null when absent.
      */
     public constructor(
         public readonly grammarName: string,
@@ -83,6 +91,8 @@ export class ParseTable
         actions: ReadonlyMap<number, ReadonlyMap<string, ParseAction>> = new Map(),
         gotos: ReadonlyMap<number, ReadonlyMap<string, number>> = new Map(),
         public readonly conflicts: readonly ParseConflict[] = [],
+        public readonly astSchema: AstSchema | null = null,
+        public readonly transformSchema: TransformSchema | null = null,
     )
     {
         this.actionByState = actions;
@@ -169,6 +179,13 @@ export class ParseTable
             );
         }
 
+        const astSchema = json.ast === undefined
+            ? null
+            : new AstSchema([...json.ast]);
+        const transformSchema = json.transform === undefined
+            ? null
+            : new TransformSchema([...json.transform]);
+
         return new ParseTable(
             json.grammarName,
             json.startSymbol,
@@ -181,6 +198,9 @@ export class ParseTable
             [...json.productions],
             ParseTable.actionsFromJson(json.actions),
             ParseTable.gotosFromJson(json.gotos),
+            [],
+            astSchema,
+            transformSchema,
         );
     }
 
@@ -252,15 +272,17 @@ export class ParseTable
             productions: [...this.productionById.values()].sort((left, right) => left.id - right.id),
             actions: ParseTable.actionsToJson(this.actionByState),
             gotos: ParseTable.gotosToJson(this.gotoByState),
+            ...(this.astSchema === null ? {} : { ast: [...this.astSchema.types] }),
+            ...(this.transformSchema === null ? {} : { transform: [...this.transformSchema.rules] }),
         };
 
         return json;
     }
 
     /**
-     * Builds a grammar containing lexer metadata from this table.
+     * Builds a grammar from this table, including AST and transform schemas when present.
      *
-     * @returns A grammar suitable for lexing; productions are empty.
+     * @returns A grammar suitable for lexing and CST-to-AST transforms.
      */
     public toGrammar(): Grammar
     {
@@ -271,6 +293,8 @@ export class ParseTable
             this.states,
             this.startSymbol,
             [],
+            this.astSchema,
+            this.transformSchema,
         );
     }
 
@@ -335,6 +359,8 @@ export class ParseTable
             lrTable.actions,
             lrTable.gotos,
             [...lrTable.conflicts],
+            grammar.astSchema,
+            grammar.transformSchema,
         );
     }
 
