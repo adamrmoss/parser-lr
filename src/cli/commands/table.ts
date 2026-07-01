@@ -3,6 +3,7 @@ import { Command } from 'commander';
 import { ParseContext } from '../../lib/index.js';
 
 import { readTextFile, writeTextFile } from '../io.js';
+import { logProgress } from '../progress.js';
 
 /**
  * Registers `table` subcommands on the root CLI program.
@@ -27,11 +28,16 @@ export function registerTableCommands(program: Command): void
         )
         .action(async (options: TableGenerateOptions) =>
         {
+            logProgress(`reading grammar ${options.grammar}`);
             const grammarSource = await readTextFile(options.grammar);
+
+            logProgress(`building ${options.algorithm} parse table`);
             const context = ParseContext.fromSources({
                 grammarSource,
                 algorithm: options.algorithm,
             });
+
+            logProgress('serializing parse table');
             const json = context.table.toJsonString();
 
             // Write conflict warnings to stderr after table generation.
@@ -43,10 +49,12 @@ export function registerTableCommands(program: Command): void
             // Write JSON to disk or stdout.
             if (options.output !== undefined)
             {
+                logProgress(`writing ${options.output}`);
                 await writeTextFile(options.output, json);
             }
             else
             {
+                logProgress('writing stdout');
                 process.stdout.write(`${json}\n`);
             }
         });

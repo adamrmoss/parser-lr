@@ -4,6 +4,15 @@ Node command-line tool (`parser-lr`). Bundled to `bin/parser-lr.js`.
 
 User-facing install, table generation, and parse workflows are documented in the [project README](../../README.md). Grammar syntax: [`docs/grammar.md`](../../docs/grammar.md).
 
+Progress messages are written to **stderr** (`parser-lr: …`) so stdout stays clean for JSON table and AST output.
+
+## Commands
+
+| Command | Subcommand | Description |
+|---------|------------|-------------|
+| `table` | `generate` | Build a self-contained parse table JSON from a `.grammar` file |
+| `parse` | — | Parse a source file to AST JSON using `--grammar` or `--table` |
+
 ## `table generate`
 
 | Option | Required | Description |

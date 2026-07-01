@@ -161,6 +161,53 @@ grammar
         expect(output).toContain('"symbol": "expr"');
     });
 
+    it('writes progress messages to stderr during table generate', async () =>
+    {
+        const { output } = await withCapturedErrorOutput(async () =>
+        {
+            await createProgram().parseAsync([
+                'node',
+                'parser-lr',
+                'table',
+                'generate',
+                '-g',
+                calcGrammarPath,
+                '-o',
+                join(tempDir, 'table.json'),
+            ]);
+        });
+
+        expect(output).toContain('parser-lr: reading grammar');
+        expect(output).toContain('parser-lr: building lr1 parse table');
+        expect(output).toContain('parser-lr: serializing parse table');
+        expect(output).toContain('parser-lr: writing');
+    });
+
+    it('writes progress messages to stderr during parse', async () =>
+    {
+        const inputPath = join(tempDir, 'input.txt');
+
+        await writeFile(inputPath, '1 + 2\n');
+
+        const { output } = await withCapturedErrorOutput(async () =>
+        {
+            await createProgram().parseAsync([
+                'node',
+                'parser-lr',
+                'parse',
+                '-g',
+                calcGrammarPath,
+                '-i',
+                inputPath,
+            ]);
+        });
+
+        expect(output).toContain('parser-lr: reading grammar');
+        expect(output).toContain('parser-lr: building parse table');
+        expect(output).toContain('parser-lr: lexing');
+        expect(output).toContain('parser-lr: parsing');
+    });
+
     it('registers table and parse subcommands', () =>
     {
         const names = createProgram().commands.map((command) => command.name());

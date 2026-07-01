@@ -1,7 +1,7 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "description": "Shift-reduce parser library for EBNF grammars",
     "license": "MIT",
     "repository": {
@@ -38,7 +38,7 @@
         "registry": "https://registry.npmjs.org/"
     },
     "scripts": {
-        "bootstrap": "npm link && parser-lr table generate -g grammars/grammar.grammar -o src/lib/grammar/grammar.json",
+        "bootstrap": "npm link && parser-lr table generate -g grammars/grammar.grammar -o src/lib/grammar/grammar.json -a lalr",
         "build": "npm run build:clean && npm run build:lib && npm run build:cli",
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
         "build:lib": "tsc -p tsconfig.lib.json && cp src/lib/grammar/grammar.json dist/lib/grammar/",
