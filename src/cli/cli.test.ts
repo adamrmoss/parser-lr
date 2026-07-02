@@ -161,12 +161,85 @@ grammar
         expect(output).toContain('"symbol": "expr"');
     });
 
+    it('writes progress messages to stderr during table generate', async () =>
+    {
+        const { output } = await withCapturedErrorOutput(async () =>
+        {
+            await createProgram().parseAsync([
+                'node',
+                'parser-lr',
+                'table',
+                'generate',
+                '-g',
+                calcGrammarPath,
+                '-o',
+                join(tempDir, 'table.json'),
+            ]);
+        });
+
+        expect(output).toContain('parser-lr: reading grammar');
+        expect(output).toContain('parser-lr: building lr1 parse table');
+        expect(output).toContain('parser-lr: serializing parse table');
+        expect(output).toContain('parser-lr: writing');
+    });
+
+    it('writes progress messages to stderr during parse', async () =>
+    {
+        const inputPath = join(tempDir, 'input.txt');
+
+        await writeFile(inputPath, '1 + 2\n');
+
+        const { output } = await withCapturedErrorOutput(async () =>
+        {
+            await createProgram().parseAsync([
+                'node',
+                'parser-lr',
+                'parse',
+                '-g',
+                calcGrammarPath,
+                '-i',
+                inputPath,
+            ]);
+        });
+
+        expect(output).toContain('parser-lr: reading grammar');
+        expect(output).toContain('parser-lr: building parse table');
+        expect(output).toContain('parser-lr: lexing');
+        expect(output).toContain('parser-lr: parsing');
+    });
+
     it('registers table and parse subcommands', () =>
     {
+        const table = createProgram().commands.find((command) => command.name() === 'table');
         const names = createProgram().commands.map((command) => command.name());
 
         expect(names).toContain('table');
         expect(names).toContain('parse');
+        expect(table?.commands.map((command) => command.name())).toEqual(
+            expect.arrayContaining(['generate', 'validate']),
+        );
+    });
+
+    it('validates a grammar and reports pass-collapse warnings', async () =>
+    {
+        const fixtureGrammar = join(
+            process.cwd(),
+            'grammars/fixtures/pass-preserves-production/bare-terminal/bare-terminal.grammar',
+        );
+        const { output } = await withCapturedErrorOutput(async () =>
+        {
+            await createProgram().parseAsync([
+                'node',
+                'parser-lr',
+                'table',
+                'validate',
+                '-g',
+                fixtureGrammar,
+            ]);
+        });
+
+        expect(output).toContain('warning:');
+        expect(output).toContain('pass(stmt)');
     });
 
     it('sets exit code when command execution fails', async () =>

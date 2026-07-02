@@ -89,6 +89,9 @@ dist
 bin/parser-lr.js
 bin/parser-lr.js.map
 
+# Transient ESM barrel backup during build:lib
+src/lib/grammar/grammar-json-path.ts.esm-barrel
+
 # Gatsby files
 .cache/
 # Comment in the public line in if your project uses Gatsby and not Next.js

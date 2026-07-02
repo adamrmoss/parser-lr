@@ -34,7 +34,7 @@ You can then run `parser-lr` from any directory. Without linking, use `npx parse
 Generate a serialized LR table from a grammar file:
 
 ```bash
-parser-lr table generate -g mylang.grammar -o mylang.table.json
+parser-lr table generate -g mylang.grammar -o mylang.json
 ```
 
 Options:
@@ -45,7 +45,17 @@ Options:
 | `-o, --output <path>` | Output path (default: stdout) |
 | `-a, --algorithm <name>` | `lr0`, `slr`, `lalr`, or `lr1` (default: `lr1`) |
 
-The JSON table includes lexer token rules, skip rules, and the full ACTION/GOTO table. You can ship this file without the original grammar.
+The JSON file is self-contained: lexer rules, skip rules, the full ACTION/GOTO table, and when the grammar defines them, `ast` and `transform` sections for CST-to-AST mapping. Ship this file without the original `.grammar`.
+
+### Validate a grammar
+
+Check `ast` / `transform` consistency and surface pass-collapse warnings:
+
+```bash
+parser-lr table validate -g mylang.grammar
+```
+
+Add `--strict` to treat warnings as errors.
 
 ### Parse a source file
 
@@ -53,7 +63,7 @@ Parse input using either the grammar (table built in memory) or a saved table:
 
 ```bash
 parser-lr parse -i program.txt -g mylang.grammar
-parser-lr parse -i program.txt -t mylang.table.json
+parser-lr parse -i program.txt -t mylang.json
 ```
 
 Options:
@@ -68,35 +78,47 @@ Options:
 
 Output is a JSON object `{ "ast": … }`. On a syntax error, `ast` is `null`.
 
-When the grammar defines `ast` and `transform` sections, the CLI applies CST-to-AST transforms and returns the abstract tree.
+`parse` applies CST-to-AST transforms when the grammar or table JSON defines `transform` rules.
 
 ## Library
 
-Import from `parser-lr` in Node or bundler projects (ESM). The API is browser-safe; the CLI is Node-only.
+The package ships an ESM library at `dist/lib/` with TypeScript types in `dist/lib/index.d.ts`. Import with `import { … } from 'parser-lr'`.
+
+The main entry is browser-safe for table-only parsing. Grammar-file APIs live on the Node-only subpath `parser-lr/grammar`.
+
+After `npm install parser-lr`, the tarball also includes [`docs/`](docs/grammar.md) and example [`grammars/`](grammars/calc.grammar) for offline reference.
+
+### Table-only runtime (browser and Node)
 
 ```typescript
 import { readFile } from 'node:fs/promises';
 import { ParseContext } from 'parser-lr';
 
-const grammarSource = await readFile('mylang.grammar', 'utf8');
-const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+const tableJson = await readFile('mylang.json', 'utf8');
+const context = ParseContext.fromTableJson(tableJson);
 
 const source = await readFile('program.txt', 'utf8');
 const ast = context.parseSource(source);
 ```
 
-Load a pre-built table instead of a grammar file:
+### Grammar-file path (Node only)
 
 ```typescript
 import { readFile } from 'node:fs/promises';
-import { ParseContext } from 'parser-lr';
+import { parseContextFromGrammar } from 'parser-lr/grammar';
 
-const tableJson = await readFile('mylang.table.json', 'utf8');
-const context = ParseContext.fromTableJson(tableJson);
+const grammarSource = await readFile('mylang.grammar', 'utf8');
+const context = parseContextFromGrammar(grammarSource, 'lr1');
 
 const source = await readFile('program.txt', 'utf8');
-const ast = context.parse(context.lex(source));
+const ast = context.parseSource(source);
 ```
+
+When testing this package from a clone, run `npm run build` first so `dist/lib/` exists. Published installs build automatically via `prepack`.
+
+Table-only consumers never load the meta-grammar module graph: `ParseContext.fromTableJson` does not import `grammar.json` or any Node built-ins.
+
+The published CLI (`bin/parser-lr.js`) bundles grammar reading and the meta-grammar table for offline table generation and validation.
 
 `ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See the [library API overview](https://github.com/adamrmoss/parser-lr/blob/main/src/lib/README.md).
 

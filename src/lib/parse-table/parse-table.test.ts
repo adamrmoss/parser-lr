@@ -1,6 +1,10 @@
 import { describe, expect, it } from '@jest/globals';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 import { Grammar } from '../grammar/grammar.js';
+import { readGrammar } from '../grammar/read-grammar.js';
+import { ParseContext } from '../parse-context.js';
 
 import { ParseTableError } from './parse-table-error.js';
 import { ParseTable } from './parse-table.js';
@@ -40,6 +44,25 @@ describe('ParseTable', () =>
         expect(restored.tokens).toEqual(['number', 'plus', '$eof']);
         expect(restored.tokenRules).toEqual(grammar.tokenRules);
         expect(restored.skipRules).toEqual(grammar.skipRules);
+    });
+
+    it('serializes ast and transform schemas and round-trips through JSON', () =>
+    {
+        const grammarSource = readFileSync(join(process.cwd(), 'grammars/calc.grammar'), 'utf8');
+        const grammar = readGrammar(grammarSource);
+        const table = ParseTable.fromGrammar(grammar, 'lr1');
+        const restored = ParseTable.fromJsonString(table.toJsonString());
+
+        expect(restored.astSchema).not.toBeNull();
+        expect(restored.transformSchema).not.toBeNull();
+        expect(restored.astSchema?.types).toEqual(grammar.astSchema?.types);
+        expect(restored.transformSchema?.rules).toEqual(grammar.transformSchema?.rules);
+
+        const fromTable = ParseContext.fromTableJson(table.toJsonString());
+        const ast = fromTable.parseSource('3 + 4');
+
+        expect(ast?.symbol).toBe('expr');
+        expect(ast?.variant).toBe('binary');
     });
 
     it('rejects unsupported schema versions', () =>

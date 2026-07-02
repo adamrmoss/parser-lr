@@ -34,8 +34,8 @@ export class ParserLr
     /**
      * Creates a parser from a serialized parse table.
      *
-     * @param table - Parse table containing lexer metadata and parser entries.
-     * @returns A parser that can lex and parse using the table.
+     * @param table - Parse table containing lexer metadata, parser entries, and optional AST transforms.
+     * @returns A parser that lexes, parses, and applies transforms from the table JSON.
      */
     public static fromParseTable(table: ParseTable): ParserLr
     {

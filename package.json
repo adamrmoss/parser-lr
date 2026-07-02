@@ -1,8 +1,26 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.3.0",
-    "description": "Shift-reduce parser library for EBNF grammars",
+    "version": "0.7.0",
+    "description": "Shift-reduce parser library for EBNF grammars with LR table generation, lexing, and CST-to-AST transforms",
+    "keywords": [
+        "ast",
+        "bottom-up",
+        "compiler",
+        "ebnf",
+        "grammar",
+        "language",
+        "lalr",
+        "lexer",
+        "lr",
+        "lr1",
+        "parse-table",
+        "parser",
+        "parsing",
+        "shift-reduce",
+        "slr",
+        "syntax-tree"
+    ],
     "license": "MIT",
     "repository": {
         "type": "git",
@@ -22,28 +40,38 @@
     "exports": {
         ".": {
             "types": "./dist/lib/index.d.ts",
-            "import": "./dist/lib/index.js"
+            "import": "./dist/lib/index.js",
+            "default": "./dist/lib/index.js"
+        },
+        "./grammar": {
+            "types": "./dist/lib/grammar-entry.d.ts",
+            "import": "./dist/lib/grammar-entry.js",
+            "default": "./dist/lib/grammar-entry.js"
         }
     },
     "bin": {
         "parser-lr": "bin/parser-lr.js"
     },
     "files": [
+        "README.md",
+        "LICENSE",
         "bin",
         "dist",
-        "docs"
+        "docs",
+        "grammars"
     ],
     "publishConfig": {
         "access": "public",
         "registry": "https://registry.npmjs.org/"
     },
     "scripts": {
-        "bootstrap": "npm link && parser-lr table generate -g grammars/grammar.grammar -o src/lib/grammar/grammar.json",
+        "bootstrap": "npm link && parser-lr table generate -g grammars/grammar.grammar -o src/lib/grammar/grammar.json -a lalr",
         "build": "npm run build:clean && npm run build:lib && npm run build:cli",
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
-        "build:lib": "tsc -p tsconfig.lib.json && cp src/lib/grammar/grammar.json dist/lib/grammar/",
+        "build:lib": "node scripts/build-lib.mjs",
         "build:cli": "rollup -c rollup.cli.config.js && chmod +x bin/parser-lr.js",
         "cloc": "cloc src --exclude-dir=node_modules,dist",
+        "acceptance": "node scripts/acceptance-tarball.mjs",
         "test": "jest",
         "test:coverage": "jest --coverage",
         "prepack": "npm run build"
@@ -58,6 +86,7 @@
         "@types/jest": "29.x",
         "@types/node": "22.x",
         "commander": "12.x",
+        "esbuild": "0.x",
         "jest": "29.x",
         "rollup": "4.x",
         "ts-jest": "29.x",

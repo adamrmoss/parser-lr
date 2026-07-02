@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { Grammar } from './grammar/grammar.js';
+import { parseContextFromGrammar, parseContextFromSources } from './grammar-entry.js';
 import { ParseContextError } from './parse-context-error.js';
 import { ParseContext } from './parse-context.js';
 import { ParseTable } from './parse-table/parse-table.js';
@@ -22,16 +23,6 @@ start expr ;
 grammar
     expr = number ;
 `;
-
-    it('loads from grammar source', () =>
-    {
-        const context = ParseContext.fromGrammar(calcGrammarSource, 'lalr');
-
-        expect(context.table.grammarName).toBe('calc');
-        expect(context.table.algorithm).toBe('lalr');
-        expect(context.lex('1 + 2')).toHaveLength(4);
-        expect(context.lex('1 + 2').at(-1)?.name).toBe('$eof');
-    });
 
     it('loads from serialized table JSON', () =>
     {
@@ -61,6 +52,56 @@ grammar
         ]);
     });
 
+    it('loads from table JSON through fromSources', () =>
+    {
+        const tableJson = ParseTable.fromGrammar(new Grammar(
+            'other',
+            [{ name: 'number', pattern: '[0-9]+', flags: '' }],
+            [],
+            [],
+            'expr',
+            [],
+        )).toJsonString();
+
+        const context = ParseContext.fromSources({ tableJson });
+
+        expect(context.table.grammarName).toBe('other');
+    });
+
+    it('throws ParseContextError when table JSON is missing', () =>
+    {
+        expect(() => ParseContext.fromSources({})).toThrow(ParseContextError);
+    });
+});
+
+describe('grammar-entry parse context factories', () =>
+{
+    const calcGrammarSource = `
+name "calc" ;
+
+tokens
+    number = /[0-9]+/ ;
+    plus = /\\+/ ;
+
+skip
+    whitespace = /[ \\t\\r\\n]+/ ;
+
+start expr ;
+
+grammar
+    expr = number ;
+`;
+
+    it('loads from grammar source', () =>
+    {
+        const context = parseContextFromGrammar(calcGrammarSource, 'lalr');
+
+        expect(context.table.grammarName).toBe('calc');
+        expect(context.table.algorithm).toBe('lalr');
+        expect(context.lex('1 + 2')).toHaveLength(4);
+        expect(context.lex('1 + 2').at(-1)?.name).toBe('$eof');
+    });
+
     it('prefers grammar source over table JSON when both are supplied', () =>
     {
         const tableJson = ParseTable.fromGrammar(new Grammar(
@@ -72,7 +113,7 @@ grammar
             [],
         )).toJsonString();
 
-        const context = ParseContext.fromSources({
+        const context = parseContextFromSources({
             grammarSource: calcGrammarSource,
             tableJson,
         });
@@ -82,7 +123,7 @@ grammar
 
     it('delegates chunk lexing and parsing to the parser', async () =>
     {
-        const context = ParseContext.fromGrammar(calcGrammarSource, 'lr1');
+        const context = parseContextFromGrammar(calcGrammarSource, 'lr1');
 
         expect(context.createLexer().lex('1')).toHaveLength(2);
         expect(context.lexChunkStream(['1', '2'])).toEqual(context.lex('12'));
@@ -99,6 +140,6 @@ grammar
 
     it('throws ParseContextError when neither grammar nor table is supplied', () =>
     {
-        expect(() => ParseContext.fromSources({})).toThrow(ParseContextError);
+        expect(() => parseContextFromSources({})).toThrow(ParseContextError);
     });
 });

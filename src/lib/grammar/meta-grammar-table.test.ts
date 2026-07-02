@@ -28,6 +28,18 @@ describe('metaGrammarTable', () =>
         expect(tokens.some((token) => isEofToken(token))).toBe(false);
     });
 
+    it('lexes regex literals with trailing flag letters as one token', () =>
+    {
+        const tokens = lexGrammarSource('kw = /abc/gi ;');
+
+        expect(tokens.map((token) => ({ name: token.name, text: token.text }))).toEqual([
+            { name: 'identifier', text: 'kw' },
+            { name: 'equal', text: '=' },
+            { name: 'regex_literal', text: '/abc/gi' },
+            { name: 'semicolon', text: ';' },
+        ]);
+    });
+
     it('matches readGrammar tokenization for a minimal grammar', () =>
     {
         const source = `

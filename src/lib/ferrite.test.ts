@@ -104,6 +104,35 @@ describe('ferrite.grammar integration', () =>
         expect(table.parserStateCount).toBeGreaterThan(0);
     });
 
+    describe('literal regex suffix flags', () =>
+    {
+        it.each([
+            ['0XFF', 'int_literal'],
+            ['0xDeadBeef', 'int_literal'],
+            ['0B1010', 'int_literal'],
+            ['1.5E10', 'float_literal'],
+            ['3.14e-2', 'float_literal'],
+        ])('lexes %s as %s', (text, tokenName) =>
+        {
+            const tokens = parser.lex(text);
+
+            expect(tokens[0]).toMatchObject({
+                name: tokenName,
+                text,
+            });
+        });
+
+        it.each([
+            ['uppercase hex prefix', inInt32Function('return 0XFF;')],
+            ['mixed-case hex digits', inInt32Function('return 0xDeadBeef;')],
+            ['uppercase binary prefix', inInt32Function('return 0B1010;')],
+            ['uppercase float exponent', 'float64 scale() { return 1.5E10; }'],
+        ])('parses %s', (_label, source) =>
+        {
+            expectFerriteParses(source);
+        });
+    });
+
     describe('types and declarations', () =>
     {
         it.each([

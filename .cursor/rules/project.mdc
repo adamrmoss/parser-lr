@@ -24,23 +24,28 @@ Shift-reduce parser library for EBNF grammars. Builds parse tables and uses them
 ## Layout
 
 - Organize by **domain concepts**, not technical layers (no `controllers/`, `views/`, `services/` folders)
-- Library source under `src/lib/`; public API via `src/lib/index.ts`
+- Library source under `src/lib/`; browser-safe public API via `src/lib/index.ts`; grammar-file API via `src/lib/grammar-entry.ts` (`parser-lr/grammar`)
 - CLI under `src/cli/` (Node-only; may import from `src/lib/`)
 - Barrel `index.ts` files for directories with multiple related exports
 
 ## Build
 
-- `npm run build:lib` — `tsc -p tsconfig.lib.json` → `dist/lib/`
-- `npm run build:cli` — `rollup -c rollup.cli.config.js` → `bin/parser-lr.js`
+- `npm run build:lib` — `node scripts/build-lib.mjs` → `dist/lib/` (ESM + `.d.ts`)
+- `npm run build:cli` — `rollup -c rollup.cli.config.js` → `bin/parser-lr.js`. The CLI bundle includes grammar reading and the meta-grammar table.
 - `npm run build` — both, in that order
 - `npm test` — Jest (`src/**/*.test.ts`, TypeScript via ts-jest). Expected errors must not reach the console; see **`testing.mdc`**
+- `npm run acceptance` — packs the tarball, installs it into a scratch project, and runs browser bundle, CLI, table-only import, and grammar subpath smoke checks
+
+## Meta-grammar loading
+
+- The bootstrapped `grammar.json` is imported in source on the `parser-lr/grammar` subpath only. Table-only consumers (`ParseContext.fromTableJson` on the main entry) never load it.
 
 ## Publish (npm)
 
 - **`package.json`** — npm manifest (`name`, `version`, `exports`, `bin`, `files`, …)
 - **`.npmrc`** — default registry (`https://registry.npmjs.org/`)
 - **`prepack`** — runs `npm run build` automatically before `npm pack` / `npm publish`
-- **`files`** — only `bin/` and `dist/` ship; `src/` stays out of the tarball. npm always includes root `README.md`, `LICENSE`, and `package.json` as well.
+- **`files`** — `bin/`, `dist/`, `docs/`, `grammars/`, plus root `README.md` and `LICENSE`. npm always includes `package.json` as well. `src/` stays out of the tarball.
 
 ## Paths
 

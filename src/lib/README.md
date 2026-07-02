@@ -1,43 +1,60 @@
 # Library API
 
-Browser- and Node-safe ESM (`import from 'parser-lr'`). Built to `dist/lib/` on `npm run build`.
+Browser-safe parse runtime plus a Node-only grammar subpath. Built to `dist/lib/` (ESM + `.d.ts`) on `npm run build`.
 
-## Quick start
+## Entry points
+
+| Import | Entry | Use |
+|--------|-------|-----|
+| `import { … } from 'parser-lr'` | `dist/lib/index.js` | Browser, bundlers, table-only Node apps |
+| `import { … } from 'parser-lr/grammar'` | `dist/lib/grammar-entry.js` | Node-only grammar-file APIs |
+
+TypeScript types: `dist/lib/index.d.ts` and `dist/lib/grammar-entry.d.ts`.
+
+## Quick start (table-only, browser-safe)
 
 ```typescript
 import { ParseContext } from 'parser-lr';
 
-const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+const context = ParseContext.fromTableJson(tableJson);
 const ast = context.parseSource(sourceText);
 ```
 
-Load a serialized table instead:
+## Grammar-file path (Node only)
 
 ```typescript
-const context = ParseContext.fromTableJson(tableJson);
-const ast = context.parse(tokens);
+import { parseContextFromGrammar, readGrammar } from 'parser-lr/grammar';
+
+const context = parseContextFromGrammar(grammarSource, 'lr1');
+const ast = context.parseSource(sourceText);
 ```
 
-## Main types
+## Main types (`parser-lr`)
 
 | Type | Role |
 |------|------|
-| `ParseContext` | Parser + table from grammar text or table JSON; `lex`, `parse`, `parseSource` |
+| `ParseContext` | Parser + table from table JSON; `lex`, `parse`, `parseSource` |
 | `ParserLr` | Lower-level parser bound to a `Grammar` and optional `ParseTable` |
-| `Grammar` | Parsed `.grammar` file: lexer rules, productions, optional AST and transform schemas |
-| `ParseTable` | Serializable LR table; `fromGrammar`, `fromJson`, `toJsonString` |
+| `ParseTable` | Self-contained serializable LR table; lexer, parser, `ast`, and `transform` |
 | `AstNode` | Parse tree node (CST or AST after transform) |
 | `Lexer` | Tokenize source using grammar `tokens`, `skip`, and `states` |
+
+## Grammar subpath (`parser-lr/grammar`)
+
+| Type | Role |
+|------|------|
+| `Grammar` | Parsed `.grammar` file: lexer rules, productions, optional AST and transform schemas |
+| `readGrammar` | Parse `.grammar` text into a `Grammar` model |
+| `parseContextFromGrammar` | Build a `ParseContext` from grammar text |
+| `validateGrammarTable` | Check `ast` / `transform` consistency on a `Grammar` model |
 
 Grammar file syntax: [`docs/grammar.md`](../../docs/grammar.md).
 
 ## Parse pipeline
 
 1. **Lex** — `Lexer` or `ParseContext.lex` tokenizes input using `tokens` and `skip` from the grammar or table.
-2. **Parse** — shift-reduce over the LR table produces a CST (`AstNode` tree).
-3. **Transform** — when the grammar defines `transform` rules, `ParserLr.parse` / `ParseContext.parse` apply them and return an AST.
-
-`readGrammar(source)` parses a `.grammar` file into a `Grammar` model without building a user-language table.
+2. **Parse** — shift-reduce over the LR table produces a CST.
+3. **Transform** — when `transform` rules are present in the grammar or table JSON, `ParserLr.parse` / `ParseContext.parse` apply them and return an AST.
 
 ## Errors
 
