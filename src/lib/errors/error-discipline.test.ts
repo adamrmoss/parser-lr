@@ -8,7 +8,7 @@ import { LexerError } from '../lexer/lexer-error.js';
 import { LexerInputError } from '../lexer/lexer-input-error.js';
 import { LexerStateError } from '../lexer/lexer-state-error.js';
 import { ParseContextError } from '../parse-context-error.js';
-import { ParseContext } from '../parse-context.js';
+import { parseContextFromSources } from '../grammar-entry.js';
 import { ParseOutputError } from '../parse-output-error.js';
 import { formatParseOutput } from '../parse-output.js';
 import { ParseTableError } from '../parse-table/parse-table-error.js';
@@ -181,7 +181,7 @@ grammar
 
     it('reports missing parse context sources with ParseContextError', () =>
     {
-        expect(() => ParseContext.fromSources({})).toThrow(ParseContextError);
+        expect(() => parseContextFromSources({})).toThrow(ParseContextError);
         expectCleanUserError(new ParseContextError('required: grammar source or table JSON'));
     });
 

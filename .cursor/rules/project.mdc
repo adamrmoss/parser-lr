@@ -24,21 +24,21 @@ Shift-reduce parser library for EBNF grammars. Builds parse tables and uses them
 ## Layout
 
 - Organize by **domain concepts**, not technical layers (no `controllers/`, `views/`, `services/` folders)
-- Library source under `src/lib/`; public API via `src/lib/index.ts`
+- Library source under `src/lib/`; browser-safe public API via `src/lib/index.ts`; grammar-file API via `src/lib/grammar-entry.ts` (`parser-lr/grammar`)
 - CLI under `src/cli/` (Node-only; may import from `src/lib/`)
 - Barrel `index.ts` files for directories with multiple related exports
 
 ## Build
 
-- `npm run build:lib` — `node scripts/build-lib.mjs` → `dist/lib/` (ESM) and `dist/lib-cjs/` (CommonJS)
-- `npm run build:cli` — `rollup -c rollup.cli.config.js` → `bin/parser-lr.js`. The bundle inlines `grammar.json` via `src/cli/bootstrap-meta-grammar.ts`, so the CLI needs no `grammar.json` file at runtime.
+- `npm run build:lib` — `node scripts/build-lib.mjs` → `dist/lib/` (ESM + `.d.ts`)
+- `npm run build:cli` — `rollup -c rollup.cli.config.js` → `bin/parser-lr.js`. The CLI bundle includes grammar reading and the meta-grammar table.
 - `npm run build` — both, in that order
 - `npm test` — Jest (`src/**/*.test.ts`, TypeScript via ts-jest). Expected errors must not reach the console; see **`testing.mdc`**
-- `npm run acceptance` — packs the tarball, installs it into a scratch project, and runs the CLI + table-only import smoke checks (verifies the meta-grammar packaging blockers stay fixed)
+- `npm run acceptance` — packs the tarball, installs it into a scratch project, and runs browser bundle, CLI, table-only import, and grammar subpath smoke checks
 
 ## Meta-grammar loading
 
-- The bootstrapped `grammar.json` loads **lazily** (first `readGrammar` / `fromGrammar` / `validateGrammarTable` call), never at module import. Table-only consumers (`ParseContext.fromTableJson`) touch no filesystem and no `import.meta`.
+- The bootstrapped `grammar.json` is imported in source on the `parser-lr/grammar` subpath only. Table-only consumers (`ParseContext.fromTableJson` on the main entry) never load it.
 
 ## Publish (npm)
 

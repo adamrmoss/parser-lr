@@ -1,5 +1,4 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import grammarTableJson from './grammar.json' with { type: 'json' };
 
 import { Lexer } from '../lexer/lexer.js';
 import { isEofToken } from '../lexer/token.js';
@@ -8,42 +7,22 @@ import { ParseTable } from '../parse-table/parse-table.js';
 import type { ParseTableJson } from '../parse-table/parse-table.js';
 
 import type { Grammar } from './grammar.js';
-import { grammarJsonDirectory } from './grammar-json-path.js';
 
 let bootstrapTable: ParseTableJson | null = null;
 let bootstrapMetaGrammar: Grammar | null = null;
 
 /**
- * Overrides the bootstrapped meta-grammar table before any grammar file is read.
+ * Returns the bootstrapped meta-grammar table JSON on first use.
  *
  * @remarks
- * The bundled CLI injects its inlined `grammar.json` here so it never depends on
- * a `grammar.json` file on disk. Library consumers do not call this; they fall
- * back to the lazy filesystem read in {@link bootstrapTableJson}.
- *
- * @param table - Serialized meta-grammar parse table.
- */
-export function setBootstrapTableJson(table: ParseTableJson): void
-{
-    bootstrapTable = table;
-    bootstrapMetaGrammar = null;
-}
-
-/**
- * Reads and caches the bootstrapped `grammar.json` on first use.
- *
- * @remarks
- * Loading is deferred so that importing the parse runtime (for example
- * {@link ParseContext.fromTableJson}) never touches the filesystem or evaluates
- * `import.meta`. Only grammar-file consumers pay this cost.
+ * Parsing is deferred so grammar-file consumers pay table construction only when
+ * needed. The JSON is imported at compile time; no filesystem path resolution.
  */
 function bootstrapTableJson(): ParseTableJson
 {
     if (bootstrapTable === null)
     {
-        bootstrapTable = JSON.parse(
-            readFileSync(join(grammarJsonDirectory(), 'grammar.json'), 'utf8'),
-        ) as ParseTableJson;
+        bootstrapTable = grammarTableJson as ParseTableJson;
     }
 
     return bootstrapTable;

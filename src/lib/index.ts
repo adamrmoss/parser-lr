@@ -4,37 +4,32 @@
 
 export { AstNode } from './ast/ast-node.js';
 export type { SourceLocation } from './ast/ast-node.js';
+export type { AstType } from './grammar/ast-type.js';
 export type {
     Alternative,
-    AstType,
     BoundReferenceExpression,
-    BuildTransform,
     ChoiceExpression,
-    DropTransform,
     Expression,
-    FlattenTransform,
-    FoldLeftTransform,
-    FoldRightTransform,
     GroupExpression,
     OptionalExpression,
-    PassTransform,
-    Production,
     ReferenceExpression,
     RepeatExpression,
     SequenceExpression,
     TerminalExpression,
-    TokenRule,
-    TransformAlternative,
+} from './grammar/expression.js';
+export type { Grammar } from './grammar/grammar.js';
+export type { Production } from './grammar/production.js';
+export type { TokenRule } from './grammar/token-rule.js';
+export type {
+    BuildTransform,
+    DropTransform,
+    FlattenTransform,
+    FoldLeftTransform,
+    FoldRightTransform,
+    PassTransform,
     TransformExpression,
-    TransformRule,
-} from './grammar/index.js';
-export { AstSchema, Grammar, TransformSchema } from './grammar/index.js';
-export {
-    formatTableValidationIssues,
-    validateGrammarTable,
-} from './grammar/index.js';
-export type { TableValidationIssue, TableValidationSeverity } from './grammar/index.js';
-export { ReadGrammarError, readGrammar } from './grammar/index.js';
+} from './grammar/transform-expression.js';
+export type { TransformAlternative, TransformRule } from './grammar/transform-rule.js';
 export { Lexer, LexerCompileError, LexerInputError, LexerStateError, lexChunkStream, lexChunkStreamAsync, lexChunks, lexChunksAsync } from './lexer/index.js';
 export {
     DEFAULT_LEXER_STATE,

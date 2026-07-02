@@ -14,7 +14,7 @@ export type {
 } from './expression.js';
 export { Grammar } from './grammar.js';
 export { grammarFromCst } from './grammar-from-cst.js';
-export { setBootstrapTableJson } from './meta-grammar-table.js';
+export { lexGrammarSource, metaGrammar, metaGrammarTable } from './meta-grammar-table.js';
 export { readGrammar } from './read-grammar.js';
 export { ReadGrammarError } from './read-grammar-error.js';
 export type { Production } from './production.js';

@@ -2,6 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import { parseContextFromGrammar } from '../grammar-entry.js';
 import { ParseContext } from '../parse-context.js';
 
 describe('calc.grammar transform pipeline', () =>
@@ -10,7 +11,7 @@ describe('calc.grammar transform pipeline', () =>
 
     it('parses and transforms addition into an AST', () =>
     {
-        const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+        const context = parseContextFromGrammar(grammarSource, 'lr1');
         const ast = context.parseSource('1 + 2');
 
         expect(ast?.symbol).toBe('expr');
@@ -20,7 +21,7 @@ describe('calc.grammar transform pipeline', () =>
 
     it('parses and transforms from self-contained table JSON', () =>
     {
-        const fromGrammar = ParseContext.fromGrammar(grammarSource, 'lr1');
+        const fromGrammar = parseContextFromGrammar(grammarSource, 'lr1');
         const tableJson = fromGrammar.table.toJsonString();
         const fromTable = ParseContext.fromTableJson(tableJson);
         const ast = fromTable.parseSource('1 + 2');
@@ -37,7 +38,7 @@ describe('lisp.grammar transform pipeline', () =>
 
     it('parses and transforms a list form into an AST', () =>
     {
-        const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+        const context = parseContextFromGrammar(grammarSource, 'lr1');
         const ast = context.parseSource('(+ 1 2)');
 
         expect(ast?.symbol).toBe('program');
@@ -62,7 +63,7 @@ describe('6502.grammar transform pipeline', () =>
 
     it('parses and transforms an assembler program into an AST', () =>
     {
-        const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+        const context = parseContextFromGrammar(grammarSource, 'lr1');
         const ast = context.parseSource('.org $8000\n    BRK\n');
 
         expect(ast?.symbol).toBe('program');

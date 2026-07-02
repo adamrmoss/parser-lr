@@ -82,44 +82,13 @@ Output is a JSON object `{ "ast": … }`. On a syntax error, `ast` is `null`.
 
 ## Library
 
-The package ships two compiled trees from the same TypeScript sources:
+The package ships an ESM library at `dist/lib/` with TypeScript types in `dist/lib/index.d.ts`. Import with `import { … } from 'parser-lr'`.
 
-| Format | Path | Use |
-|--------|------|-----|
-| ESM (default) | `dist/lib/` | `import { … } from 'parser-lr'` |
-| CommonJS | `dist/lib-cjs/` | `require('parser-lr')` in CJS tools and Jest |
+The main entry is browser-safe for table-only parsing. Grammar-file APIs live on the Node-only subpath `parser-lr/grammar`.
 
-`package.json` `exports` selects the right entry automatically. Types come from `dist/lib/index.d.ts` for both.
+After `npm install parser-lr`, the tarball also includes [`docs/`](docs/grammar.md) and example [`grammars/`](grammars/calc.grammar) for offline reference.
 
-The API is browser-safe; the CLI is Node-only. After `npm install parser-lr`, the tarball also includes [`docs/`](docs/grammar.md) and example [`grammars/`](grammars/calc.grammar) for offline reference.
-
-### ESM (Node and bundlers)
-
-```typescript
-import { readFile } from 'node:fs/promises';
-import { ParseContext } from 'parser-lr';
-
-const grammarSource = await readFile('mylang.grammar', 'utf8');
-const context = ParseContext.fromGrammar(grammarSource, 'lr1');
-
-const source = await readFile('program.txt', 'utf8');
-const ast = context.parseSource(source);
-```
-
-### CommonJS (Jest and legacy `require`)
-
-```javascript
-const { ParseContext } = require('parser-lr');
-
-const context = ParseContext.fromGrammar(grammarSource, 'lr1');
-const ast = context.parseSource(source);
-```
-
-When testing this package from a clone, run `npm run build` first so `dist/lib-cjs/` exists. Published installs include both trees via `prepack`.
-
-### Serialized parse tables
-
-Load a pre-built table instead of a grammar file:
+### Table-only runtime (browser and Node)
 
 ```typescript
 import { readFile } from 'node:fs/promises';
@@ -132,9 +101,24 @@ const source = await readFile('program.txt', 'utf8');
 const ast = context.parseSource(source);
 ```
 
-Table-only consumers pay nothing for the grammar-file parser: importing `ParseContext` and calling `fromTableJson` never reads the bundled meta-grammar (`grammar.json`) and never evaluates `import.meta`. The meta-grammar loads lazily only when you call `readGrammar`, `fromGrammar`, or `validateGrammarTable`. This keeps ESM and CommonJS Jest suites that parse pre-built tables free of `import.meta` errors.
+### Grammar-file path (Node only)
 
-The published CLI (`bin/parser-lr.js`) inlines its meta-grammar at build time, so `parser-lr` runs from a clean install without a `grammar.json` on disk.
+```typescript
+import { readFile } from 'node:fs/promises';
+import { parseContextFromGrammar } from 'parser-lr/grammar';
+
+const grammarSource = await readFile('mylang.grammar', 'utf8');
+const context = parseContextFromGrammar(grammarSource, 'lr1');
+
+const source = await readFile('program.txt', 'utf8');
+const ast = context.parseSource(source);
+```
+
+When testing this package from a clone, run `npm run build` first so `dist/lib/` exists. Published installs build automatically via `prepack`.
+
+Table-only consumers never load the meta-grammar module graph: `ParseContext.fromTableJson` does not import `grammar.json` or any Node built-ins.
+
+The published CLI (`bin/parser-lr.js`) bundles grammar reading and the meta-grammar table for offline table generation and validation.
 
 `ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See the [library API overview](https://github.com/adamrmoss/parser-lr/blob/main/src/lib/README.md).
 

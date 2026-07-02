@@ -1,6 +1,8 @@
 import { Command } from 'commander';
 
-import { ParseContext, formatParseOutput } from '../../lib/index.js';
+import { parseContextFromGrammar } from '../../lib/grammar-entry.js';
+import { formatParseOutput } from '../../lib/index.js';
+import { ParseContext } from '../../lib/parse-context.js';
 
 import { readTextChunks, readTextFile, writeTextFile } from '../io.js';
 import { logProgress } from '../progress.js';
@@ -79,7 +81,7 @@ async function loadContextFromPaths(options: ParseOptions): Promise<ParseContext
         const grammarSource = await readTextFile(options.grammar);
 
         logProgress('building parse table');
-        return ParseContext.fromGrammar(grammarSource);
+        return parseContextFromGrammar(grammarSource);
     }
 
     logProgress(`reading table ${options.table}`);

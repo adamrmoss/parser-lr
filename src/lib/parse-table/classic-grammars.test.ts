@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { readGrammar } from '../grammar/read-grammar.js';
-import { ParseContext } from '../parse-context.js';
+import { parseContextFromGrammar } from '../grammar-entry.js';
 import { ParseTable } from './parse-table.js';
 import { parseWithTable } from '../shift-reduce/shift-reduce-engine.js';
 
@@ -287,7 +287,7 @@ grammar
 
     it('parses expression precedence with correct nesting', () =>
     {
-        const context = ParseContext.fromGrammar(PRECEDENCE_GRAMMAR, 'lr1');
+        const context = parseContextFromGrammar(PRECEDENCE_GRAMMAR, 'lr1');
         const tree = context.parse(context.lex('a + b * c'));
 
         expect(tree?.symbol).toBe('expr');
@@ -303,7 +303,7 @@ grammar
     it('parses nested JSON-like structures', () =>
     {
         const source = '{"a": {"b": [1, 2], "c": "x"}, "d": []}';
-        const context = ParseContext.fromGrammar(JSON_GRAMMAR, 'lr1');
+        const context = parseContextFromGrammar(JSON_GRAMMAR, 'lr1');
         const tree = context.parse(context.lex(source));
 
         expect(tree?.symbol).toBe('value');
@@ -315,7 +315,7 @@ grammar
         const grammar = readGrammar(PRECEDENCE_GRAMMAR);
         const json = ParseTable.fromGrammar(grammar, 'lr1').toJsonString();
         const table = ParseTable.fromJsonString(json);
-        const tokens = ParseContext.fromGrammar(PRECEDENCE_GRAMMAR, 'lr1').lex('x + y');
+        const tokens = parseContextFromGrammar(PRECEDENCE_GRAMMAR, 'lr1').lex('x + y');
 
         expect(parseWithTable(table, tokens)?.symbol).toBe('expr');
     });
@@ -344,7 +344,7 @@ grammar
 
     it('parses nested if-then-else with else bound to the inner if', () =>
     {
-        const context = ParseContext.fromGrammar(DANGLING_ELSE_GRAMMAR, 'lr1');
+        const context = parseContextFromGrammar(DANGLING_ELSE_GRAMMAR, 'lr1');
         const tree = context.parser.parseCst(context.lex('if x then if y then a else b'));
 
         expect(tree).not.toBeNull();

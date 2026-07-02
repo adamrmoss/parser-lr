@@ -2,10 +2,10 @@ import { Command } from 'commander';
 
 import {
     formatTableValidationIssues,
-    ParseContext,
+    parseContextFromSources,
     readGrammar,
     validateGrammarTable,
-} from '../../lib/index.js';
+} from '../../lib/grammar-entry.js';
 
 import { readTextFile, writeTextFile } from '../io.js';
 import { logProgress } from '../progress.js';
@@ -40,7 +40,7 @@ export function registerTableCommands(program: Command): void
             const grammar = readGrammar(grammarSource);
             writeGrammarValidationMessages(grammar, false);
 
-            const context = ParseContext.fromSources({
+            const context = parseContextFromSources({
                 grammarSource,
                 algorithm: options.algorithm,
             });

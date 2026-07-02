@@ -10,10 +10,11 @@ alwaysApply: true
 - Never assume work is complete without verification
 - Never create generic folders like `controllers/`, `views/`, `services/`
 - Follow **`comments.mdc`** for in-source comments and TSDoc; **`documentation.mdc`** for READMEs and `docs/`
+- Never run terminal commands or add npm dependencies without explicit user approval — see **`human-in-the-loop.mdc`**
 
 ## Required actions
 
 - Always answer questions directly before taking action
-- Always verify changes by reading the actual file output
+- Always verify changes by reading the actual file output (or user-pasted command output)
 - Always terminate JavaScript and TypeScript statements with semicolons; never omit optional semicolons (see **`typescript-style.mdc`**)
 - Always use 4-space indentation (see **`project.mdc`**)

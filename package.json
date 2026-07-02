@@ -1,7 +1,7 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.6.1",
+    "version": "0.7.0",
     "description": "Shift-reduce parser library for EBNF grammars with LR table generation, lexing, and CST-to-AST transforms",
     "keywords": [
         "ast",
@@ -41,8 +41,12 @@
         ".": {
             "types": "./dist/lib/index.d.ts",
             "import": "./dist/lib/index.js",
-            "require": "./dist/lib-cjs/index.js",
             "default": "./dist/lib/index.js"
+        },
+        "./grammar": {
+            "types": "./dist/lib/grammar-entry.d.ts",
+            "import": "./dist/lib/grammar-entry.js",
+            "default": "./dist/lib/grammar-entry.js"
         }
     },
     "bin": {
@@ -82,6 +86,7 @@
         "@types/jest": "29.x",
         "@types/node": "22.x",
         "commander": "12.x",
+        "esbuild": "0.x",
         "jest": "29.x",
         "rollup": "4.x",
         "ts-jest": "29.x",
