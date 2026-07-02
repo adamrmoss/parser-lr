@@ -1,8 +1,26 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.6.0",
-    "description": "Shift-reduce parser library for EBNF grammars",
+    "version": "0.6.1",
+    "description": "Shift-reduce parser library for EBNF grammars with LR table generation, lexing, and CST-to-AST transforms",
+    "keywords": [
+        "ast",
+        "bottom-up",
+        "compiler",
+        "ebnf",
+        "grammar",
+        "language",
+        "lalr",
+        "lexer",
+        "lr",
+        "lr1",
+        "parse-table",
+        "parser",
+        "parsing",
+        "shift-reduce",
+        "slr",
+        "syntax-tree"
+    ],
     "license": "MIT",
     "repository": {
         "type": "git",
