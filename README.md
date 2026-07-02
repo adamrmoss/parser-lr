@@ -47,6 +47,16 @@ Options:
 
 The JSON file is self-contained: lexer rules, skip rules, the full ACTION/GOTO table, and when the grammar defines them, `ast` and `transform` sections for CST-to-AST mapping. Ship this file without the original `.grammar`.
 
+### Validate a grammar
+
+Check `ast` / `transform` consistency and surface pass-collapse warnings:
+
+```bash
+parser-lr table validate -g mylang.grammar
+```
+
+Add `--strict` to treat warnings as errors.
+
 ### Parse a source file
 
 Parse input using either the grammar (table built in memory) or a saved table:
@@ -72,7 +82,18 @@ Output is a JSON object `{ "ast": … }`. On a syntax error, `ast` is `null`.
 
 ## Library
 
-Import from `parser-lr` in Node or bundler projects (ESM). The API is browser-safe; the CLI is Node-only.
+The package ships two compiled trees from the same TypeScript sources:
+
+| Format | Path | Use |
+|--------|------|-----|
+| ESM (default) | `dist/lib/` | `import { … } from 'parser-lr'` |
+| CommonJS | `dist/lib-cjs/` | `require('parser-lr')` in CJS tools and Jest |
+
+`package.json` `exports` selects the right entry automatically. Types come from `dist/lib/index.d.ts` for both.
+
+The API is browser-safe; the CLI is Node-only. After `npm install parser-lr`, the tarball also includes [`docs/`](docs/grammar.md) and example [`grammars/`](grammars/calc.grammar) for offline reference.
+
+### ESM (Node and bundlers)
 
 ```typescript
 import { readFile } from 'node:fs/promises';
@@ -84,6 +105,19 @@ const context = ParseContext.fromGrammar(grammarSource, 'lr1');
 const source = await readFile('program.txt', 'utf8');
 const ast = context.parseSource(source);
 ```
+
+### CommonJS (Jest and legacy `require`)
+
+```javascript
+const { ParseContext } = require('parser-lr');
+
+const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+const ast = context.parseSource(source);
+```
+
+When testing this package from a clone, run `npm run build` first so `dist/lib-cjs/` exists. Published installs include both trees via `prepack`.
+
+### Serialized parse tables
 
 Load a pre-built table instead of a grammar file:
 
@@ -97,6 +131,10 @@ const context = ParseContext.fromTableJson(tableJson);
 const source = await readFile('program.txt', 'utf8');
 const ast = context.parseSource(source);
 ```
+
+Table-only consumers pay nothing for the grammar-file parser: importing `ParseContext` and calling `fromTableJson` never reads the bundled meta-grammar (`grammar.json`) and never evaluates `import.meta`. The meta-grammar loads lazily only when you call `readGrammar`, `fromGrammar`, or `validateGrammarTable`. This keeps ESM and CommonJS Jest suites that parse pre-built tables free of `import.meta` errors.
+
+The published CLI (`bin/parser-lr.js`) inlines its meta-grammar at build time, so `parser-lr` runs from a clean install without a `grammar.json` on disk.
 
 `ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See the [library API overview](https://github.com/adamrmoss/parser-lr/blob/main/src/lib/README.md).
 

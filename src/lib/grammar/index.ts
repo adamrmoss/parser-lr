@@ -14,6 +14,7 @@ export type {
 } from './expression.js';
 export { Grammar } from './grammar.js';
 export { grammarFromCst } from './grammar-from-cst.js';
+export { setBootstrapTableJson } from './meta-grammar-table.js';
 export { readGrammar } from './read-grammar.js';
 export { ReadGrammarError } from './read-grammar-error.js';
 export type { Production } from './production.js';
@@ -29,3 +30,8 @@ export type {
 } from './transform-expression.js';
 export type { TransformAlternative, TransformRule } from './transform-rule.js';
 export { TransformSchema } from './transform-schema.js';
+export {
+    formatTableValidationIssues,
+    validateGrammarTable,
+} from './table-validator.js';
+export type { TableValidationIssue, TableValidationSeverity } from './table-validator.js';

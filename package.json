@@ -1,7 +1,7 @@
 {
     "name": "parser-lr",
     "author": "Adam R Moss <adamrmoss@gmail.com>",
-    "version": "0.4.1",
+    "version": "0.6.0",
     "description": "Shift-reduce parser library for EBNF grammars",
     "license": "MIT",
     "repository": {
@@ -22,16 +22,21 @@
     "exports": {
         ".": {
             "types": "./dist/lib/index.d.ts",
-            "import": "./dist/lib/index.js"
+            "import": "./dist/lib/index.js",
+            "require": "./dist/lib-cjs/index.js",
+            "default": "./dist/lib/index.js"
         }
     },
     "bin": {
         "parser-lr": "bin/parser-lr.js"
     },
     "files": [
+        "README.md",
+        "LICENSE",
         "bin",
         "dist",
-        "docs"
+        "docs",
+        "grammars"
     ],
     "publishConfig": {
         "access": "public",
@@ -41,9 +46,10 @@
         "bootstrap": "npm link && parser-lr table generate -g grammars/grammar.grammar -o src/lib/grammar/grammar.json -a lalr",
         "build": "npm run build:clean && npm run build:lib && npm run build:cli",
         "build:clean": "rm -rf dist && rm -f bin/parser-lr.js bin/parser-lr.js.map",
-        "build:lib": "tsc -p tsconfig.lib.json && cp src/lib/grammar/grammar.json dist/lib/grammar/",
+        "build:lib": "node scripts/build-lib.mjs",
         "build:cli": "rollup -c rollup.cli.config.js && chmod +x bin/parser-lr.js",
         "cloc": "cloc src --exclude-dir=node_modules,dist",
+        "acceptance": "node scripts/acceptance-tarball.mjs",
         "test": "jest",
         "test:coverage": "jest --coverage",
         "prepack": "npm run build"

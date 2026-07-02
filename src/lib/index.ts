@@ -29,6 +29,11 @@ export type {
     TransformRule,
 } from './grammar/index.js';
 export { AstSchema, Grammar, TransformSchema } from './grammar/index.js';
+export {
+    formatTableValidationIssues,
+    validateGrammarTable,
+} from './grammar/index.js';
+export type { TableValidationIssue, TableValidationSeverity } from './grammar/index.js';
 export { ReadGrammarError, readGrammar } from './grammar/index.js';
 export { Lexer, LexerCompileError, LexerInputError, LexerStateError, lexChunkStream, lexChunkStreamAsync, lexChunks, lexChunksAsync } from './lexer/index.js';
 export {

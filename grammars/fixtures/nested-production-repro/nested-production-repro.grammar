@@ -1,0 +1,26 @@
+name "nested-production-repro" ;
+
+tokens
+    kw_is = /IS/i ;
+    kw_case = /CASE/i ;
+    less = /</ ;
+    integer = /[0-9]+/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start line ;
+
+grammar
+    line = kw_case case_selector ;
+    case_selector = #relational kw_is comparison_op integer ;
+    comparison_op = #less [tok]:less ;
+
+ast
+    comparison_op =
+        #less [tok]:less
+      ;
+
+transform
+    comparison_op ->
+        #less comparison_op.#less(tok) ;

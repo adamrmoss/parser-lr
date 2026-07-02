@@ -116,7 +116,7 @@ export class CstTransformer
                 return null;
 
             case 'pass':
-                return this.transformReference(node, expression.reference);
+                return this.applyPass(node, expression.reference);
 
             case 'build':
                 return this.applyBuild(node, expression);
@@ -133,6 +133,17 @@ export class CstTransformer
     }
 
     /**
+     * Passes one referenced child through the transform pipeline.
+     *
+     * @param node - CST node supplying the referenced child.
+     * @param reference - Binding or symbol name from a transform expression.
+     */
+    private applyPass(node: AstNode, reference: string): AstNode | null
+    {
+        return this.transformReference(node, reference);
+    }
+
+    /**
      * Builds an AST node from a `type.#variant(arg, …)` transform.
      *
      * @param node - CST node supplying bound child references.
@@ -144,17 +155,55 @@ export class CstTransformer
     ): AstNode | null
     {
         const children: AstNode[] = [];
+        const production = this.productionFor(node);
 
-        for (const reference of expression.arguments)
+        if (production === null)
         {
-            const child = this.transformReference(node, reference);
-
-            if (child === null)
+            for (const reference of expression.arguments)
             {
-                return null;
-            }
+                const child = this.transformReference(node, reference);
 
-            children.push(child);
+                if (child === null)
+                {
+                    return null;
+                }
+
+                children.push(child);
+            }
+        }
+        else
+        {
+            for (const reference of expression.arguments)
+            {
+                const slotIndex = referenceSlotIndex(production, reference);
+
+                // Skip optional bindings absent from the matched alternative.
+                if (slotIndex === null)
+                {
+                    continue;
+                }
+
+                const childNode = node.children[slotIndex] ?? null;
+
+                if (childNode === null)
+                {
+                    return null;
+                }
+
+                if (this.isEpsilonNode(childNode))
+                {
+                    continue;
+                }
+
+                const child = this.transformNode(childNode);
+
+                if (child === null)
+                {
+                    return null;
+                }
+
+                children.push(child);
+            }
         }
 
         return AstNode.rule(
@@ -322,7 +371,7 @@ export class CstTransformer
 
         while (current !== null && !this.isEpsilonNode(current))
         {
-            const head = this.transformReference(current, expression.head);
+            const head = this.transformFlattenHead(current, expression.head);
 
             if (head === null)
             {
@@ -330,7 +379,14 @@ export class CstTransformer
             }
 
             items.push(head);
-            current = this.resolveReferenceNode(current, expression.tail);
+            const tail = this.resolveReferenceNode(current, expression.tail);
+
+            if (tail === null || this.isEpsilonNode(tail))
+            {
+                break;
+            }
+
+            current = tail;
         }
 
         return AstNode.rule(
@@ -339,6 +395,52 @@ export class CstTransformer
             mergeChildLocations(items) ?? node.location,
             expression.variant,
         );
+    }
+
+    /**
+     * Resolves the head item for one flatten iteration.
+     *
+     * @param node - CST node for one list segment or repeat tail.
+     * @param headRef - Primary head binding from the flatten expression.
+     */
+    private transformFlattenHead(node: AstNode, headRef: string): AstNode | null
+    {
+        const head = this.transformReference(node, headRef);
+
+        if (head !== null)
+        {
+            return head;
+        }
+
+        const production = this.productionFor(node);
+
+        if (production === null || repeatSymbolPrefix(production.name) === null)
+        {
+            return null;
+        }
+
+        // Repeat tail segments bind repeated elements under names like `rest`.
+        for (const slot of productionSlots(production))
+        {
+            if (slot.binding === null || slot.binding === headRef)
+            {
+                continue;
+            }
+
+            if (repeatSymbolPrefix(slot.symbol) !== null)
+            {
+                continue;
+            }
+
+            const repeated = this.transformReference(node, slot.binding);
+
+            if (repeated !== null)
+            {
+                return repeated;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -355,14 +457,25 @@ export class CstTransformer
 
         const children = this.transformChildren(node.children);
 
-        if (children.length === 1)
-        {
-            return children[0];
-        }
-
         if (children.length === 0)
         {
             return null;
+        }
+
+        // Preserve parse-table productions even when a single child would collapse.
+        if (node.productionId !== null)
+        {
+            return AstNode.rule(
+                node.symbol,
+                children,
+                mergeChildLocations(children) ?? node.location,
+                node.variant,
+            );
+        }
+
+        if (children.length === 1)
+        {
+            return children[0];
         }
 
         return AstNode.rule(

@@ -1,0 +1,28 @@
+name "comparison-op-repro" ;
+
+tokens
+    kw_case = /CASE/i ;
+    kw_is = /IS/i ;
+    less = /</ ;
+    greater = />/ ;
+    number = /[0-9]+/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start case_selector ;
+
+grammar
+    case_selector =
+        #relational kw_case kw_is comparison_op postfix_expr
+      | #value postfix_expr
+      ;
+
+    comparison_op =
+        #less less
+      | #greater greater
+      ;
+
+    postfix_expr =
+        number
+      ;

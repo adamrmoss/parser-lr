@@ -1,0 +1,24 @@
+name "labeled-variant-repro" ;
+
+tokens
+    kw_end = /END/i ;
+    kw_if = /IF/i ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start program_line ;
+
+grammar
+    program_line =
+        #statement [stmt]:end_stmt
+      ;
+
+    end_stmt =
+        #program kw_end
+      | #if kw_end kw_if
+      ;
+
+transform
+    program_line ->
+        #statement pass(stmt) ;

@@ -1,0 +1,28 @@
+name "help-topic-repro" ;
+
+tokens
+    kw_help = /HELP/i ;
+    kw_print = /PRINT/i ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start program_line ;
+
+grammar
+    program_line =
+        #statement [stmt]:help_stmt
+      ;
+
+    help_stmt =
+        kw_help help_topic
+      ;
+
+    help_topic =
+        #keyword kw_print
+      | #punct kw_print
+      ;
+
+transform
+    program_line ->
+        #statement pass(stmt) ;

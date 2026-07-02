@@ -1,0 +1,28 @@
+name "flatten-repeat-repro" ;
+
+tokens
+    ident = /[a-z]+/ ;
+    comma = /,/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start list ;
+
+grammar
+    list =
+        #list [first]:item { comma [rest]:item }
+      ;
+
+    item =
+        ident
+      ;
+
+ast
+    list =
+        #list [first]:item { [rest]:item }
+      ;
+
+transform
+    list ->
+        #list flatten(list.#list, first, list$repeat_0) ;

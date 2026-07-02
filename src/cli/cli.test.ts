@@ -210,10 +210,36 @@ grammar
 
     it('registers table and parse subcommands', () =>
     {
+        const table = createProgram().commands.find((command) => command.name() === 'table');
         const names = createProgram().commands.map((command) => command.name());
 
         expect(names).toContain('table');
         expect(names).toContain('parse');
+        expect(table?.commands.map((command) => command.name())).toEqual(
+            expect.arrayContaining(['generate', 'validate']),
+        );
+    });
+
+    it('validates a grammar and reports pass-collapse warnings', async () =>
+    {
+        const fixtureGrammar = join(
+            process.cwd(),
+            'grammars/fixtures/pass-preserves-production/bare-terminal/bare-terminal.grammar',
+        );
+        const { output } = await withCapturedErrorOutput(async () =>
+        {
+            await createProgram().parseAsync([
+                'node',
+                'parser-lr',
+                'table',
+                'validate',
+                '-g',
+                fixtureGrammar,
+            ]);
+        });
+
+        expect(output).toContain('warning:');
+        expect(output).toContain('pass(stmt)');
     });
 
     it('sets exit code when command execution fails', async () =>

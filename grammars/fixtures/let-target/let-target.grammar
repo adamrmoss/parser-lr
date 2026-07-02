@@ -1,0 +1,33 @@
+name "let-target-repro" ;
+
+tokens
+    kw_let = /LET/i ;
+    identifier = /[a-z][a-z0-9%]*/i ;
+    equal = /=/ ;
+    number = /[0-9]+/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start program_line ;
+
+grammar
+    program_line =
+        #statement [stmt]:let_stmt
+      ;
+
+    let_stmt =
+        kw_let let_target equal expr
+      ;
+
+    let_target =
+        identifier
+      ;
+
+    expr =
+        number
+      ;
+
+transform
+    program_line ->
+        #statement pass(stmt) ;

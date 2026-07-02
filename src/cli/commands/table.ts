@@ -1,6 +1,11 @@
 import { Command } from 'commander';
 
-import { ParseContext } from '../../lib/index.js';
+import {
+    formatTableValidationIssues,
+    ParseContext,
+    readGrammar,
+    validateGrammarTable,
+} from '../../lib/index.js';
 
 import { readTextFile, writeTextFile } from '../io.js';
 import { logProgress } from '../progress.js';
@@ -32,6 +37,9 @@ export function registerTableCommands(program: Command): void
             const grammarSource = await readTextFile(options.grammar);
 
             logProgress(`building ${options.algorithm} parse table`);
+            const grammar = readGrammar(grammarSource);
+            writeGrammarValidationMessages(grammar, false);
+
             const context = ParseContext.fromSources({
                 grammarSource,
                 algorithm: options.algorithm,
@@ -58,6 +66,62 @@ export function registerTableCommands(program: Command): void
                 process.stdout.write(`${json}\n`);
             }
         });
+
+    table
+        .command('validate')
+        .description('Check transform and ast consistency in a grammar')
+        .requiredOption('-g, --grammar <path>', 'EBNF grammar file')
+        .option('--strict', 'Treat warnings as errors')
+        .action(async (options: TableValidateOptions) =>
+        {
+            logProgress(`reading grammar ${options.grammar}`);
+            const grammarSource = await readTextFile(options.grammar);
+            const grammar = readGrammar(grammarSource);
+            const exitCode = writeGrammarValidationMessages(grammar, options.strict === true);
+
+            process.exitCode = exitCode;
+        });
+}
+
+/**
+ * Writes grammar validation messages to stderr and returns a process exit code.
+ *
+ * @param grammar - Parsed grammar model.
+ * @param strict - Whether warnings should fail validation.
+ */
+function writeGrammarValidationMessages(grammar: ReturnType<typeof readGrammar>, strict: boolean): number
+{
+    const issues = validateGrammarTable(grammar);
+    let hasError = false;
+    let hasWarning = false;
+
+    for (const line of formatTableValidationIssues(issues))
+    {
+        process.stderr.write(`${line}\n`);
+
+        if (line.startsWith('error:'))
+        {
+            hasError = true;
+        }
+
+        if (line.startsWith('warning:'))
+        {
+            hasWarning = true;
+        }
+    }
+
+    if (hasError || (strict && hasWarning))
+    {
+        return 1;
+    }
+
+    return 0;
+}
+
+interface TableValidateOptions
+{
+    grammar: string;
+    strict?: boolean;
 }
 
 interface TableGenerateOptions

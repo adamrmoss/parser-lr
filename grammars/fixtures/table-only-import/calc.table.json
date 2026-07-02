@@ -1,0 +1,190 @@
+{
+    "version": 2,
+    "algorithm": "lalr",
+    "grammarName": "calc",
+    "startSymbol": "expr",
+    "tokens": [
+        "number",
+        "plus",
+        "$eof"
+    ],
+    "tokenRules": [
+        {
+            "name": "number",
+            "pattern": "[0-9]+",
+            "flags": ""
+        },
+        {
+            "name": "plus",
+            "pattern": "\\+",
+            "flags": ""
+        }
+    ],
+    "skipRules": [
+        {
+            "name": "whitespace",
+            "pattern": "[ \\t\\r\\n]+",
+            "flags": ""
+        }
+    ],
+    "states": [],
+    "parserStateCount": 5,
+    "productions": [
+        {
+            "id": 0,
+            "name": "expr",
+            "rhs": [
+                "[left]:expr",
+                "[operator]:plus",
+                "[right]:number"
+            ],
+            "variant": "binary",
+            "origin": "expr"
+        },
+        {
+            "id": 1,
+            "name": "expr",
+            "rhs": [
+                "number"
+            ],
+            "variant": "literal",
+            "origin": "expr"
+        },
+        {
+            "id": 2,
+            "name": "$accept",
+            "rhs": [
+                "expr"
+            ],
+            "variant": null,
+            "origin": "$accept"
+        }
+    ],
+    "actions": [
+        {
+            "state": 0,
+            "symbol": "number",
+            "kind": "shift",
+            "target": 2
+        },
+        {
+            "state": 1,
+            "symbol": "$eof",
+            "kind": "accept"
+        },
+        {
+            "state": 1,
+            "symbol": "plus",
+            "kind": "shift",
+            "target": 3
+        },
+        {
+            "state": 2,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 1
+        },
+        {
+            "state": 2,
+            "symbol": "plus",
+            "kind": "reduce",
+            "productionId": 1
+        },
+        {
+            "state": 3,
+            "symbol": "number",
+            "kind": "shift",
+            "target": 4
+        },
+        {
+            "state": 4,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 0
+        },
+        {
+            "state": 4,
+            "symbol": "plus",
+            "kind": "reduce",
+            "productionId": 0
+        }
+    ],
+    "gotos": [
+        {
+            "state": 0,
+            "symbol": "expr",
+            "target": 1
+        }
+    ],
+    "ast": [
+        {
+            "name": "expr",
+            "expression": {
+                "kind": "choice",
+                "alternatives": [
+                    {
+                        "label": "binary",
+                        "expression": {
+                            "kind": "sequence",
+                            "elements": [
+                                {
+                                    "kind": "boundReference",
+                                    "binding": "left",
+                                    "name": "expr"
+                                },
+                                {
+                                    "kind": "boundReference",
+                                    "binding": "operator",
+                                    "name": "plus"
+                                },
+                                {
+                                    "kind": "boundReference",
+                                    "binding": "right",
+                                    "name": "number"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "label": "literal",
+                        "expression": {
+                            "kind": "reference",
+                            "name": "number"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "transform": [
+        {
+            "production": "expr",
+            "alternatives": [
+                {
+                    "label": "binary",
+                    "expression": {
+                        "kind": "build",
+                        "typeName": "expr",
+                        "variant": "binary",
+                        "arguments": [
+                            "left",
+                            "operator",
+                            "right"
+                        ]
+                    }
+                },
+                {
+                    "label": "literal",
+                    "expression": {
+                        "kind": "build",
+                        "typeName": "expr",
+                        "variant": "literal",
+                        "arguments": [
+                            "number"
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

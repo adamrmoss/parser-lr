@@ -1,11 +1,29 @@
 # Library API
 
-Browser- and Node-safe ESM (`import from 'parser-lr'`). Built to `dist/lib/` on `npm run build`.
+Browser- and Node-safe parser library. Built to `dist/lib/` (ESM) and `dist/lib-cjs/` (CommonJS) on `npm run build`.
+
+## Module formats
+
+| Import style | Entry | Notes |
+|--------------|-------|-------|
+| `import { … } from 'parser-lr'` | `dist/lib/index.js` | Default for Node ESM and bundlers |
+| `require('parser-lr')` | `dist/lib-cjs/index.js` | CommonJS via `package.json` `exports.require` |
+
+TypeScript types: `dist/lib/index.d.ts` (shared).
 
 ## Quick start
 
 ```typescript
 import { ParseContext } from 'parser-lr';
+
+const context = ParseContext.fromGrammar(grammarSource, 'lr1');
+const ast = context.parseSource(sourceText);
+```
+
+CommonJS:
+
+```javascript
+const { ParseContext } = require('parser-lr');
 
 const context = ParseContext.fromGrammar(grammarSource, 'lr1');
 const ast = context.parseSource(sourceText);
@@ -28,6 +46,7 @@ const ast = context.parseSource(sourceText);
 | `ParseTable` | Self-contained serializable LR table; lexer, parser, `ast`, and `transform` |
 | `AstNode` | Parse tree node (CST or AST after transform) |
 | `Lexer` | Tokenize source using grammar `tokens`, `skip`, and `states` |
+| `validateGrammarTable` | Check `ast` / `transform` consistency on a `Grammar` model |
 
 Grammar file syntax: [`docs/grammar.md`](../../docs/grammar.md).
 

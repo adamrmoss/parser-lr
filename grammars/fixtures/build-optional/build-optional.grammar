@@ -1,0 +1,32 @@
+name "build-optional-repro" ;
+
+tokens
+    kw_cls = /CLS/i ;
+    kw_with = /WITH/i ;
+    ident = /[a-z]+/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start program_line ;
+
+grammar
+    program_line =
+        #statement [stmt]:cls_stmt
+      ;
+
+    cls_stmt =
+        kw_cls [ kw_with ident ]
+      ;
+
+ast
+    cls_stmt =
+        #main kw_cls [withKw]:kw_with [target]:ident
+      ;
+
+transform
+    cls_stmt ->
+        #main cls_stmt.#main(kw_cls, withKw, target) ;
+
+    program_line ->
+        #statement pass(stmt) ;

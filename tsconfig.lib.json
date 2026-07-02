@@ -5,5 +5,5 @@
         "rootDir": "./src/lib"
     },
     "include": ["src/lib/**/*.ts"],
-    "exclude": ["src/lib/**/*.test.ts"]
+    "exclude": ["src/lib/**/*.test.ts", "src/lib/grammar/grammar-json-path.cjs.ts"]
 }

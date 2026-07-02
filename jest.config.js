@@ -3,6 +3,7 @@ const config = {
     preset: 'ts-jest',
     testEnvironment: 'node',
     moduleNameMapper: {
+        '^(\\.{1,2}/.*)grammar-json-path\\.esm\\.js$': '<rootDir>/src/lib/grammar/grammar-json-path.cjs.ts',
         '^(\\.{1,2}/.*)\\.js$': '$1',
     },
     testMatch: ['<rootDir>/src/**/*.test.ts'],
