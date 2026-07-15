@@ -36,7 +36,11 @@ export {
     formatTableValidationIssues,
     validateGrammarTable,
 } from './grammar/table-validator.js';
-export type { TableValidationIssue, TableValidationSeverity } from './grammar/table-validator.js';
+export type {
+    FormatTableValidationOptions,
+    TableValidationIssue,
+    TableValidationSeverity,
+} from './grammar/table-validator.js';
 
 import { ParseContextError } from './parse-context-error.js';
 import { ParseContext } from './parse-context.js';

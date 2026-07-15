@@ -34,4 +34,8 @@ export {
     formatTableValidationIssues,
     validateGrammarTable,
 } from './table-validator.js';
-export type { TableValidationIssue, TableValidationSeverity } from './table-validator.js';
+export type {
+    FormatTableValidationOptions,
+    TableValidationIssue,
+    TableValidationSeverity,
+} from './table-validator.js';

@@ -240,6 +240,7 @@ grammar
 
         expect(output).toContain('warning:');
         expect(output).toContain('pass(stmt)');
+        expect(output).toMatch(/bare-terminal\.grammar:\d+:\d+: warning:/);
     });
 
     it('sets exit code when command execution fails', async () =>

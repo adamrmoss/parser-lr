@@ -7,6 +7,7 @@ import {
     validateGrammarTable,
 } from '../../lib/grammar-entry.js';
 
+import { locateSourceError } from '../locate-source-error.js';
 import { readTextFile, writeTextFile } from '../io.js';
 import { logProgress } from '../progress.js';
 
@@ -35,10 +36,10 @@ export function registerTableCommands(program: Command): void
         {
             logProgress(`reading grammar ${options.grammar}`);
             const grammarSource = await readTextFile(options.grammar);
+            const grammar = readGrammarAtPath(options.grammar, grammarSource);
 
             logProgress(`building ${options.algorithm} parse table`);
-            const grammar = readGrammar(grammarSource);
-            writeGrammarValidationMessages(grammar, false);
+            writeGrammarValidationMessages(grammar, options.grammar, grammarSource, false);
 
             const context = parseContextFromSources({
                 grammarSource,
@@ -76,35 +77,68 @@ export function registerTableCommands(program: Command): void
         {
             logProgress(`reading grammar ${options.grammar}`);
             const grammarSource = await readTextFile(options.grammar);
-            const grammar = readGrammar(grammarSource);
-            const exitCode = writeGrammarValidationMessages(grammar, options.strict === true);
+            const grammar = readGrammarAtPath(options.grammar, grammarSource);
+            const exitCode = writeGrammarValidationMessages(
+                grammar,
+                options.grammar,
+                grammarSource,
+                options.strict === true,
+            );
 
             process.exitCode = exitCode;
         });
 }
 
 /**
+ * Parses a grammar file and rewrites offset-bearing failures with line numbers.
+ *
+ * @param path - Grammar file path.
+ * @param source - Grammar file text.
+ */
+function readGrammarAtPath(path: string, source: string): ReturnType<typeof readGrammar>
+{
+    try
+    {
+        return readGrammar(source);
+    }
+    catch (error)
+    {
+        throw locateSourceError(error, path, source);
+    }
+}
+
+/**
  * Writes grammar validation messages to stderr and returns a process exit code.
  *
  * @param grammar - Parsed grammar model.
+ * @param path - Grammar file path for diagnostics.
+ * @param source - Grammar file text for line/column mapping.
  * @param strict - Whether warnings should fail validation.
  */
-function writeGrammarValidationMessages(grammar: ReturnType<typeof readGrammar>, strict: boolean): number
+function writeGrammarValidationMessages(
+    grammar: ReturnType<typeof readGrammar>,
+    path: string,
+    source: string,
+    strict: boolean,
+): number
 {
     const issues = validateGrammarTable(grammar);
     let hasError = false;
     let hasWarning = false;
 
-    for (const line of formatTableValidationIssues(issues))
+    for (const line of formatTableValidationIssues(issues, { path, source }))
     {
         process.stderr.write(`${line}\n`);
+    }
 
-        if (line.startsWith('error:'))
+    for (const issue of issues)
+    {
+        if (issue.severity === 'error')
         {
             hasError = true;
         }
 
-        if (line.startsWith('warning:'))
+        if (issue.severity === 'warning')
         {
             hasWarning = true;
         }

@@ -1,3 +1,5 @@
+import type { SourceLocation } from '../ast/ast-node.js';
+
 import type { Expression } from './expression.js';
 
 /**
@@ -10,4 +12,5 @@ export interface AstType
 {
     readonly name: string;
     readonly expression: Expression;
+    readonly location?: SourceLocation | null;
 }

@@ -352,7 +352,7 @@ function parseProduction(node: AstNode): Production
     const name = identifierText(requireChild(node, 'identifier'));
     const expression = parseExpressionNode(findExpressionChild(node));
 
-    return { name, expression };
+    return { name, expression, location: node.location };
 }
 
 /**
@@ -365,7 +365,7 @@ function parseAstType(node: AstNode): AstType
     const name = identifierText(requireChild(node, 'identifier'));
     const expression = parseExpressionNode(findExpressionChild(node));
 
-    return { name, expression };
+    return { name, expression, location: node.location };
 }
 
 /**
@@ -380,6 +380,7 @@ function parseTransformRule(node: AstNode): TransformRule
     return {
         production,
         alternatives: collectRepeated(node, 'labeled_transform').map(parseLabeledTransform),
+        location: node.location,
     };
 }
 
@@ -393,7 +394,7 @@ function parseLabeledTransform(node: AstNode): TransformAlternative
     const label = identifierText(requireChild(node, 'identifier'));
     const expression = parseTransformExpr(requireChild(node, 'transform_expr'));
 
-    return { label, expression };
+    return { label, expression, location: node.location };
 }
 
 /**

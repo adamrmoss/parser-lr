@@ -10,8 +10,19 @@ import {
 import type { Token } from './lexer/token.js';
 import type { LrAlgorithm } from './parse-table/lr-algorithm.js';
 import { ParseTable } from './parse-table/parse-table.js';
-import { parseWithTable } from './shift-reduce/shift-reduce-engine.js';
+import { parseWithTable, parseWithTableResult } from './shift-reduce/shift-reduce-engine.js';
+import type { ShiftReduceParseResult } from './shift-reduce/shift-reduce-engine.js';
 import { transformCst } from './transform/cst-transformer.js';
+
+/**
+ * Result of parsing a token stream into an AST or CST.
+ */
+export interface ParserLrParseResult
+{
+    readonly tree: AstNode | null;
+    readonly errorOffset: number | null;
+    readonly errorMessage: string | null;
+}
 
 /**
  * Shift-reduce parser for EBNF grammars.
@@ -124,6 +135,52 @@ export class ParserLr
     }
 
     /**
+     * Parses a token stream and retains syntax-error offset details.
+     *
+     * @param tokens - Token stream ending with `$eof`.
+     * @returns Tree and optional syntax-error details.
+     */
+    public parseResult(tokens: readonly Token[]): ParserLrParseResult
+    {
+        if (this.table === null)
+        {
+            return {
+                tree: null,
+                errorOffset: 0,
+                errorMessage: 'Parse table has no parser entries',
+            };
+        }
+
+        const result: ShiftReduceParseResult = parseWithTableResult(this.table, tokens);
+
+        if (result.cst === null)
+        {
+            return {
+                tree: null,
+                errorOffset: result.errorOffset,
+                errorMessage: result.errorMessage,
+            };
+        }
+
+        if (this.grammar.transformSchema === null)
+        {
+            return {
+                tree: result.cst,
+                errorOffset: null,
+                errorMessage: null,
+            };
+        }
+
+        const tree = transformCst(result.cst, this.grammar.transformSchema, this.table);
+
+        return {
+            tree,
+            errorOffset: tree === null ? result.errorOffset : null,
+            errorMessage: tree === null ? 'AST transform failed' : null,
+        };
+    }
+
+    /**
      * Parses a token stream into an AST when transform rules are declared.
      *
      * @param tokens - Token stream ending with `$eof`.
@@ -131,19 +188,7 @@ export class ParserLr
      */
     public parseAst(tokens: readonly Token[]): AstNode | null
     {
-        const cst = this.parseCst(tokens);
-
-        if (cst === null)
-        {
-            return null;
-        }
-
-        if (this.grammar.transformSchema === null || this.table === null)
-        {
-            return cst;
-        }
-
-        return transformCst(cst, this.grammar.transformSchema, this.table);
+        return this.parseResult(tokens).tree;
     }
 
     /**

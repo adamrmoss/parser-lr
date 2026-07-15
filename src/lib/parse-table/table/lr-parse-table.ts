@@ -128,6 +128,8 @@ export function formatLrConflictWarnings(table: LrParseTable): readonly string[]
     return table.conflicts.map((conflict) => formatParseConflictWarning(conflict));
 }
 
+import { formatDiagnostic } from '../../diagnostics/format-diagnostic.js';
+
 /**
  * Formats one resolved conflict as a warning line.
  *
@@ -139,15 +141,21 @@ export function formatParseConflictWarning(conflict: ParseConflict): string
 
     if (conflict.kind === 'shift-reduce')
     {
-        return `state ${String(conflict.state)}: shift/reduce conflict on ${tokenLabel} resolved as shift`;
+        return formatDiagnostic({
+            severity: 'warning',
+            message: `state ${String(conflict.state)}: shift/reduce conflict on ${tokenLabel} resolved as shift`,
+        });
     }
 
     const keptProduction = conflict.existing.kind === 'reduce'
         ? conflict.existing.productionId
         : (conflict.incoming as Extract<typeof conflict.incoming, { kind: 'reduce' }>).productionId;
 
-    return `state ${String(conflict.state)}: reduce/reduce conflict on ${tokenLabel} `
-        + `resolved using rule ${String(keptProduction)}`;
+    return formatDiagnostic({
+        severity: 'warning',
+        message: `state ${String(conflict.state)}: reduce/reduce conflict on ${tokenLabel} `
+            + `resolved using rule ${String(keptProduction)}`,
+    });
 }
 
 /**

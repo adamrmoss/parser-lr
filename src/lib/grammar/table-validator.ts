@@ -1,7 +1,8 @@
+import type { SourceLocation } from '../ast/ast-node.js';
+import { formatDiagnostic } from '../diagnostics/format-diagnostic.js';
 import type { Expression } from './expression.js';
 import type { Grammar } from './grammar.js';
-import type { TransformExpression } from './transform-expression.js';
-import type { TransformRule } from './transform-rule.js';
+import type { TransformAlternative, TransformRule } from './transform-rule.js';
 import { EbnfDesugarer } from '../parse-table/bnf/desugar-ebnf.js';
 import type { BnfProduction } from '../parse-table/bnf/bnf-production.js';
 import type { BnfSymbol } from '../parse-table/bnf/bnf-symbol.js';
@@ -18,6 +19,16 @@ export interface TableValidationIssue
 {
     readonly severity: TableValidationSeverity;
     readonly message: string;
+    readonly location: SourceLocation | null;
+}
+
+/**
+ * Optional path and source text used when formatting validation diagnostics.
+ */
+export interface FormatTableValidationOptions
+{
+    readonly path?: string | null;
+    readonly source?: string | null;
 }
 
 /**
@@ -44,13 +55,13 @@ export function validateGrammarTable(grammar: Grammar): TableValidationIssue[]
             {
                 validateTransformExpression(
                     grammar,
-                    alternative.expression,
+                    alternative,
                     issues,
                 );
                 collectPassCollapseWarnings(
                     grammar,
                     rule,
-                    alternative.expression,
+                    alternative,
                     bnf.productions,
                     issues,
                 );
@@ -78,8 +89,11 @@ function collectDuplicateDefinitionWarnings(
 ): void
 {
     // Flag repeated production names in the grammar section.
-    reportDuplicateNames(
-        grammar.productions.map((production) => production.name),
+    reportDuplicateDefinitions(
+        grammar.productions.map((production) => ({
+            name: production.name,
+            location: production.location ?? null,
+        })),
         'grammar',
         'production',
         issues,
@@ -88,8 +102,11 @@ function collectDuplicateDefinitionWarnings(
     // Flag repeated ast type names.
     if (grammar.astSchema !== null)
     {
-        reportDuplicateNames(
-            grammar.astSchema.types.map((type) => type.name),
+        reportDuplicateDefinitions(
+            grammar.astSchema.types.map((type) => ({
+                name: type.name,
+                location: type.location ?? null,
+            })),
             'ast',
             'type',
             issues,
@@ -99,8 +116,11 @@ function collectDuplicateDefinitionWarnings(
     // Flag repeated transform rules for the same production.
     if (grammar.transformSchema !== null)
     {
-        reportDuplicateNames(
-            grammar.transformSchema.rules.map((rule) => rule.production),
+        reportDuplicateDefinitions(
+            grammar.transformSchema.rules.map((rule) => ({
+                name: rule.production,
+                location: rule.location ?? null,
+            })),
             'transform',
             'rule',
             issues,
@@ -111,13 +131,13 @@ function collectDuplicateDefinitionWarnings(
 /**
  * Records a warning for each name that appears more than once.
  *
- * @param names - Declared names in source order.
+ * @param definitions - Declared names and locations in source order.
  * @param section - Grammar section name for the message.
  * @param kind - Declaration kind for the message.
  * @param issues - Issue list to append to.
  */
-function reportDuplicateNames(
-    names: readonly string[],
+function reportDuplicateDefinitions(
+    definitions: readonly { name: string; location: SourceLocation | null }[],
     section: string,
     kind: string,
     issues: TableValidationIssue[],
@@ -126,19 +146,20 @@ function reportDuplicateNames(
     const seen = new Set<string>();
     const reported = new Set<string>();
 
-    for (const name of names)
+    for (const definition of definitions)
     {
-        if (seen.has(name) && !reported.has(name))
+        if (seen.has(definition.name) && !reported.has(definition.name))
         {
             issues.push({
                 severity: 'warning',
-                message: `duplicate ${section} ${kind} ${JSON.stringify(name)}; `
+                message: `duplicate ${section} ${kind} ${JSON.stringify(definition.name)}; `
                     + `the later definition overrides the earlier one`,
+                location: definition.location,
             });
-            reported.add(name);
+            reported.add(definition.name);
         }
 
-        seen.add(name);
+        seen.add(definition.name);
     }
 }
 
@@ -173,6 +194,7 @@ function validateTransformProductionExists(
         issues.push({
             severity: 'error',
             message: `transform rule for unknown production ${JSON.stringify(rule.production)}`,
+            location: rule.location ?? null,
         });
     }
 }
@@ -194,25 +216,28 @@ function syntheticRepeatPrefix(name: string): string | null
  * Validates one transform expression against the grammar AST schema.
  *
  * @param grammar - Parsed grammar model.
- * @param expression - Transform expression to validate.
+ * @param alternative - Transform alternative owning the expression.
  * @param issues - Issue list to append to.
  */
 function validateTransformExpression(
     grammar: Grammar,
-    expression: TransformExpression,
+    alternative: TransformAlternative,
     issues: TableValidationIssue[],
 ): void
 {
+    const expression = alternative.expression;
+    const location = alternative.location ?? null;
+
     switch (expression.kind)
     {
         case 'build':
-            validateAstTarget(grammar, expression.typeName, expression.variant, issues);
+            validateAstTarget(grammar, expression.typeName, expression.variant, location, issues);
             break;
 
         case 'foldLeft':
         case 'foldRight':
         case 'flatten':
-            validateAstTarget(grammar, expression.typeName, expression.variant, issues);
+            validateAstTarget(grammar, expression.typeName, expression.variant, location, issues);
             break;
 
         case 'drop':
@@ -227,12 +252,14 @@ function validateTransformExpression(
  * @param grammar - Parsed grammar model.
  * @param typeName - AST type name from a transform expression.
  * @param variant - AST variant label from a transform expression.
+ * @param location - Source span of the transform alternative.
  * @param issues - Issue list to append to.
  */
 function validateAstTarget(
     grammar: Grammar,
     typeName: string,
     variant: string,
+    location: SourceLocation | null,
     issues: TableValidationIssue[],
 ): void
 {
@@ -241,6 +268,7 @@ function validateAstTarget(
         issues.push({
             severity: 'error',
             message: `transform references ${typeName}.${variant} but the grammar has no ast section`,
+            location,
         });
 
         return;
@@ -253,6 +281,7 @@ function validateAstTarget(
         issues.push({
             severity: 'error',
             message: `transform references undefined ast type ${JSON.stringify(typeName)}`,
+            location,
         });
 
         return;
@@ -265,6 +294,7 @@ function validateAstTarget(
         issues.push({
             severity: 'error',
             message: `transform references ${typeName}.${variant} which is not declared in ast`,
+            location,
         });
     }
 }
@@ -305,18 +335,20 @@ function collectAstVariants(expression: Expression): string[]
  *
  * @param grammar - Parsed grammar model.
  * @param rule - Parent production transform rule.
- * @param expression - Transform expression for one alternative.
+ * @param alternative - Transform alternative containing the pass expression.
  * @param bnfProductions - Desugared BNF productions.
  * @param issues - Issue list to append to.
  */
 function collectPassCollapseWarnings(
     grammar: Grammar,
     rule: TransformRule,
-    expression: TransformExpression,
+    alternative: TransformAlternative,
     bnfProductions: readonly BnfProduction[],
     issues: TableValidationIssue[],
 ): void
 {
+    const expression = alternative.expression;
+
     if (expression.kind !== 'pass')
     {
         return;
@@ -351,6 +383,7 @@ function collectPassCollapseWarnings(
         message: `pass(${expression.reference}) on ${rule.production} binds ${boundSymbol} `
             + `which has no transform rule and can match a single terminal; `
             + `add a transform for ${boundSymbol} or use build`,
+        location: alternative.location ?? null,
     });
 }
 
@@ -434,14 +467,21 @@ function isTerminalSymbol(symbol: BnfSymbol | undefined): boolean
 }
 
 /**
- * Formats validation issues as stderr warning or error lines.
+ * Formats validation issues as stderr diagnostic lines.
  *
  * @param issues - Validation issues to format.
+ * @param options - Optional grammar path and source text for line numbers.
  */
-export function formatTableValidationIssues(issues: readonly TableValidationIssue[]): string[]
+export function formatTableValidationIssues(
+    issues: readonly TableValidationIssue[],
+    options: FormatTableValidationOptions = {},
+): string[]
 {
-    return issues.map((issue) =>
-        issue.severity === 'error'
-            ? `error: ${issue.message}`
-            : `warning: ${issue.message}`);
+    return issues.map((issue) => formatDiagnostic({
+        severity: issue.severity,
+        message: issue.message,
+        path: options.path,
+        source: options.source,
+        location: issue.location,
+    }));
 }

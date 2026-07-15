@@ -176,13 +176,65 @@ transform
     it('formats validation issues for stderr output', () =>
     {
         const lines = formatTableValidationIssues([
-            { severity: 'warning', message: 'example warning' },
-            { severity: 'error', message: 'example error' },
+            { severity: 'warning', message: 'example warning', location: null },
+            { severity: 'error', message: 'example error', location: null },
         ]);
 
         expect(lines).toEqual([
             'warning: example warning',
             'error: example error',
         ]);
+    });
+
+    it('formats validation issues with path line and column', () =>
+    {
+        const source = 'name "x" ;\n\ntransform\n    expr ->\n        #literal expr.#missing(number) ;\n';
+        const lines = formatTableValidationIssues(
+            [{
+                severity: 'error',
+                message: 'transform references expr.missing which is not declared in ast',
+                location: { offset: source.indexOf('#literal'), length: 10 },
+            }],
+            {
+                path: 'sample.grammar',
+                source,
+            },
+        );
+
+        expect(lines).toEqual([
+            'sample.grammar:5:9: error: transform references expr.missing which is not declared in ast',
+        ]);
+    });
+
+    it('attaches source locations to transform validation errors', () =>
+    {
+        const source = `
+name "bad" ;
+
+tokens
+    number = /[0-9]+/ ;
+
+start expr ;
+
+grammar
+    expr = #literal number ;
+
+ast
+    expr = #literal number ;
+
+transform
+    expr ->
+        #literal expr.#missing(number) ;
+`;
+        const grammar = readGrammar(source);
+        const issues = validateGrammarTable(grammar);
+        const missing = issues.find((issue) => issue.message.includes('expr.missing'));
+
+        expect(missing?.location).not.toBeNull();
+        expect(missing?.location?.offset).toBeGreaterThan(0);
+        expect(formatTableValidationIssues([missing!], {
+            path: 'bad.grammar',
+            source,
+        })[0]).toMatch(/^bad\.grammar:\d+:\d+: error: /);
     });
 });

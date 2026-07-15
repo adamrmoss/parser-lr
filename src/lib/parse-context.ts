@@ -129,6 +129,17 @@ export class ParseContext
     }
 
     /**
+     * Parses a token stream and retains syntax-error offset details.
+     *
+     * @param tokens - Token stream ending with `$eof`.
+     * @returns Tree and optional syntax-error details.
+     */
+    public parseResult(tokens: readonly Token[])
+    {
+        return this.parser.parseResult(tokens);
+    }
+
+    /**
      * Lexes and parses source text into an AST, applying transforms when present.
      *
      * @param source - Input text to parse.

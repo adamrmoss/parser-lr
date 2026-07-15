@@ -111,6 +111,10 @@ grammar
                     variant: 'binary',
                     arguments: ['left', 'operator', 'right'],
                 },
+                location: expect.objectContaining({
+                    offset: expect.any(Number),
+                    length: expect.any(Number),
+                }),
             },
             {
                 label: 'literal',
@@ -120,6 +124,10 @@ grammar
                     variant: 'literal',
                     arguments: ['number'],
                 },
+                location: expect.objectContaining({
+                    offset: expect.any(Number),
+                    length: expect.any(Number),
+                }),
             },
         ]);
     });
