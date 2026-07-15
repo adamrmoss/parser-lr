@@ -2,8 +2,77 @@ import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { parseContextFromGrammar } from '../grammar-entry.js';
+import {
+    parseContextFromGrammar,
+    readGrammar,
+    validateGrammarTable,
+} from '../grammar-entry.js';
 import { ParseContext } from '../parse-context.js';
+
+const optionalColorGrammarSource = `
+name "optional-color" ;
+
+tokens
+    kw_with = /with/ ;
+    color = /[a-z]+/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start optional_color ;
+
+grammar
+    optional_color =
+        #absent
+      | #present kw_with [value]:color
+      ;
+
+ast
+    optional_color =
+        #absent
+      | #present [value]:color
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent
+      | #present optional_color.#present(value)
+      ;
+`;
+
+describe('labeled zero-factor transform pipeline', () =>
+{
+    it('preserves the epsilon variant from CST through AST transformation', () =>
+    {
+        const grammar = readGrammar(optionalColorGrammarSource);
+        const context = parseContextFromGrammar(optionalColorGrammarSource, 'lr1');
+        const cst = context.parser.parseCst(context.lex(''));
+        const ast = context.parseSource('');
+
+        expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
+        expect(cst?.symbol).toBe('optional_color');
+        expect(cst?.variant).toBe('absent');
+        expect(cst?.children).toEqual([]);
+        expect(ast?.symbol).toBe('optional_color');
+        expect(ast?.variant).toBe('absent');
+        expect(ast?.children).toEqual([]);
+    });
+
+    it('preserves the epsilon transform through table JSON', () =>
+    {
+        const fromGrammar = parseContextFromGrammar(optionalColorGrammarSource, 'lr1');
+        const fromTable = ParseContext.fromTableJson(fromGrammar.table.toJsonString());
+        const absent = fromTable.parseSource('');
+        const present = fromTable.parseSource('with blue');
+
+        expect(absent?.symbol).toBe('optional_color');
+        expect(absent?.variant).toBe('absent');
+        expect(absent?.children).toEqual([]);
+        expect(present?.symbol).toBe('optional_color');
+        expect(present?.variant).toBe('present');
+        expect(present?.children[0]?.text).toBe('blue');
+    });
+});
 
 describe('calc.grammar transform pipeline', () =>
 {

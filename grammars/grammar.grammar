@@ -203,7 +203,8 @@ grammar
     ;
 
     labeled_alternative =
-        [ hash identifier ] sequence
+        hash identifier [ sequence ]
+      | sequence
     ;
 
     sequence =

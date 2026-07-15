@@ -10,6 +10,53 @@ import { desugarEbnf } from './desugar-ebnf.js';
 
 describe('desugarEbnf', () =>
 {
+    it('expands a labeled zero-factor alternative into epsilon', () =>
+    {
+        const grammar = new Grammar(
+            'example',
+            [{ name: 'kw_with', pattern: 'with', flags: '' }],
+            [],
+            [],
+            'optional_color',
+            [
+                {
+                    name: 'optional_color',
+                    expression: {
+                        kind: 'choice',
+                        alternatives: [
+                            {
+                                label: 'absent',
+                                expression: {
+                                    kind: 'sequence',
+                                    elements: [],
+                                },
+                            },
+                            {
+                                label: 'present',
+                                expression: {
+                                    kind: 'reference',
+                                    name: 'kw_with',
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        );
+
+        const productions = desugarEbnf(grammar).productionsFor('optional_color');
+
+        expect(productions).toHaveLength(2);
+        expect(productions[0]).toMatchObject({
+            rhs: [],
+            variant: 'absent',
+        });
+        expect(productions[1]).toMatchObject({
+            rhs: [{ kind: 'token', name: 'kw_with', binding: null }],
+            variant: 'present',
+        });
+    });
+
     it('expands choice into separate productions', () =>
     {
         const grammar = new Grammar(

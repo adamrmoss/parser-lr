@@ -660,11 +660,13 @@ function parseLabeledAlternative(node: AstNode): Alternative
     const label = labelNode === null || findChild(node, 'hash') === null
         ? null
         : identifierText(labelNode);
-    const sequence = requireChild(node, 'sequence');
+    const sequence = findChild(node, 'sequence');
 
     return {
         label,
-        expression: parseSequence(sequence),
+        expression: sequence === null
+            ? { kind: 'sequence', elements: [] }
+            : parseSequence(sequence),
     };
 }
 

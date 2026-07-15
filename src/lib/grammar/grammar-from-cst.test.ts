@@ -168,6 +168,89 @@ ast
         });
     });
 
+    it('parses labeled zero-factor alternatives and zero-argument builds', () =>
+    {
+        const grammar = parseGrammarSource(`
+name "optional-color" ;
+
+tokens
+    kw_with = /with/ ;
+    color = /[a-z]+/ ;
+
+start optional_color ;
+
+grammar
+    optional_color =
+        #absent
+      | #present kw_with color
+      ;
+
+ast
+    optional_color =
+        #absent
+      | #present color
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent
+      | #present optional_color.#present(color)
+      ;
+`);
+
+        const production = grammar.production('optional_color');
+        const astType = grammar.astSchema?.type('optional_color');
+        const transform = grammar.transformSchema?.rule('optional_color');
+
+        expect(production?.expression).toEqual({
+            kind: 'choice',
+            alternatives: [
+                {
+                    label: 'absent',
+                    expression: {
+                        kind: 'sequence',
+                        elements: [],
+                    },
+                },
+                {
+                    label: 'present',
+                    expression: {
+                        kind: 'sequence',
+                        elements: [
+                            { kind: 'reference', name: 'kw_with' },
+                            { kind: 'reference', name: 'color' },
+                        ],
+                    },
+                },
+            ],
+        });
+        expect(astType?.expression).toEqual({
+            kind: 'choice',
+            alternatives: [
+                {
+                    label: 'absent',
+                    expression: {
+                        kind: 'sequence',
+                        elements: [],
+                    },
+                },
+                {
+                    label: 'present',
+                    expression: {
+                        kind: 'reference',
+                        name: 'color',
+                    },
+                },
+            ],
+        });
+        expect(transform?.alternatives[0]?.expression).toEqual({
+            kind: 'build',
+            typeName: 'optional_color',
+            variant: 'absent',
+            arguments: [],
+        });
+    });
+
     it('parses every checked-in sample grammar', () =>
     {
         const grammarFiles = readdirSync(grammarsDirectory)

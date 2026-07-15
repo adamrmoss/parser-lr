@@ -98,6 +98,19 @@ expr =
   ;
 ```
 
+An explicitly labeled alternative may contain zero factors. It matches the
+empty input while preserving its label as the CST variant:
+
+```ebnf
+optional_color =
+    #absent
+  | #present kw_with expression
+  ;
+```
+
+Zero-factor alternatives must have a label; an unlabeled empty production such
+as `optional_color = ;` is not valid.
+
 ### Production syntax
 
 Each production ends with a semicolon:
@@ -157,6 +170,22 @@ transform
 | Flatten | `flatten(type.#variant, head, tail)` |
 
 `type.#variant` refers to an AST type and variant from the `ast` section. Arguments are binding names from the parse production.
+
+Use a build target without parentheses for a zero-argument transform:
+
+```ebnf
+ast
+    optional_color =
+        #absent
+      | #present expression
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent
+      | #present optional_color.#present(expression)
+      ;
+```
 
 Example (calculator):
 
