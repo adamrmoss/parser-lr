@@ -2,6 +2,7 @@ import type { SourceLocation } from '../ast/ast-node.js';
 import { formatDiagnostic } from '../diagnostics/format-diagnostic.js';
 import type { Expression } from './expression.js';
 import type { Grammar } from './grammar.js';
+import type { TransformExpression } from './transform-expression.js';
 import type { TransformAlternative, TransformRule } from './transform-rule.js';
 import { EbnfDesugarer } from '../parse-table/bnf/desugar-ebnf.js';
 import type { BnfProduction } from '../parse-table/bnf/bnf-production.js';
@@ -55,6 +56,7 @@ export function validateGrammarTable(grammar: Grammar): TableValidationIssue[]
             {
                 validateTransformExpression(
                     grammar,
+                    rule,
                     alternative,
                     issues,
                 );
@@ -221,6 +223,7 @@ function syntheticRepeatPrefix(name: string): string | null
  */
 function validateTransformExpression(
     grammar: Grammar,
+    rule: TransformRule,
     alternative: TransformAlternative,
     issues: TableValidationIssue[],
 ): void
@@ -232,6 +235,7 @@ function validateTransformExpression(
     {
         case 'build':
             validateAstTarget(grammar, expression.typeName, expression.variant, location, issues);
+            validateBuildArity(grammar, rule, alternative, expression, location, issues);
             break;
 
         case 'foldLeft':
@@ -244,6 +248,185 @@ function validateTransformExpression(
         case 'pass':
             break;
     }
+}
+
+/**
+ * Records an error when a build argument list conflicts with a zero-factor shape.
+ *
+ * @remarks
+ * Build argument counts are not required to match grammar or AST slot counts in
+ * general: keywords may be dropped, punctuation may be kept, and child
+ * productions may build a shared parent AST variant. The only coherent checks
+ * are zero-factor cases and empty builds targeting a non-empty AST variant.
+ *
+ * @param grammar - Parsed grammar model.
+ * @param rule - Transform rule owning the build expression.
+ * @param alternative - Transform alternative owning the build expression.
+ * @param expression - Build transform expression.
+ * @param location - Source span of the transform alternative.
+ * @param issues - Issue list to append to.
+ */
+function validateBuildArity(
+    grammar: Grammar,
+    rule: TransformRule,
+    alternative: TransformAlternative,
+    expression: Extract<TransformExpression, { kind: 'build' }>,
+    location: SourceLocation | null,
+    issues: TableValidationIssue[],
+): void
+{
+    const argumentCount = expression.arguments.length;
+    const production = grammar.production(rule.production);
+
+    // Reject build arguments on a labeled zero-factor grammar alternative.
+    if (production !== null)
+    {
+        const alternativeExpression = findGrammarAlternativeExpression(
+            production.expression,
+            alternative.label,
+        );
+
+        if (alternativeExpression !== null
+            && isZeroFactorExpression(alternativeExpression)
+            && argumentCount > 0)
+        {
+            issues.push({
+                severity: 'error',
+                message: `transform ${expression.typeName}.${expression.variant} has `
+                    + `${String(argumentCount)} argument(s) but ast variant declares 0`,
+                location,
+            });
+            return;
+        }
+    }
+
+    if (grammar.astSchema === null)
+    {
+        return;
+    }
+
+    const astType = grammar.astSchema.type(expression.typeName);
+
+    if (astType === null)
+    {
+        return;
+    }
+
+    const variantExpression = findAstVariantExpression(astType.expression, expression.variant);
+
+    if (variantExpression === null)
+    {
+        return;
+    }
+
+    // Reject build arguments on a zero-factor AST variant.
+    if (isZeroFactorExpression(variantExpression))
+    {
+        if (argumentCount > 0)
+        {
+            issues.push({
+                severity: 'error',
+                message: `transform ${expression.typeName}.${expression.variant} has `
+                    + `${String(argumentCount)} argument(s) but ast variant declares 0`,
+                location,
+            });
+        }
+
+        return;
+    }
+
+    // Reject empty builds that target a non-empty AST variant.
+    if (argumentCount === 0)
+    {
+        issues.push({
+            severity: 'error',
+            message: `transform ${expression.typeName}.${expression.variant} has `
+                + `0 argument(s) but ast variant requires 1`,
+            location,
+        });
+    }
+}
+
+/**
+ * Returns whether an expression is a labeled zero-factor alternative.
+ *
+ * @param expression - Grammar or AST alternative expression.
+ */
+function isZeroFactorExpression(expression: Expression): boolean
+{
+    return expression.kind === 'sequence' && expression.elements.length === 0;
+}
+
+/**
+ * Returns the expression for one labeled grammar alternative.
+ *
+ * @param expression - Production right-hand side expression.
+ * @param label - Transform alternative label.
+ */
+function findGrammarAlternativeExpression(expression: Expression, label: string): Expression | null
+{
+    if (expression.kind === 'choice')
+    {
+        for (const alternative of expression.alternatives)
+        {
+            if (alternative.label === label)
+            {
+                return alternative.expression;
+            }
+        }
+
+        if (label === 'main' && expression.alternatives.length === 1)
+        {
+            return expression.alternatives[0]?.expression ?? null;
+        }
+
+        return null;
+    }
+
+    if (label === 'main')
+    {
+        return expression;
+    }
+
+    return null;
+}
+
+/**
+ * Returns the expression for one labeled AST alternative.
+ *
+ * @param expression - AST type right-hand side.
+ * @param variant - Variant label to find.
+ */
+function findAstVariantExpression(expression: Expression, variant: string): Expression | null
+{
+    if (expression.kind === 'choice')
+    {
+        for (const alternative of expression.alternatives)
+        {
+            if (alternative.label === variant)
+            {
+                return alternative.expression;
+            }
+        }
+
+        return null;
+    }
+
+    if (expression.kind === 'sequence' || expression.kind === 'group')
+    {
+        const inner = expression.kind === 'sequence'
+            ? expression.elements[0]
+            : expression.element;
+
+        if (inner === undefined)
+        {
+            return null;
+        }
+
+        return findAstVariantExpression(inner, variant);
+    }
+
+    return null;
 }
 
 /**

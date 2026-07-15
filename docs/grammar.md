@@ -111,6 +111,10 @@ optional_color =
 Zero-factor alternatives must have a label; an unlabeled empty production such
 as `optional_color = ;` is not valid.
 
+Labeled empty alternatives are first-class CST nodes: `{ symbol, variant, children: [] }`.
+Synthetic unlabeled epsilons created for `{…}` and `[…]` desugaring remain scaffolding
+and are dropped by default transforms and flatten/fold walks.
+
 ### Production syntax
 
 Each production ends with a semicolon:
@@ -253,9 +257,9 @@ The transformer applies these rules to every CST node:
 | Situation | Behavior |
 |-----------|----------|
 | `pass(slot)` | Preserve the bound production's symbol and `#` variant; never collapse to its sole terminal child. |
-| No transform rule for production `P` | Emit an identity node `{ symbol: P, variant, children }`. A named non-terminal is kept even when it has a single child; the child is not hoisted in its place. |
-| `build(type.#variant, …)` | Absent optional bindings are omitted from `children`, not shifted into other slots. |
-| `flatten(type.#list, head, tail)` | Repeat tails produce no empty placeholder nodes and drop no items. |
+| No transform rule for production `P` | Emit an identity node `{ symbol: P, variant, children }`. A named non-terminal is kept even when it has a single child; the child is not hoisted in its place. Authored labeled epsilons (`#absent`) keep identity with empty children; synthetic unlabeled epsilons are dropped. |
+| `build(type.#variant, …)` | Absent optional bindings are omitted from `children`, not shifted into other slots. `table validate` rejects arguments on zero-factor alternatives (`#absent`) and empty builds that target a non-empty AST variant; it does not require argument count to match grammar or AST slot counts. |
+| `flatten(type.#list, head, tail)` | Repeat tails produce no empty placeholder nodes and drop no items. Synthetic unlabeled epsilons terminate the list. |
 
 **Nested non-terminals stay wrapped.** A production referenced inside another production keeps its own node, so consumers match the grammar non-terminal (for example `comparison_op`) rather than a lexer token name (`less`). To retain a token *inside* that wrapper, bind it: write `comparison_op = #less [tok]:less` and reference `tok` from the transform. Without the binding, `build(comparison_op.#less, tok)` has no slot to read and the child is dropped.
 

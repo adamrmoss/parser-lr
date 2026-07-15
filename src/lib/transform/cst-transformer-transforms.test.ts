@@ -270,7 +270,7 @@ describe('transformCst fold and flatten expressions', () =>
         expect(transformCst(cst, schema, wrapTable)?.text).toBe('9');
     });
 
-    it('returns null for epsilon productions during default transform', () =>
+    it('returns null for synthetic unlabeled epsilon productions during default transform', () =>
     {
         const schema = new TransformSchema([]);
         const epsilonTable = new ParseTable(
@@ -293,6 +293,42 @@ describe('transformCst fold and flatten expressions', () =>
         const cst = AstNode.rule('empty', [], { offset: 0, length: 0 }, null, 0, 'empty');
 
         expect(transformCst(cst, schema, epsilonTable)).toBeNull();
+    });
+
+    it('preserves authored labeled epsilon productions during default transform', () =>
+    {
+        const schema = new TransformSchema([]);
+        const epsilonTable = new ParseTable(
+            'optional',
+            'optional_color',
+            ['$eof'],
+            [],
+            [],
+            [],
+            'lr1',
+            1,
+            [{
+                id: 0,
+                name: 'optional_color',
+                rhs: [],
+                variant: 'absent',
+                origin: 'optional_color',
+            }],
+        );
+        const cst = AstNode.rule(
+            'optional_color',
+            [],
+            { offset: 0, length: 0 },
+            'absent',
+            0,
+            'optional_color',
+        );
+
+        expect(transformCst(cst, schema, epsilonTable)).toMatchObject({
+            symbol: 'optional_color',
+            variant: 'absent',
+            children: [],
+        });
     });
 
     it('describes production slots for diagnostics', () =>

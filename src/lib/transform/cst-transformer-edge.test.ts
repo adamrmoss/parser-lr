@@ -57,6 +57,13 @@ describe('transformCst edge conditions', () =>
                 variant: 'passMe',
                 origin: 'expr',
             },
+            {
+                id: 99,
+                name: 'empty',
+                rhs: [],
+                variant: null,
+                origin: 'empty',
+            },
         ],
     );
 
@@ -127,10 +134,42 @@ describe('transformCst edge conditions', () =>
         });
     });
 
-    it('returns null for an epsilon node with no explicit rule', () =>
+    it('returns null for a synthetic unlabeled epsilon with no explicit rule', () =>
     {
         const cst = AstNode.rule('empty', [], null, null, 99, 'empty');
 
         expect(transformCst(cst, schema, table)).toBeNull();
+    });
+
+    it('preserves an authored labeled epsilon with no explicit rule', () =>
+    {
+        const labeledTable = new ParseTable(
+            'optional',
+            'optional_color',
+            ['$eof'],
+            [],
+            [],
+            [],
+            'lr1',
+            1,
+            [{
+                id: 99,
+                name: 'optional_color',
+                rhs: [],
+                variant: 'absent',
+                origin: 'optional_color',
+            }],
+        );
+        const cst = AstNode.rule('optional_color', [], null, 'absent', 99, 'optional_color');
+
+        expect(transformCst(cst, schema, labeledTable)).toEqual({
+            symbol: 'optional_color',
+            children: [],
+            text: null,
+            location: null,
+            variant: 'absent',
+            productionId: null,
+            origin: null,
+        });
     });
 });

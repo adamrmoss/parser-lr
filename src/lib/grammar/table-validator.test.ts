@@ -237,4 +237,80 @@ transform
             source,
         })[0]).toMatch(/^bad\.grammar:\d+:\d+: error: /);
     });
+
+    it('errors when a zero-factor AST variant gets build arguments', () =>
+    {
+        const grammar = readGrammar(`
+name "bad-arity" ;
+
+tokens
+    color = /[a-z]+/ ;
+
+start optional_color ;
+
+grammar
+    optional_color =
+        #absent
+      | #present color
+      ;
+
+ast
+    optional_color =
+        #absent
+      | #present color
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent(color)
+      | #present optional_color.#present(color)
+      ;
+`);
+
+        const issues = validateGrammarTable(grammar);
+
+        expect(issues.some((issue) =>
+            issue.severity === 'error'
+            && issue.message.includes('optional_color.absent')
+            && issue.message.includes('1 argument')
+            && issue.message.includes('declares 0'))).toBe(true);
+    });
+
+    it('errors when an empty build targets a non-empty AST variant', () =>
+    {
+        const grammar = readGrammar(`
+name "bad-arity" ;
+
+tokens
+    color = /[a-z]+/ ;
+
+start optional_color ;
+
+grammar
+    optional_color =
+        #absent
+      | #present color
+      ;
+
+ast
+    optional_color =
+        #absent
+      | #present color
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent
+      | #present optional_color.#present
+      ;
+`);
+
+        const issues = validateGrammarTable(grammar);
+
+        expect(issues.some((issue) =>
+            issue.severity === 'error'
+            && issue.message.includes('optional_color.present')
+            && issue.message.includes('0 argument')
+            && issue.message.includes('requires 1'))).toBe(true);
+    });
 });

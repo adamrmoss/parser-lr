@@ -251,6 +251,29 @@ transform
         });
     });
 
+    it('rejects unlabeled empty alternatives', () =>
+    {
+        const table = metaGrammarTable();
+        const tokens = new Lexer(metaGrammar()).lex(`
+name "bad" ;
+
+tokens
+    color = /[a-z]+/ ;
+
+start optional_color ;
+
+grammar
+    optional_color =
+        |
+        color
+      ;
+`);
+        const result = parseWithTableResult(table, tokens);
+
+        expect(result.cst).toBeNull();
+        expect(result.errorOffset).not.toBeNull();
+    });
+
     it('parses every checked-in sample grammar', () =>
     {
         const grammarFiles = readdirSync(grammarsDirectory)
