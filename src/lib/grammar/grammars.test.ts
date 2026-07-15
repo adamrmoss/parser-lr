@@ -295,12 +295,16 @@ describe('grammars/', () =>
 
         it('defines core declaration and expression productions', () =>
         {
+            expect(grammar.hasProduction('file_namespace')).toBe(true);
+            expect(grammar.hasProduction('using_directive')).toBe(true);
+            expect(grammar.hasProduction('access_modifier')).toBe(true);
             expect(grammar.hasProduction('top_decl')).toBe(true);
             expect(grammar.hasProduction('struct_decl')).toBe(true);
             expect(grammar.hasProduction('function_decl')).toBe(true);
             expect(grammar.hasProduction('type_spec')).toBe(true);
             expect(grammar.hasProduction('assignment_expr')).toBe(true);
             expect(grammar.hasProduction('postfix_suffix')).toBe(true);
+            expect(grammar.hasProduction('namespace_body')).toBe(false);
         });
 
         it('defines ast and transform sections', () =>
@@ -308,9 +312,20 @@ describe('grammars/', () =>
             expect(grammar.astSchema).not.toBeNull();
             expect(grammar.transformSchema).not.toBeNull();
             expect(grammar.transformSchema?.rule('program$repeat_0')).toBeDefined();
+            expect(grammar.transformSchema?.rule('program$repeat_1')).toBeDefined();
             expect(grammar.transformSchema?.rule('param_list')).toBeDefined();
             expect(grammar.transformSchema?.rule('param_list$repeat_0')).toBeNull();
             expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
+        });
+
+        it('loads visibility and PascalCase built-in tokens', () =>
+        {
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_public')?.pattern).toBe('public');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_private')?.pattern).toBe('private');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_int32')?.pattern).toBe('Int32');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_uint8')?.pattern).toBe('UInt8');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_void')?.pattern).toBe('Void');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_float64')?.pattern).toBe('Float64');
         });
 
         it('loads numeric literals with documented regex suffix flags', () =>

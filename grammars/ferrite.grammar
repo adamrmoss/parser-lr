@@ -1,24 +1,28 @@
-// Ferrite — a C-like language with C#-style structs, namespaces, and pointer semantics.
-// No preprocessor; sources compile as single units (namespaces + using, like C# assemblies).
+// Ferrite — a C-like language with C#-style structs, file-scoped namespaces, and pointer semantics.
+// No preprocessor; sources compile as single units (namespaces + using).
+// Naming convention (not enforced by the grammar): PascalCase types, camelCase functions and variables.
 //
 // Example:
 //
-//   namespace Ferrite.Math {
-//       struct Vec2 {
-//           float32 x;
-//           float32 y;
-//           float32 dot(Vec2* other) {
-//               return x * other->x + y * other->y;
-//           }
+//   namespace Ferrite.Math;
+//
+//   using Ferrite.Core;
+//
+//   public struct Vec2
+//   {
+//       Float32 x;
+//       Float32 y;
+//       Float32 dot(Vec2* other)
+//       {
+//           return x * other->x + y * other->y;
 //       }
-//   }
+//   };
 //
-//   using Ferrite.Math;
-//
-//   int32 main() {
+//   public Int32 main()
+//   {
 //       Vec2 a = { 1.0, 2.0 };
 //       Vec2* p = &a;
-//       return (int32)p->dot(&a);
+//       return (Int32)p->dot(&a);
 //   }
 
 name "ferrite" ;
@@ -27,6 +31,8 @@ tokens
     kw_struct = /struct/ ;
     kw_namespace = /namespace/ ;
     kw_using = /using/ ;
+    kw_public = /public/ ;
+    kw_private = /private/ ;
     kw_if = /if/ ;
     kw_else = /else/ ;
     kw_while = /while/ ;
@@ -38,19 +44,19 @@ tokens
     kw_null = /null/ ;
     kw_true = /true/ ;
     kw_false = /false/ ;
-    kw_void = /void/ ;
-    kw_bool = /bool/ ;
-    kw_int8 = /int8/ ;
-    kw_int16 = /int16/ ;
-    kw_int32 = /int32/ ;
-    kw_int64 = /int64/ ;
-    kw_uint8 = /uint8/ ;
-    kw_uint16 = /uint16/ ;
-    kw_uint32 = /uint32/ ;
-    kw_uint64 = /uint64/ ;
-    kw_float32 = /float32/ ;
-    kw_float64 = /float64/ ;
-    kw_char = /char/ ;
+    kw_void = /Void/ ;
+    kw_bool = /Bool/ ;
+    kw_int8 = /Int8/ ;
+    kw_int16 = /Int16/ ;
+    kw_int32 = /Int32/ ;
+    kw_int64 = /Int64/ ;
+    kw_uint8 = /UInt8/ ;
+    kw_uint16 = /UInt16/ ;
+    kw_uint32 = /UInt32/ ;
+    kw_uint64 = /UInt64/ ;
+    kw_float32 = /Float32/ ;
+    kw_float64 = /Float64/ ;
+    kw_char = /Char/ ;
 
     identifier = /[A-Za-z_][A-Za-z0-9_]*/ ;
     int_literal = /0x[0-9A-F]+|0b[01]+|[0-9]+/i ;
@@ -112,28 +118,27 @@ start program ;
 
 grammar
     program =
+        [ [ns]:file_namespace ]
+        { [use]:using_directive }
         { [decl]:top_decl }
     ;
 
+    file_namespace =
+        [nsKw]:kw_namespace [qname]:qualified_name [semi]:semicolon
+    ;
+
+    using_directive =
+        [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
+    ;
+
     top_decl =
-        #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
-      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
-      | #struct struct_decl
-      | #function function_decl
-    ;
-
-    namespace_body =
-        [open]:lbrace
-        { [member]:namespace_member }
-        [close]:rbrace
-    ;
-
-    namespace_member =
         #struct struct_decl
       | #function function_decl
-      | #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
-      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
-      | #statement [stmt]:statement
+    ;
+
+    access_modifier =
+        #public [keyword]:kw_public
+      | #private [keyword]:kw_private
     ;
 
     qualified_name =
@@ -145,6 +150,7 @@ grammar
     ;
 
     struct_decl =
+        [access]:access_modifier
         [structKw]:kw_struct
         [sym]:identifier
         [body]:struct_body
@@ -186,12 +192,14 @@ grammar
 
     function_decl =
         #defined
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
         [close]:rpar
         [body]:block
       | #definedParams
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
@@ -199,12 +207,14 @@ grammar
         [close]:rpar
         [body]:block
       | #prototype
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
         [close]:rpar
         [semi]:semicolon
       | #prototypeParams
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
@@ -425,28 +435,33 @@ grammar
 
 ast
     program =
-        #program { top_decl }
+        #program [ [ns]:file_namespace ] [usings]:using_list [decls]:decl_list
+    ;
+
+    using_list =
+        #list { using_directive }
+    ;
+
+    decl_list =
+        #list { top_decl }
+    ;
+
+    file_namespace =
+        #file_namespace [nsKw]:kw_namespace [qname]:qualified_name [semi]:semicolon
+    ;
+
+    using_directive =
+        #using_directive [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
     ;
 
     top_decl =
-        #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
-      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
-      | #struct struct_decl
-      | #function function_decl
-    ;
-
-    namespace_body =
-        #namespace_body [open]:lbrace
-        { [member]:namespace_member }
-        [close]:rbrace
-    ;
-
-    namespace_member =
         #struct struct_decl
       | #function function_decl
-      | #namespace [nsKw]:kw_namespace [qname]:qualified_name [body]:namespace_body
-      | #using [useKw]:kw_using [qname]:qualified_name [semi]:semicolon
-      | #statement [stmt]:statement
+    ;
+
+    access_modifier =
+        #public [keyword]:kw_public
+      | #private [keyword]:kw_private
     ;
 
     qualified_name =
@@ -458,7 +473,8 @@ ast
     ;
 
     struct_decl =
-        #struct_decl [structKw]:kw_struct
+        #struct_decl [access]:access_modifier
+        [structKw]:kw_struct
         [sym]:identifier
         [body]:struct_body
         [semi]:semicolon
@@ -499,12 +515,14 @@ ast
 
     function_decl =
         #defined
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
         [close]:rpar
         [body]:block
       | #definedParams
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
@@ -512,12 +530,14 @@ ast
         [close]:rpar
         [body]:block
       | #prototype
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
         [close]:rpar
         [semi]:semicolon
       | #prototypeParams
+        [access]:access_modifier
         [type]:type_spec
         [sym]:identifier
         [open]:lpar
@@ -739,29 +759,27 @@ ast
 
 transform
     program ->
-        #main pass(program$repeat_0) ;
+        #main program.#program(ns, program$repeat_0, program$repeat_1) ;
 
     program$repeat_0 ->
-        #main flatten(program.#program, decl, program$repeat_0) ;
+        #main flatten(using_list.#list, use, program$repeat_0) ;
+
+    program$repeat_1 ->
+        #main flatten(decl_list.#list, decl, program$repeat_1) ;
+
+    file_namespace ->
+        #main file_namespace.#file_namespace(nsKw, qname, semi) ;
+
+    using_directive ->
+        #main using_directive.#using_directive(useKw, qname, semi) ;
 
     top_decl ->
-        #namespace top_decl.#namespace(nsKw, qname, body)
-      | #using top_decl.#using(useKw, qname, semi)
-      | #struct pass(struct_decl)
+        #struct pass(struct_decl)
       | #function pass(function_decl) ;
 
-    namespace_body ->
-        #main namespace_body.#namespace_body(open, namespace_body$repeat_0, close) ;
-
-    namespace_body$repeat_0 ->
-        #main flatten(namespace_body.#namespace_body, member, namespace_body$repeat_0) ;
-
-    namespace_member ->
-        #struct pass(struct_decl)
-      | #function pass(function_decl)
-      | #namespace namespace_member.#namespace(nsKw, qname, body)
-      | #using namespace_member.#using(useKw, qname, semi)
-      | #statement pass(stmt) ;
+    access_modifier ->
+        #public access_modifier.#public(keyword)
+      | #private access_modifier.#private(keyword) ;
 
     qualified_name ->
         #main qualified_name.#qualified_name(head, qualified_name$repeat_0) ;
@@ -773,7 +791,7 @@ transform
         #main name_part.#part(dotTok, part) ;
 
     struct_decl ->
-        #main struct_decl.#struct_decl(structKw, sym, body, semi) ;
+        #main struct_decl.#struct_decl(access, structKw, sym, body, semi) ;
 
     struct_body ->
         #main struct_body.#struct_body(open, struct_body$repeat_0, close) ;
@@ -793,10 +811,10 @@ transform
       | #methodParams method_decl.#method(type, sym, open, params, close, body) ;
 
     function_decl ->
-        #defined function_decl.#defined(type, sym, open, close, body)
-      | #definedParams function_decl.#defined(type, sym, open, params, close, body)
-      | #prototype function_decl.#prototype(type, sym, open, close, semi)
-      | #prototypeParams function_decl.#prototype(type, sym, open, params, close, semi) ;
+        #defined function_decl.#defined(access, type, sym, open, close, body)
+      | #definedParams function_decl.#defined(access, type, sym, open, params, close, body)
+      | #prototype function_decl.#prototype(access, type, sym, open, close, semi)
+      | #prototypeParams function_decl.#prototype(access, type, sym, open, params, close, semi) ;
 
     param_list ->
         #main flatten(param_list.#list, first, param_list$repeat_0) ;
