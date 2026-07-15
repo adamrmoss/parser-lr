@@ -124,6 +124,42 @@ grammar
         ]);
     });
 
+    it('preserves a single labeled alternative on an AST type', () =>
+    {
+        const grammar = parseGrammarSource(`
+name "labels" ;
+
+tokens
+    ident = /[a-z]+/ ;
+
+start list ;
+
+grammar
+    list = ident ;
+
+ast
+    list =
+        #items { ident }
+      ;
+`);
+
+        expect(grammar.astSchema?.type('list')?.expression).toEqual({
+            kind: 'choice',
+            alternatives: [
+                {
+                    label: 'items',
+                    expression: {
+                        kind: 'repeat',
+                        element: {
+                            kind: 'reference',
+                            name: 'ident',
+                        },
+                    },
+                },
+            ],
+        });
+    });
+
     it('parses every checked-in sample grammar', () =>
     {
         const grammarFiles = readdirSync(grammarsDirectory)

@@ -46,6 +46,63 @@ transform
             && issue.message.includes('expr.missing'))).toBe(true);
     });
 
+    it('accepts a transform target with a single labeled AST alternative', () =>
+    {
+        const grammar = readGrammar(`
+name "list" ;
+
+tokens
+    ident = /[a-z]+/ ;
+
+start items ;
+
+grammar
+    items =
+        #list [first]:ident { [rest]:ident }
+      ;
+
+ast
+    items =
+        #list { ident }
+      ;
+
+transform
+    items ->
+        #list flatten(items.#list, first, items$repeat_0) ;
+`);
+
+        const issues = validateGrammarTable(grammar);
+
+        expect(issues.filter((issue) => issue.severity === 'error')).toEqual([]);
+    });
+
+    it('accepts a stable repeat alias for a globally numbered repeat', () =>
+    {
+        const grammar = readGrammar(`
+name "repeat-alias" ;
+
+tokens
+    ident = /[a-z]+/ ;
+
+start items ;
+
+grammar
+    padding = { ident } ;
+    items = { [item]:ident } ;
+
+ast
+    items = #items { ident } ;
+
+transform
+    items$repeat_0 ->
+        #main flatten(items.#items, item, items$repeat_0) ;
+`);
+
+        const issues = validateGrammarTable(grammar);
+
+        expect(issues.filter((issue) => issue.severity === 'error')).toEqual([]);
+    });
+
     it('warns when pass binds a single-terminal production without a transform', () =>
     {
         const grammarSource = readFileSync(

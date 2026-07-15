@@ -273,7 +273,7 @@ grammar
     ;
 
     expr_sep =
-        [commaTok]:comma [rest]:expression
+        #sep [commaTok]:comma [rest]:expression
     ;
 
     for_init =
@@ -425,7 +425,7 @@ grammar
 
 ast
     program =
-        { top_decl }
+        #program { top_decl }
     ;
 
     top_decl =
@@ -436,7 +436,7 @@ ast
     ;
 
     namespace_body =
-        [open]:lbrace
+        #namespace_body [open]:lbrace
         { [member]:namespace_member }
         [close]:rbrace
     ;
@@ -450,22 +450,22 @@ ast
     ;
 
     qualified_name =
-        [head]:identifier { name_part }
+        #qualified_name [head]:identifier { name_part }
     ;
 
     name_part =
-        [dotTok]:dot [part]:identifier
+        #part [dotTok]:dot [part]:identifier
     ;
 
     struct_decl =
-        [structKw]:kw_struct
+        #struct_decl [structKw]:kw_struct
         [sym]:identifier
         [body]:struct_body
         [semi]:semicolon
     ;
 
     struct_body =
-        [open]:lbrace
+        #struct_body [open]:lbrace
         { [member]:struct_member }
         [close]:rbrace
     ;
@@ -476,7 +476,7 @@ ast
     ;
 
     field_decl =
-        [type]:type_spec
+        #field_decl [type]:type_spec
         [sym]:identifier
         [semi]:semicolon
     ;
@@ -531,16 +531,17 @@ ast
     ;
 
     param_sep =
-        [commaTok]:comma [rest]:param
+        #sep [commaTok]:comma [rest]:param
     ;
 
     param =
-        [type]:type_spec
+        #param [type]:type_spec
         [sym]:identifier
     ;
 
     type_spec =
-        #voidType [voidKw]:kw_void { [ptr]:star }
+        #pointers { [ptr]:star }
+      | #voidType [voidKw]:kw_void { [ptr]:star }
       | #bool [boolKw]:kw_bool { [ptr]:star }
       | #int8 [int8Kw]:kw_int8 { [ptr]:star }
       | #int16 [int16Kw]:kw_int16 { [ptr]:star }
@@ -559,7 +560,7 @@ ast
     ;
 
     block =
-        [open]:lbrace
+        #block [open]:lbrace
         { statement }
         [close]:rbrace
     ;
@@ -586,7 +587,7 @@ ast
     ;
 
     expr_sep =
-        [commaTok]:comma [rest]:expression
+        #sep [commaTok]:comma [rest]:expression
     ;
 
     for_init =
@@ -763,10 +764,10 @@ transform
       | #statement pass(stmt) ;
 
     qualified_name ->
-        #main qualified_name.#qualified_name(head, qualified_name$repeat_1) ;
+        #main qualified_name.#qualified_name(head, qualified_name$repeat_0) ;
 
-    qualified_name$repeat_1 ->
-        #main flatten(qualified_name.#qualified_name, name_part, qualified_name$repeat_1) ;
+    qualified_name$repeat_0 ->
+        #main flatten(qualified_name.#qualified_name, name_part, qualified_name$repeat_0) ;
 
     name_part ->
         #main name_part.#part(dotTok, part) ;
@@ -799,9 +800,6 @@ transform
 
     param_list ->
         #main flatten(param_list.#list, first, param_list$repeat_0) ;
-
-    param_list$repeat_0 ->
-        #main flatten(param_list.#list, param_sep, param_list$repeat_0) ;
 
     param_sep ->
         #main param_sep.#sep(commaTok, rest) ;
@@ -853,9 +851,6 @@ transform
 
     init_list ->
         #main flatten(init_list.#list, first, init_list$repeat_0) ;
-
-    init_list$repeat_0 ->
-        #main flatten(init_list.#list, expr_sep, init_list$repeat_0) ;
 
     expr_sep ->
         #main expr_sep.#sep(commaTok, rest) ;
@@ -973,9 +968,6 @@ transform
 
     arg_list ->
         #main flatten(arg_list.#list, first, arg_list$repeat_0) ;
-
-    arg_list$repeat_0 ->
-        #main flatten(arg_list.#list, expr_sep, arg_list$repeat_0) ;
 
     primary_expr ->
         #ident pass(sym)

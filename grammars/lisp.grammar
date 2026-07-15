@@ -51,16 +51,17 @@ grammar
 
 ast
     program =
-        { form }
+        #program { form }
     ;
 
     form =
         #list list
       | #atom atom
+      | #elements { form }
     ;
 
     list =
-        [open]:lpar
+        #list [open]:lpar
         { [element]:form }
         [close]:rpar
     ;

@@ -112,7 +112,7 @@ grammar
 
 ast
     program =
-        { line }
+        #program { line }
     ;
 
     line =
@@ -122,7 +122,7 @@ ast
     ;
 
     directive =
-        [dotTok]:dot
+        #directive [dotTok]:dot
         [sym]:identifier
         [value]:hex_number
     ;

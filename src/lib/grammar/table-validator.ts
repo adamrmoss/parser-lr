@@ -155,13 +155,39 @@ function validateTransformProductionExists(
     issues: TableValidationIssue[],
 ): void
 {
-    if (!bnfProductionNames.has(rule.production))
+    // Accept direct production names.
+    if (bnfProductionNames.has(rule.production))
+    {
+        return;
+    }
+
+    // Match authored `$repeat_0` aliases to globally numbered repeats.
+    const repeatPrefix = syntheticRepeatPrefix(rule.production);
+    const matchesRepeat = repeatPrefix !== null
+        && [...bnfProductionNames].some(
+            (productionName) => syntheticRepeatPrefix(productionName) === repeatPrefix,
+        );
+
+    if (!matchesRepeat)
     {
         issues.push({
             severity: 'error',
             message: `transform rule for unknown production ${JSON.stringify(rule.production)}`,
         });
     }
+}
+
+/**
+ * Returns the stable prefix of a numbered synthetic repeat production.
+ *
+ * @param name - Production or transform-rule name.
+ * @returns Prefix ending in `$repeat`, or null for a regular production.
+ */
+function syntheticRepeatPrefix(name: string): string | null
+{
+    const match = /^(.+\$repeat)_\d+$/.exec(name);
+
+    return match?.[1] ?? null;
 }
 
 /**

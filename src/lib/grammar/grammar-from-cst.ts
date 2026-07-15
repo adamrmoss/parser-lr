@@ -632,9 +632,12 @@ function parseExpressionNode(node: AstNode): Expression
  */
 function parseChoice(node: AstNode): Expression
 {
+    // Parse each labeled or unlabeled alternative.
     const alternatives = collectAlternatives(node).map(parseLabeledAlternative);
 
-    if (alternatives.length === 1)
+    // Collapse a sole unlabeled alternative; keep labeled singles as a choice
+    // so AST / transform variants remain visible to validation and consumers.
+    if (alternatives.length === 1 && alternatives[0]!.label === null)
     {
         return alternatives[0]!.expression;
     }

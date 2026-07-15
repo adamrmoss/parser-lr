@@ -4693,110 +4693,16 @@
         {
             "name": "grammar_file",
             "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "name_decl"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "section"
-                        }
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "start_decl"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "grammar_section"
-                    },
-                    {
-                        "kind": "optional",
-                        "element": {
-                            "kind": "reference",
-                            "name": "ast_section"
-                        }
-                    },
-                    {
-                        "kind": "optional",
-                        "element": {
-                            "kind": "reference",
-                            "name": "transform_section"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "name_decl",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "name_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "grammar_name"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "grammar_name",
-            "expression": {
                 "kind": "choice",
                 "alternatives": [
                     {
-                        "label": null,
+                        "label": "sections",
                         "expression": {
-                            "kind": "reference",
-                            "name": "identifier"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "string_literal"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "section",
-            "expression": {
-                "kind": "choice",
-                "alternatives": [
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "token_section"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "skip_section"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "states_section"
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "section"
+                            }
                         }
                     }
                 ]
@@ -4805,21 +4711,16 @@
         {
             "name": "token_section",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "tokens_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "token_def"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "token_def"
+                        "label": "definitions",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "token_def"
+                            }
                         }
                     }
                 ]
@@ -4828,109 +4729,17 @@
         {
             "name": "skip_section",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "skip_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "token_def"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "token_def"
+                        "label": "definitions",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "token_def"
+                            }
                         }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "states_section",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "states_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "state_name"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "comma"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "state_name"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "token_def",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "equal"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "regex_literal"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "state_name",
-            "expression": {
-                "kind": "reference",
-                "name": "identifier"
-            }
-        },
-        {
-            "name": "start_decl",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "start_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
                     }
                 ]
             }
@@ -4938,21 +4747,16 @@
         {
             "name": "grammar_section",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "grammar_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "production"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "production"
+                        "label": "productions",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "production"
+                            }
                         }
                     }
                 ]
@@ -4961,21 +4765,16 @@
         {
             "name": "ast_section",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "ast_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "ast_type"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "ast_type"
+                        "label": "types",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "ast_type"
+                            }
                         }
                     }
                 ]
@@ -4984,70 +4783,17 @@
         {
             "name": "transform_section",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "transform_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "transform_rule"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "transform_rule"
+                        "label": "rules",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "transform_rule"
+                            }
                         }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "production",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "equal"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "expression"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "ast_type",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "equal"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "expression"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
                     }
                 ]
             }
@@ -5055,293 +4801,17 @@
         {
             "name": "transform_rule",
             "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "arrow"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "labeled_transform"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "bar"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "labeled_transform"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "semicolon"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "labeled_transform",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "hash"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "transform_expr"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "transform_expr",
-            "expression": {
                 "kind": "choice",
                 "alternatives": [
                     {
-                        "label": null,
+                        "label": "alternatives",
                         "expression": {
-                            "kind": "reference",
-                            "name": "drop_kw"
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "labeled_transform"
+                            }
                         }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "pass_expr"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "fold_left_expr"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "fold_right_expr"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "flatten_expr"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "build_expr"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "pass_expr",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "pass_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "lpar"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "reference"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rpar"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "fold_left_expr",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "fold_left_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "lpar"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "build_target"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "comma"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "reference_list"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rpar"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "fold_right_expr",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "fold_right_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "lpar"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "build_target"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "comma"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "reference_list"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rpar"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "flatten_expr",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "flatten_kw"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "lpar"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "build_target"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "comma"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "reference"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "comma"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "reference"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rpar"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "build_expr",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "build_target"
-                    },
-                    {
-                        "kind": "optional",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "lpar"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "reference_list"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "rpar"
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "build_target",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "dot"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "hash"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "identifier"
                     }
                 ]
             }
@@ -5349,104 +4819,35 @@
         {
             "name": "reference_list",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "reference"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "comma"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "reference"
-                                }
-                            ]
+                        "label": "references",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "reference"
+                            }
                         }
                     }
                 ]
-            }
-        },
-        {
-            "name": "reference",
-            "expression": {
-                "kind": "reference",
-                "name": "identifier"
-            }
-        },
-        {
-            "name": "expression",
-            "expression": {
-                "kind": "reference",
-                "name": "choice"
             }
         },
         {
             "name": "choice",
             "expression": {
-                "kind": "sequence",
-                "elements": [
+                "kind": "choice",
+                "alternatives": [
                     {
-                        "kind": "reference",
-                        "name": "alternative"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "bar"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "alternative"
-                                }
-                            ]
+                        "label": "alternatives",
+                        "expression": {
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "alternative"
+                            }
                         }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "alternative",
-            "expression": {
-                "kind": "reference",
-                "name": "labeled_alternative"
-            }
-        },
-        {
-            "name": "labeled_alternative",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "optional",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "hash"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "identifier"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "sequence"
                     }
                 ]
             }
@@ -5454,151 +4855,16 @@
         {
             "name": "sequence",
             "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "factor"
-                    },
-                    {
-                        "kind": "repeat",
-                        "element": {
-                            "kind": "reference",
-                            "name": "factor"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "factor",
-            "expression": {
                 "kind": "choice",
                 "alternatives": [
                     {
-                        "label": null,
+                        "label": "factors",
                         "expression": {
-                            "kind": "reference",
-                            "name": "bracketed"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "repeat"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "group"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "primary"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "bracketed",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "lbracket"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "expression"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rbracket"
-                    },
-                    {
-                        "kind": "optional",
-                        "element": {
-                            "kind": "sequence",
-                            "elements": [
-                                {
-                                    "kind": "reference",
-                                    "name": "colon"
-                                },
-                                {
-                                    "kind": "reference",
-                                    "name": "identifier"
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            "name": "repeat",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "lbrace"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "expression"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rbrace"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "group",
-            "expression": {
-                "kind": "sequence",
-                "elements": [
-                    {
-                        "kind": "reference",
-                        "name": "lpar"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "expression"
-                    },
-                    {
-                        "kind": "reference",
-                        "name": "rpar"
-                    }
-                ]
-            }
-        },
-        {
-            "name": "primary",
-            "expression": {
-                "kind": "choice",
-                "alternatives": [
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "string_literal"
-                        }
-                    },
-                    {
-                        "label": null,
-                        "expression": {
-                            "kind": "reference",
-                            "name": "identifier"
+                            "kind": "repeat",
+                            "element": {
+                                "kind": "reference",
+                                "name": "factor"
+                            }
                         }
                     }
                 ]
@@ -5622,7 +4888,7 @@
             ]
         },
         {
-            "production": "token_section$repeat_1",
+            "production": "token_section",
             "alternatives": [
                 {
                     "label": "main",
@@ -5637,7 +4903,7 @@
             ]
         },
         {
-            "production": "skip_section$repeat_2",
+            "production": "skip_section",
             "alternatives": [
                 {
                     "label": "main",
@@ -5652,7 +4918,7 @@
             ]
         },
         {
-            "production": "grammar_section$repeat_4",
+            "production": "grammar_section",
             "alternatives": [
                 {
                     "label": "main",
@@ -5667,7 +4933,7 @@
             ]
         },
         {
-            "production": "ast_section$repeat_5",
+            "production": "ast_section",
             "alternatives": [
                 {
                     "label": "main",
@@ -5682,7 +4948,7 @@
             ]
         },
         {
-            "production": "transform_section$repeat_6",
+            "production": "transform_section",
             "alternatives": [
                 {
                     "label": "main",
@@ -5697,7 +4963,7 @@
             ]
         },
         {
-            "production": "transform_rule$repeat_7",
+            "production": "transform_rule",
             "alternatives": [
                 {
                     "label": "main",
@@ -5712,7 +4978,7 @@
             ]
         },
         {
-            "production": "reference_list$repeat_8",
+            "production": "reference_list",
             "alternatives": [
                 {
                     "label": "main",
@@ -5727,7 +4993,7 @@
             ]
         },
         {
-            "production": "choice$repeat_9",
+            "production": "choice",
             "alternatives": [
                 {
                     "label": "main",
@@ -5742,7 +5008,7 @@
             ]
         },
         {
-            "production": "sequence$repeat_10",
+            "production": "sequence",
             "alternatives": [
                 {
                     "label": "main",

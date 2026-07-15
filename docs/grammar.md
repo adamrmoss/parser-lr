@@ -116,6 +116,19 @@ ast
         #binary [left]:expr [operator]:operator [right]:expr
       | #literal number
       ;
+
+    list =
+        #list { item }
+      ;
+```
+
+Every `type.#variant` referenced from `transform` must appear as a `#variant` label on that AST type, including types with only one alternative:
+
+```ebnf
+ast
+    program =
+        #program { form }
+      ;
 ```
 
 When present, transform rules map parse trees to these types.
@@ -161,9 +174,48 @@ transform
 |-----------|----------|
 | `pass(slot)` | Lift one bound child unchanged. `pass(boundSlot)` preserves the bound production symbol and its `#` variant. `pass(terminalName)` at the same rule may collapse to that terminal. |
 | `build(type.#variant, …)` | Construct an AST node with a fixed shape. Omit absent optional bindings from the argument list. |
-| `flatten(type.#variant, head, tail)` | Turn a `{ repeat }` list into one AST node with ordered children. Use the repeat non-terminal (for example `list$repeat_0`) as `tail` on the head production. |
+| `flatten(type.#variant, head, tail)` | Turn a `head { … }` list into one AST node with ordered children. Prefer putting `flatten` on the **parent** production that owns the required head and the synthetic repeat tail. |
 
-**Production symbols are preserved.** When a CST node has parse-table metadata, transforms keep its production name even if it has only one terminal child. Bare `CLS` through `pass(stmt)` where `[stmt]:cls_stmt` yields an `cls_stmt` node, not `kw_cls`.
+Preferred parent-flatten pattern for a required head plus optional rest:
+
+```ebnf
+grammar
+    list =
+        #list [first]:item { comma [rest]:item }
+      ;
+
+ast
+    list =
+        #list { item }
+      ;
+
+transform
+    list ->
+        #list flatten(list.#list, first, list$repeat_0) ;
+```
+
+Use a `$repeat_*` helper transform when the list is zero-or-more and nested among other fields, or when the parent must `build(...)` a wrapper around the flattened list. The transform language cannot nest `flatten(...)` inside `type.#variant(...)` arguments:
+
+```ebnf
+transform
+    program ->
+        #main pass(program$repeat_0)
+      ;
+
+    program$repeat_0 ->
+        #main flatten(program.#program, item, program$repeat_0)
+      ;
+
+    wrapped_list ->
+        #main wrapped_list.#wrapped(open, wrapped_list$repeat_0, close)
+      ;
+
+    wrapped_list$repeat_0 ->
+        #main flatten(wrapped_list.#items, member, wrapped_list$repeat_0)
+      ;
+```
+
+**Production symbols are preserved.** When a CST node has parse-table metadata, transforms keep its production name even if it has only one terminal child. Bare `CLS` through `pass(stmt)` where `[stmt]:cls_stmt` yields a `cls_stmt` node, not `kw_cls`.
 
 ### Transform contract
 
@@ -195,7 +247,7 @@ Before / after for `CASE IS < 0` with `case_selector = #relational kw_is compari
 Run `parser-lr table validate -g mylang.grammar` to check `ast` / `transform` consistency. The validator:
 
 - warns when `pass(boundSlot)` targets a production that can match a single terminal and has no transform rule;
-- errors when a `build` / `fold` / `flatten` references a `type.#variant` not declared in `ast`;
+- errors when a `build` / `fold` / `flatten` references a `type.#variant` not declared in `ast`, including single-alternative labeled types;
 - warns when a production, `ast` type, or `transform` rule is declared more than once (the later definition silently overrides the earlier one).
 
 Add `--strict` to fail on warnings in CI.
