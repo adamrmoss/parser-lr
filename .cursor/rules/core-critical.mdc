@@ -10,6 +10,7 @@ alwaysApply: true
 - Never assume work is complete without verification
 - Never create generic folders like `controllers/`, `views/`, `services/`
 - Follow **`comments.mdc`** for in-source comments and TSDoc; **`documentation.mdc`** for READMEs and `docs/`
+- Follow **`cli-diagnostics.mdc`** for CLI error/warning formatting (path:line:column when a source offset is known)
 - Never run terminal commands or add npm dependencies without explicit user approval — see **`human-in-the-loop.mdc`**
 
 ## Required actions

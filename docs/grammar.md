@@ -98,6 +98,23 @@ expr =
   ;
 ```
 
+An explicitly labeled alternative may contain zero factors. It matches the
+empty input while preserving its label as the CST variant:
+
+```ebnf
+optional_color =
+    #absent
+  | #present kw_with expression
+  ;
+```
+
+Zero-factor alternatives must have a label; an unlabeled empty production such
+as `optional_color = ;` is not valid.
+
+Labeled empty alternatives are first-class CST nodes: `{ symbol, variant, children: [] }`.
+Synthetic unlabeled epsilons created for `{…}` and `[…]` desugaring remain scaffolding
+and are dropped by default transforms and flatten/fold walks.
+
 ### Production syntax
 
 Each production ends with a semicolon:
@@ -115,6 +132,19 @@ ast
     expr =
         #binary [left]:expr [operator]:operator [right]:expr
       | #literal number
+      ;
+
+    list =
+        #list { item }
+      ;
+```
+
+Every `type.#variant` referenced from `transform` must appear as a `#variant` label on that AST type, including types with only one alternative:
+
+```ebnf
+ast
+    program =
+        #program { form }
       ;
 ```
 
@@ -145,6 +175,22 @@ transform
 
 `type.#variant` refers to an AST type and variant from the `ast` section. Arguments are binding names from the parse production.
 
+Use a build target without parentheses for a zero-argument transform:
+
+```ebnf
+ast
+    optional_color =
+        #absent
+      | #present expression
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent
+      | #present optional_color.#present(expression)
+      ;
+```
+
 Example (calculator):
 
 ```ebnf
@@ -161,9 +207,48 @@ transform
 |-----------|----------|
 | `pass(slot)` | Lift one bound child unchanged. `pass(boundSlot)` preserves the bound production symbol and its `#` variant. `pass(terminalName)` at the same rule may collapse to that terminal. |
 | `build(type.#variant, …)` | Construct an AST node with a fixed shape. Omit absent optional bindings from the argument list. |
-| `flatten(type.#variant, head, tail)` | Turn a `{ repeat }` list into one AST node with ordered children. Use the repeat non-terminal (for example `list$repeat_0`) as `tail` on the head production. |
+| `flatten(type.#variant, head, tail)` | Turn a `head { … }` list into one AST node with ordered children. Prefer putting `flatten` on the **parent** production that owns the required head and the synthetic repeat tail. |
 
-**Production symbols are preserved.** When a CST node has parse-table metadata, transforms keep its production name even if it has only one terminal child. Bare `CLS` through `pass(stmt)` where `[stmt]:cls_stmt` yields an `cls_stmt` node, not `kw_cls`.
+Preferred parent-flatten pattern for a required head plus optional rest:
+
+```ebnf
+grammar
+    list =
+        #list [first]:item { comma [rest]:item }
+      ;
+
+ast
+    list =
+        #list { item }
+      ;
+
+transform
+    list ->
+        #list flatten(list.#list, first, list$repeat_0) ;
+```
+
+Use a `$repeat_*` helper transform when the list is zero-or-more and nested among other fields, or when the parent must `build(...)` a wrapper around the flattened list. The transform language cannot nest `flatten(...)` inside `type.#variant(...)` arguments:
+
+```ebnf
+transform
+    program ->
+        #main pass(program$repeat_0)
+      ;
+
+    program$repeat_0 ->
+        #main flatten(program.#program, item, program$repeat_0)
+      ;
+
+    wrapped_list ->
+        #main wrapped_list.#wrapped(open, wrapped_list$repeat_0, close)
+      ;
+
+    wrapped_list$repeat_0 ->
+        #main flatten(wrapped_list.#items, member, wrapped_list$repeat_0)
+      ;
+```
+
+**Production symbols are preserved.** When a CST node has parse-table metadata, transforms keep its production name even if it has only one terminal child. Bare `CLS` through `pass(stmt)` where `[stmt]:cls_stmt` yields a `cls_stmt` node, not `kw_cls`.
 
 ### Transform contract
 
@@ -172,9 +257,9 @@ The transformer applies these rules to every CST node:
 | Situation | Behavior |
 |-----------|----------|
 | `pass(slot)` | Preserve the bound production's symbol and `#` variant; never collapse to its sole terminal child. |
-| No transform rule for production `P` | Emit an identity node `{ symbol: P, variant, children }`. A named non-terminal is kept even when it has a single child; the child is not hoisted in its place. |
-| `build(type.#variant, …)` | Absent optional bindings are omitted from `children`, not shifted into other slots. |
-| `flatten(type.#list, head, tail)` | Repeat tails produce no empty placeholder nodes and drop no items. |
+| No transform rule for production `P` | Emit an identity node `{ symbol: P, variant, children }`. A named non-terminal is kept even when it has a single child; the child is not hoisted in its place. Authored labeled epsilons (`#absent`) keep identity with empty children; synthetic unlabeled epsilons are dropped. |
+| `build(type.#variant, …)` | Absent optional bindings are omitted from `children`, not shifted into other slots. `table validate` rejects arguments on zero-factor alternatives (`#absent`) and empty builds that target a non-empty AST variant; it does not require argument count to match grammar or AST slot counts. |
+| `flatten(type.#list, head, tail)` | Repeat tails produce no empty placeholder nodes and drop no items. Synthetic unlabeled epsilons terminate the list. |
 
 **Nested non-terminals stay wrapped.** A production referenced inside another production keeps its own node, so consumers match the grammar non-terminal (for example `comparison_op`) rather than a lexer token name (`less`). To retain a token *inside* that wrapper, bind it: write `comparison_op = #less [tok]:less` and reference `tok` from the transform. Without the binding, `build(comparison_op.#less, tok)` has no slot to read and the child is dropped.
 
@@ -195,7 +280,7 @@ Before / after for `CASE IS < 0` with `case_selector = #relational kw_is compari
 Run `parser-lr table validate -g mylang.grammar` to check `ast` / `transform` consistency. The validator:
 
 - warns when `pass(boundSlot)` targets a production that can match a single terminal and has no transform rule;
-- errors when a `build` / `fold` / `flatten` references a `type.#variant` not declared in `ast`;
+- errors when a `build` / `fold` / `flatten` references a `type.#variant` not declared in `ast`, including single-alternative labeled types;
 - warns when a production, `ast` type, or `transform` rule is declared more than once (the later definition silently overrides the earlier one).
 
 Add `--strict` to fail on warnings in CI.

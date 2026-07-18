@@ -8,6 +8,10 @@ import type { ParseTable } from '../parse-table/parse-table.js';
 import { mergeChildLocations } from '../shift-reduce/shift-reduce-engine.js';
 
 import { productionSlots, referenceSlotIndex, repeatSymbolPrefix, type ProductionSlot } from './binding-map.js';
+import {
+    isAuthoredEpsilonNode,
+    isSyntheticEpsilonNode,
+} from './epsilon-node.js';
 
 /**
  * Applies CST-to-AST transform rules to a concrete syntax tree.
@@ -190,7 +194,8 @@ export class CstTransformer
                     return null;
                 }
 
-                if (this.isEpsilonNode(childNode))
+                // Drop synthetic unlabeled epsilons; keep authored `#label` empty alts.
+                if (isSyntheticEpsilonNode(childNode, this.table))
                 {
                     continue;
                 }
@@ -250,7 +255,7 @@ export class CstTransformer
         );
         let tail = this.findRepeatTail(node, slots);
 
-        while (tail !== null && !this.isEpsilonNode(tail))
+        while (tail !== null && !isSyntheticEpsilonNode(tail, this.table))
         {
             const tailSlots = this.resolveReferences(tail, expression.references);
 
@@ -297,7 +302,7 @@ export class CstTransformer
         }[] = [];
         let current: AstNode | null = node;
 
-        while (current !== null && !this.isEpsilonNode(current))
+        while (current !== null && !isSyntheticEpsilonNode(current, this.table))
         {
             const leftRef = expression.references[0];
             const operatorRef = expression.references[1];
@@ -369,7 +374,7 @@ export class CstTransformer
         const items: AstNode[] = [];
         let current: AstNode | null = node;
 
-        while (current !== null && !this.isEpsilonNode(current))
+        while (current !== null && !isSyntheticEpsilonNode(current, this.table))
         {
             const head = this.transformFlattenHead(current, expression.head);
 
@@ -381,7 +386,7 @@ export class CstTransformer
             items.push(head);
             const tail = this.resolveReferenceNode(current, expression.tail);
 
-            if (tail === null || this.isEpsilonNode(tail))
+            if (tail === null || isSyntheticEpsilonNode(tail, this.table))
             {
                 break;
             }
@@ -446,11 +451,27 @@ export class CstTransformer
     /**
      * Transforms a CST node without explicit transform rules.
      *
+     * @remarks
+     * Authored labeled epsilon alternatives (`#absent`) keep their identity.
+     * Synthetic unlabeled epsilons from `{…}` / `[…]` desugaring are dropped.
+     *
      * @param node - CST node to pass through or unwrap.
      */
     private defaultTransform(node: AstNode): AstNode | null
     {
-        if (this.isEpsilonNode(node))
+        // Authored `#label` empty alternatives are first-class nodes.
+        if (isAuthoredEpsilonNode(node, this.table))
+        {
+            return AstNode.rule(
+                node.symbol,
+                [],
+                node.location,
+                node.variant,
+            );
+        }
+
+        // Synthetic unlabeled epsilons are scaffolding, not AST content.
+        if (isSyntheticEpsilonNode(node, this.table))
         {
             return null;
         }
@@ -643,28 +664,6 @@ export class CstTransformer
         }
 
         return null;
-    }
-
-    /**
-     * Returns whether a CST node represents an epsilon production.
-     *
-     * @param node - CST node to test.
-     */
-    private isEpsilonNode(node: AstNode): boolean
-    {
-        if (node.isTerminal)
-        {
-            return false;
-        }
-
-        if (node.children.length > 0)
-        {
-            return false;
-        }
-
-        const production = this.productionFor(node);
-
-        return production !== null && production.rhs.length === 0;
     }
 
     /**

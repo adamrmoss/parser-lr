@@ -2,8 +2,123 @@ import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { parseContextFromGrammar } from '../grammar-entry.js';
+import {
+    parseContextFromGrammar,
+    readGrammar,
+    validateGrammarTable,
+} from '../grammar-entry.js';
+import type { LrAlgorithm } from '../parse-table/lr-algorithm.js';
 import { ParseContext } from '../parse-context.js';
+import { desugarEbnf } from '../parse-table/bnf/desugar-ebnf.js';
+import { analyzeGrammar } from '../parse-table/analysis/first-follow.js';
+import { EOF_TOKEN_NAME } from '../lexer/token.js';
+import { TransformSchema } from '../grammar/transform-schema.js';
+import { transformCst } from './cst-transformer.js';
+
+const optionalColorGrammarSource = `
+name "optional-color" ;
+
+tokens
+    kw_with = /with/ ;
+    color = /[a-z]+/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start optional_color ;
+
+grammar
+    optional_color =
+        #absent
+      | #present kw_with [value]:color
+      ;
+
+ast
+    optional_color =
+        #absent
+      | #present [value]:color
+      ;
+
+transform
+    optional_color ->
+        #absent optional_color.#absent
+      | #present optional_color.#present(value)
+      ;
+`;
+
+describe('labeled zero-factor transform pipeline', () =>
+{
+    const algorithms: readonly LrAlgorithm[] = ['lr0', 'slr', 'lalr', 'lr1'];
+
+    it.each(algorithms)('preserves the epsilon variant under %s', (algorithm) =>
+    {
+        const grammar = readGrammar(optionalColorGrammarSource);
+        const context = parseContextFromGrammar(optionalColorGrammarSource, algorithm);
+        const cst = context.parser.parseCst(context.lex(''));
+        const ast = context.parseSource('');
+
+        expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
+        expect(cst?.symbol).toBe('optional_color');
+        expect(cst?.variant).toBe('absent');
+        expect(cst?.children).toEqual([]);
+        expect(ast?.symbol).toBe('optional_color');
+        expect(ast?.variant).toBe('absent');
+        expect(ast?.children).toEqual([]);
+    });
+
+    it.each(algorithms)('preserves epsilon through table JSON under %s', (algorithm) =>
+    {
+        const fromGrammar = parseContextFromGrammar(optionalColorGrammarSource, algorithm);
+        const fromTable = ParseContext.fromTableJson(fromGrammar.table.toJsonString());
+        const absent = fromTable.parseSource('');
+        const present = fromTable.parseSource('with blue');
+
+        expect(absent?.symbol).toBe('optional_color');
+        expect(absent?.variant).toBe('absent');
+        expect(absent?.children).toEqual([]);
+        expect(present?.symbol).toBe('optional_color');
+        expect(present?.variant).toBe('present');
+        expect(present?.children[0]?.text).toBe('blue');
+    });
+
+    it('keeps labeled epsilon identity when no explicit transform rule exists', () =>
+    {
+        const context = parseContextFromGrammar(optionalColorGrammarSource, 'lr1');
+        const cst = context.parser.parseCst(context.lex(''));
+        const ast = transformCst(cst, new TransformSchema([]), context.table);
+
+        expect(cst?.variant).toBe('absent');
+        expect(ast?.symbol).toBe('optional_color');
+        expect(ast?.variant).toBe('absent');
+        expect(ast?.children).toEqual([]);
+    });
+
+    it('drops synthetic unlabeled epsilons from flatten while keeping authored labels', () =>
+    {
+        const grammarSource = readFileSync(
+            join(process.cwd(), 'grammars/fixtures/flatten-repeat/flatten-repeat.grammar'),
+            'utf8',
+        );
+        const context = parseContextFromGrammar(grammarSource, 'lr1');
+        const ast = context.parseSource('a');
+
+        expect(ast?.symbol).toBe('list');
+        expect(ast?.variant).toBe('list');
+        expect(ast?.children).toHaveLength(1);
+        expect(ast?.children[0]?.symbol).toBe('item');
+    });
+
+    it('treats labeled epsilon as nullable in FIRST/FOLLOW analysis', () =>
+    {
+        const grammar = readGrammar(optionalColorGrammarSource);
+        const bnf = desugarEbnf(grammar).augment();
+        const analysis = analyzeGrammar(bnf);
+
+        expect(analysis.isNullable('optional_color')).toBe(true);
+        expect([...analysis.firstOfNonTerminal('optional_color')].sort()).toEqual(['$eof', 'kw_with']);
+        expect([...analysis.followOfNonTerminal('optional_color')].sort()).toEqual([EOF_TOKEN_NAME]);
+    });
+});
 
 describe('calc.grammar transform pipeline', () =>
 {

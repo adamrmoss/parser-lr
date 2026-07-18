@@ -1,0 +1,48 @@
+---
+description: CLI diagnostics must include source line and column when available
+globs: src/cli/**/*.ts,src/lib/diagnostics/**/*.ts,src/lib/grammar/table-validator.ts
+alwaysApply: true
+---
+
+# CLI diagnostics
+
+All parser-lr CLI diagnostics that refer to a source file must include **line and column** whenever an offset is known.
+
+## Required format
+
+Use the shared formatter [`formatDiagnostic`](src/lib/diagnostics/format-diagnostic.ts):
+
+```text
+path:line:column: severity: message
+```
+
+Examples:
+
+```text
+grammars/ferrite.grammar:42:5: error: transform references undefined ast type "Expr"
+program.fe:12:9: error: Unexpected plus
+lang.grammar:8:1: warning: duplicate transform rule "expr"; the later definition overrides the earlier one
+```
+
+When only a path is known (no offset):
+
+```text
+path: severity: message
+```
+
+When there is no source file (missing flags, unsupported algorithms, I/O errors), a bare `severity: message` or plain message is acceptable.
+
+## Rules
+
+1. Prefer `formatDiagnostic` over hand-built `error:` / `warning:` strings in CLI code
+2. Pass the file `path` and full `source` text whenever formatting an offset-bearing failure (`ReadGrammarError`, `LexerError`, validation issues, parse syntax errors)
+3. Put locations on validation issues and grammar model nodes (`Production`, `AstType`, `TransformRule`, `TransformAlternative`) so diagnostics can point at the declaration
+4. Do not encode position only as `at offset N` in user-facing CLI output; convert offsets to line/column
+5. Inspect `issue.severity` for exit codes; do not parse formatted diagnostic prefixes
+6. Future CLI commands must follow this format from day one
+7. LR conflict warnings are state-based; format them with `warning:` via `formatDiagnostic`. Attach file locations only when a reduce production can be mapped back to authored grammar source
+
+## Library vs CLI
+
+- Keep `SourceLocation` as `{ offset, length }` in the model
+- Compute line/column only when formatting diagnostics for display

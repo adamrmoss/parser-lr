@@ -1,9 +1,11 @@
 import { Command } from 'commander';
 
+import { formatDiagnostic } from '../../lib/diagnostics/format-diagnostic.js';
 import { parseContextFromGrammar } from '../../lib/grammar-entry.js';
-import { formatParseOutput } from '../../lib/index.js';
+import { formatParseOutput, ParserLrError } from '../../lib/index.js';
 import { ParseContext } from '../../lib/parse-context.js';
 
+import { locateSourceError } from '../locate-source-error.js';
 import { readTextChunks, readTextFile, writeTextFile } from '../io.js';
 import { logProgress } from '../progress.js';
 
@@ -36,13 +38,26 @@ export function registerParseCommand(program: Command): void
             const context = await loadContextFromPaths(options);
 
             logProgress(`lexing ${options.input}`);
-            const tokens = await context.lexChunkStreamAsync(readTextChunks(options.input));
+            const tokens = await lexInputFile(context, options.input);
 
             logProgress('parsing');
-            const tree = context.parse(tokens);
+            const result = context.parseResult(tokens);
+
+            if (result.tree === null)
+            {
+                const source = await readTextFile(options.input);
+
+                throw new ParserLrError(formatDiagnostic({
+                    severity: 'error',
+                    message: result.errorMessage ?? 'Parse failed',
+                    path: options.input,
+                    source,
+                    offset: result.errorOffset,
+                }));
+            }
 
             logProgress(`formatting output (${options.format})`);
-            const output = formatParseOutput(tree, options.format);
+            const output = formatParseOutput(result.tree, options.format);
 
             // Write output to disk or stdout.
             if (options.output !== undefined)
@@ -68,6 +83,26 @@ interface ParseOptions
 }
 
 /**
+ * Lexes an input file and rewrites offset-bearing lexer failures with line numbers.
+ *
+ * @param context - Loaded parse context.
+ * @param path - Input file path.
+ */
+async function lexInputFile(context: ParseContext, path: string)
+{
+    try
+    {
+        return await context.lexChunkStreamAsync(readTextChunks(path));
+    }
+    catch (error)
+    {
+        const source = await readTextFile(path);
+
+        throw locateSourceError(error, path, source);
+    }
+}
+
+/**
  * Reads grammar or table files and builds a parse context.
  *
  * @param options - CLI paths for grammar or table input.
@@ -80,8 +115,16 @@ async function loadContextFromPaths(options: ParseOptions): Promise<ParseContext
         logProgress(`reading grammar ${options.grammar}`);
         const grammarSource = await readTextFile(options.grammar);
 
-        logProgress('building parse table');
-        return parseContextFromGrammar(grammarSource);
+        try
+        {
+            logProgress('building parse table');
+
+            return parseContextFromGrammar(grammarSource);
+        }
+        catch (error)
+        {
+            throw locateSourceError(error, options.grammar, grammarSource);
+        }
     }
 
     logProgress(`reading table ${options.table}`);

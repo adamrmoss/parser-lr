@@ -352,7 +352,7 @@ function parseProduction(node: AstNode): Production
     const name = identifierText(requireChild(node, 'identifier'));
     const expression = parseExpressionNode(findExpressionChild(node));
 
-    return { name, expression };
+    return { name, expression, location: node.location };
 }
 
 /**
@@ -365,7 +365,7 @@ function parseAstType(node: AstNode): AstType
     const name = identifierText(requireChild(node, 'identifier'));
     const expression = parseExpressionNode(findExpressionChild(node));
 
-    return { name, expression };
+    return { name, expression, location: node.location };
 }
 
 /**
@@ -380,6 +380,7 @@ function parseTransformRule(node: AstNode): TransformRule
     return {
         production,
         alternatives: collectRepeated(node, 'labeled_transform').map(parseLabeledTransform),
+        location: node.location,
     };
 }
 
@@ -393,7 +394,7 @@ function parseLabeledTransform(node: AstNode): TransformAlternative
     const label = identifierText(requireChild(node, 'identifier'));
     const expression = parseTransformExpr(requireChild(node, 'transform_expr'));
 
-    return { label, expression };
+    return { label, expression, location: node.location };
 }
 
 /**
@@ -632,9 +633,12 @@ function parseExpressionNode(node: AstNode): Expression
  */
 function parseChoice(node: AstNode): Expression
 {
+    // Parse each labeled or unlabeled alternative.
     const alternatives = collectAlternatives(node).map(parseLabeledAlternative);
 
-    if (alternatives.length === 1)
+    // Collapse a sole unlabeled alternative; keep labeled singles as a choice
+    // so AST / transform variants remain visible to validation and consumers.
+    if (alternatives.length === 1 && alternatives[0]!.label === null)
     {
         return alternatives[0]!.expression;
     }
@@ -656,11 +660,13 @@ function parseLabeledAlternative(node: AstNode): Alternative
     const label = labelNode === null || findChild(node, 'hash') === null
         ? null
         : identifierText(labelNode);
-    const sequence = requireChild(node, 'sequence');
+    const sequence = findChild(node, 'sequence');
 
     return {
         label,
-        expression: parseSequence(sequence),
+        expression: sequence === null
+            ? { kind: 'sequence', elements: [] }
+            : parseSequence(sequence),
     };
 }
 

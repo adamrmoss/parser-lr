@@ -1,3 +1,5 @@
+import type { SourceLocation } from '../ast/ast-node.js';
+
 import type { TransformExpression } from './transform-expression.js';
 
 /**
@@ -7,6 +9,7 @@ export interface TransformAlternative
 {
     readonly label: string;
     readonly expression: TransformExpression;
+    readonly location?: SourceLocation | null;
 }
 
 /**
@@ -16,4 +19,5 @@ export interface TransformRule
 {
     readonly production: string;
     readonly alternatives: readonly TransformAlternative[];
+    readonly location?: SourceLocation | null;
 }

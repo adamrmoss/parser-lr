@@ -3,6 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { readGrammar } from './read-grammar.js';
+import { validateGrammarTable } from './table-validator.js';
 
 const grammarsDirectory = join(process.cwd(), 'grammars');
 
@@ -72,6 +73,30 @@ describe('grammars/', () =>
             expect(grammar.astSchema).not.toBeNull();
             expect(grammar.transformSchema).not.toBeNull();
             expect(grammar.transformSchema?.rule('grammar_file$repeat_0')).toBeDefined();
+            expect(grammar.transformSchema?.rule('token_section')).toBeDefined();
+            expect(grammar.transformSchema?.rule('token_section$repeat_1')).toBeNull();
+            expect(grammar.astSchema?.type('token_section')?.expression).toEqual({
+                kind: 'choice',
+                alternatives: [
+                    {
+                        label: 'definitions',
+                        expression: {
+                            kind: 'repeat',
+                            element: {
+                                kind: 'reference',
+                                name: 'token_def',
+                            },
+                        },
+                    },
+                ],
+            });
+        });
+
+        it('validates without transform errors', () =>
+        {
+            const issues = validateGrammarTable(grammar);
+
+            expect(issues.filter((issue) => issue.severity === 'error')).toEqual([]);
         });
     });
 
@@ -108,83 +133,24 @@ describe('grammars/', () =>
             ]);
         });
 
-        it('defines list and atom productions', () =>
+        it('defines labeled program AST and validate-clean transforms', () =>
         {
-            expect(grammar.production('program')?.expression).toEqual({
-                kind: 'repeat',
-                element: {
-                    kind: 'boundReference',
-                    binding: 'item',
-                    name: 'form',
-                },
-            });
-            expect(grammar.production('form')?.expression).toEqual({
+            expect(grammar.astSchema?.type('program')?.expression).toEqual({
                 kind: 'choice',
                 alternatives: [
                     {
-                        label: 'list',
-                        expression: { kind: 'reference', name: 'list' },
-                    },
-                    {
-                        label: 'atom',
-                        expression: { kind: 'reference', name: 'atom' },
-                    },
-                ],
-            });
-            expect(grammar.production('list')?.expression).toEqual({
-                kind: 'sequence',
-                elements: [
-                    {
-                        kind: 'boundReference',
-                        binding: 'open',
-                        name: 'lpar',
-                    },
-                    {
-                        kind: 'repeat',
-                        element: {
-                            kind: 'boundReference',
-                            binding: 'element',
-                            name: 'form',
-                        },
-                    },
-                    {
-                        kind: 'boundReference',
-                        binding: 'close',
-                        name: 'rpar',
-                    },
-                ],
-            });
-            expect(grammar.production('atom')?.expression).toEqual({
-                kind: 'choice',
-                alternatives: [
-                    {
-                        label: 'number',
+                        label: 'program',
                         expression: {
-                            kind: 'boundReference',
-                            binding: 'value',
-                            name: 'number',
-                        },
-                    },
-                    {
-                        label: 'symbol',
-                        expression: {
-                            kind: 'boundReference',
-                            binding: 'value',
-                            name: 'symbol',
-                        },
-                    },
-                    {
-                        label: 'string',
-                        expression: {
-                            kind: 'boundReference',
-                            binding: 'value',
-                            name: 'string',
+                            kind: 'repeat',
+                            element: {
+                                kind: 'reference',
+                                name: 'form',
+                            },
                         },
                     },
                 ],
             });
-            expect(grammar.astSchema).not.toBeNull();
-            expect(grammar.transformSchema).not.toBeNull();
+            expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
         });
     });
 
@@ -274,6 +240,7 @@ describe('grammars/', () =>
             ]);
             expect(grammar.astSchema).not.toBeNull();
             expect(grammar.transformSchema).not.toBeNull();
+            expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
         });
 
         it('defines immediate and relative instruction shapes', () =>
@@ -328,12 +295,16 @@ describe('grammars/', () =>
 
         it('defines core declaration and expression productions', () =>
         {
+            expect(grammar.hasProduction('file_namespace')).toBe(true);
+            expect(grammar.hasProduction('using_directive')).toBe(true);
+            expect(grammar.hasProduction('access_modifier')).toBe(true);
             expect(grammar.hasProduction('top_decl')).toBe(true);
             expect(grammar.hasProduction('struct_decl')).toBe(true);
             expect(grammar.hasProduction('function_decl')).toBe(true);
             expect(grammar.hasProduction('type_spec')).toBe(true);
             expect(grammar.hasProduction('assignment_expr')).toBe(true);
             expect(grammar.hasProduction('postfix_suffix')).toBe(true);
+            expect(grammar.hasProduction('namespace_body')).toBe(false);
         });
 
         it('defines ast and transform sections', () =>
@@ -341,6 +312,20 @@ describe('grammars/', () =>
             expect(grammar.astSchema).not.toBeNull();
             expect(grammar.transformSchema).not.toBeNull();
             expect(grammar.transformSchema?.rule('program$repeat_0')).toBeDefined();
+            expect(grammar.transformSchema?.rule('program$repeat_1')).toBeDefined();
+            expect(grammar.transformSchema?.rule('param_list')).toBeDefined();
+            expect(grammar.transformSchema?.rule('param_list$repeat_0')).toBeNull();
+            expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
+        });
+
+        it('loads visibility and PascalCase built-in tokens', () =>
+        {
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_public')?.pattern).toBe('public');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_private')?.pattern).toBe('private');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_int32')?.pattern).toBe('Int32');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_uint8')?.pattern).toBe('UInt8');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_void')?.pattern).toBe('Void');
+            expect(grammar.tokenRules.find((rule) => rule.name === 'kw_float64')?.pattern).toBe('Float64');
         });
 
         it('loads numeric literals with documented regex suffix flags', () =>

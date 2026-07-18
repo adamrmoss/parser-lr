@@ -22,25 +22,25 @@ function readFerriteGrammarSource(): string
 }
 
 /**
- * Wraps Ferrite statements in a void function body for top-level program parsing.
+ * Wraps Ferrite statements in a private Void function body for top-level program parsing.
  *
  * @param body - Statement list inside the function block.
  * @returns A complete Ferrite program.
  */
 function inVoidFunction(body: string): string
 {
-    return `void _test() { ${body} }`;
+    return `private Void test() { ${body} }`;
 }
 
 /**
- * Wraps Ferrite statements in an int32 function body for top-level program parsing.
+ * Wraps Ferrite statements in a private Int32 function body for top-level program parsing.
  *
  * @param body - Statement list inside the function block.
  * @returns A complete Ferrite program.
  */
 function inInt32Function(body: string): string
 {
-    return `int32 _test() { ${body} }`;
+    return `private Int32 test() { ${body} }`;
 }
 
 describe('ferrite.grammar integration', () =>
@@ -126,7 +126,7 @@ describe('ferrite.grammar integration', () =>
             ['uppercase hex prefix', inInt32Function('return 0XFF;')],
             ['mixed-case hex digits', inInt32Function('return 0xDeadBeef;')],
             ['uppercase binary prefix', inInt32Function('return 0B1010;')],
-            ['uppercase float exponent', 'float64 scale() { return 1.5E10; }'],
+            ['uppercase float exponent', 'private Float64 scale() { return 1.5E10; }'],
         ])('parses %s', (_label, source) =>
         {
             expectFerriteParses(source);
@@ -136,54 +136,71 @@ describe('ferrite.grammar integration', () =>
     describe('types and declarations', () =>
     {
         it.each([
-            ['void function', 'void noop() { return; }'],
-            ['bool parameter', 'bool is_set(bool flag) { return flag; }'],
-            ['int8 parameter', 'int8 clamp(int8 byte) { return byte; }'],
-            ['int16 parameter', 'int16 widen(int16 word) { return word; }'],
-            ['int32 function', 'int32 id(int32 count) { return count; }'],
-            ['int64 literal', 'int64 big() { return 0x7FFFFFFFFFFFFFFF; }'],
-            ['uint8 parameter', 'uint8 max(uint8 ubyte) { return ubyte; }'],
-            ['uint16 parameter', 'uint16 wrap(uint16 uword) { return uword; }'],
-            ['uint32 hex', 'uint32 hash() { return 0xDEADBEEF; }'],
-            ['uint64 zero', 'uint64 zero() { return 0; }'],
-            ['float32 literal', 'float32 pi() { return 3.14; }'],
-            ['float64 literal', 'float64 e() { return 2.71828; }'],
-            ['char literal', "char letter() { return 'x'; }"],
-            ['named type field', 'struct Vec2 { float32 x; float32 y; };'],
-            ['array parameter', 'int32 len(int32[10] buffer) { return 0; }'],
-            ['single pointer param', 'int32 load(int32* p) { return *p; }'],
-            ['double pointer param', 'void store(int32** pp, int32 v) { **pp = v; }'],
-            ['pointer on named type', 'Vec2* origin(Vec2* cursor) { return cursor; }'],
-            ['function prototype', 'int32 abs(int32 x);'],
-            ['function definition', 'int32 twice(int32 x) { return x + x; }'],
-            ['multi-parameter function', 'int32 add(int32 a, int32 b) { return a + b; }'],
+            ['void function', 'private Void noop() { return; }'],
+            ['bool parameter', 'private Bool isSet(Bool flag) { return flag; }'],
+            ['int8 parameter', 'private Int8 clamp(Int8 byte) { return byte; }'],
+            ['int16 parameter', 'private Int16 widen(Int16 word) { return word; }'],
+            ['int32 function', 'private Int32 id(Int32 count) { return count; }'],
+            ['int64 literal', 'private Int64 big() { return 0x7FFFFFFFFFFFFFFF; }'],
+            ['uint8 parameter', 'private UInt8 max(UInt8 ubyte) { return ubyte; }'],
+            ['uint16 parameter', 'private UInt16 wrap(UInt16 uword) { return uword; }'],
+            ['uint32 hex', 'private UInt32 hash() { return 0xDEADBEEF; }'],
+            ['uint64 zero', 'private UInt64 zero() { return 0; }'],
+            ['float32 literal', 'private Float32 pi() { return 3.14; }'],
+            ['float64 literal', 'private Float64 e() { return 2.71828; }'],
+            ['char literal', "private Char letter() { return 'x'; }"],
+            ['named type field', 'private struct Vec2 { Float32 x; Float32 y; };'],
+            ['array parameter', 'private Int32 len(Int32[10] buffer) { return 0; }'],
+            ['single pointer param', 'private Int32 load(Int32* p) { return *p; }'],
+            ['double pointer param', 'private Void store(Int32** pp, Int32 v) { **pp = v; }'],
+            ['pointer on named type', 'private Vec2* origin(Vec2* cursor) { return cursor; }'],
+            ['function prototype', 'public Int32 abs(Int32 x);'],
+            ['function definition', 'public Int32 twice(Int32 x) { return x + x; }'],
+            ['multi-parameter function', 'public Int32 add(Int32 a, Int32 b) { return a + b; }'],
+            ['public struct', 'public struct Point { Int32 x; Int32 y; };'],
+            ['private prototype', 'private Void helper();'],
         ])('parses %s', (_label, source) =>
         {
             expectFerriteParses(source);
         });
     });
 
-    describe('structs and namespaces', () =>
+    describe('file layout', () =>
     {
         it.each([
-            ['empty struct', 'struct Empty { };'],
-            ['struct fields', 'struct Point { int32 x; int32 y; };'],
-            ['struct method', 'struct Counter { int32 n; int32 next() { return n + 1; } };'],
-            ['namespace block', 'namespace Core { int32 version; }'],
-            ['qualified using', 'using Ferrite.Math;'],
-            ['nested qualified name', 'using Ferrite.Math.Vec;'],
+            ['empty file', ''],
+            ['namespace only', 'namespace Internal;'],
+            ['qualified namespace', 'namespace Ferrite.Math;'],
+            ['using only', 'using Ferrite.Math;'],
+            ['nested using', 'using Ferrite.Math.Vec;'],
             [
-                'namespace with struct',
+                'namespace then usings then decls',
                 [
-                    'namespace Ferrite.Math {',
-                    '    struct Vec2 {',
-                    '        float32 x;',
-                    '        float32 y;',
-                    '        float32 dot(Vec2* other) {',
-                    '            return x * other->x + y * other->y;',
-                    '        }',
-                    '    };',
-                    '}',
+                    'namespace Ferrite.Math;',
+                    'using Ferrite.Core;',
+                    'using Ferrite.IO;',
+                    'public struct Vec2 { Float32 x; Float32 y; };',
+                    'public Int32 main() { return 0; }',
+                ].join('\n'),
+            ],
+            [
+                'usings without namespace',
+                [
+                    'using Ferrite.Math;',
+                    'public Int32 main() { return 0; }',
+                ].join('\n'),
+            ],
+            [
+                'namespace with struct method',
+                [
+                    'namespace Ferrite.Math;',
+                    'public struct Vec2 {',
+                    '    Float32 x;',
+                    '    Float32 y;',
+                    '    Float32 dot(Vec2* other) {',
+                    '        return x * other->x + y * other->y;',
+                    '    }',
+                    '};',
                 ].join('\n'),
             ],
         ])('parses %s', (_label, source) =>
@@ -198,10 +215,10 @@ describe('ferrite.grammar integration', () =>
             ['if', inVoidFunction('if (flag) { x = 1; }')],
             ['if else', inVoidFunction('if (flag) { x = 1; } else { x = 2; }')],
             ['while', inVoidFunction('while (running) { step = step + 1; }')],
-            ['for classic', inInt32Function('int32 sum = 0; for (int32 i = 0; i < 10; i = i + 1) { sum = sum + i; } return sum;')],
+            ['for classic', inInt32Function('Int32 sum = 0; for (Int32 i = 0; i < 10; i = i + 1) { sum = sum + i; } return sum;')],
             ['for empty init', inVoidFunction('for (; i < 10; i = i + 1) { }')],
-            ['return value', 'int32 zero() { return 0; }'],
-            ['return void', 'void finish() { return; }'],
+            ['return value', 'private Int32 zero() { return 0; }'],
+            ['return void', 'private Void finish() { return; }'],
             ['break', inVoidFunction('while (true) { break; }')],
             ['continue', inVoidFunction('while (true) { continue; }')],
             ['brace init', inInt32Function('Vec2 v = { 1, 2 }; return 0;')],
@@ -219,17 +236,17 @@ describe('ferrite.grammar integration', () =>
             ['multiplication', inInt32Function('return a * b;')],
             ['division', inInt32Function('return a / b;')],
             ['modulo', inInt32Function('return a % b;')],
-            ['logical or', 'bool either(bool a, bool b) { return a || b; }'],
-            ['logical and', 'bool both(bool a, bool b) { return a && b; }'],
+            ['logical or', 'private Bool either(Bool a, Bool b) { return a || b; }'],
+            ['logical and', 'private Bool both(Bool a, Bool b) { return a && b; }'],
             ['bitwise or', inInt32Function('return a | b;')],
             ['bitwise xor', inInt32Function('return a ^ b;')],
             ['bitwise and', inInt32Function('return a & b;')],
-            ['equality', 'bool eq(int32 a, int32 b) { return a == b; }'],
-            ['inequality', 'bool ne(int32 a, int32 b) { return a != b; }'],
-            ['less than', 'bool lt(int32 a, int32 b) { return a < b; }'],
-            ['greater than', 'bool gt(int32 a, int32 b) { return a > b; }'],
-            ['less or equal', 'bool le(int32 a, int32 b) { return a <= b; }'],
-            ['greater or equal', 'bool ge(int32 a, int32 b) { return a >= b; }'],
+            ['equality', 'private Bool eq(Int32 a, Int32 b) { return a == b; }'],
+            ['inequality', 'private Bool ne(Int32 a, Int32 b) { return a != b; }'],
+            ['less than', 'private Bool lt(Int32 a, Int32 b) { return a < b; }'],
+            ['greater than', 'private Bool gt(Int32 a, Int32 b) { return a > b; }'],
+            ['less or equal', 'private Bool le(Int32 a, Int32 b) { return a <= b; }'],
+            ['greater or equal', 'private Bool ge(Int32 a, Int32 b) { return a >= b; }'],
             ['left shift', inInt32Function('return a << 2;')],
             ['right shift', inInt32Function('return a >> 2;')],
             ['assignment', inVoidFunction('x = 1;')],
@@ -240,9 +257,9 @@ describe('ferrite.grammar integration', () =>
             ['amp assign', inVoidFunction('x &= mask;')],
             ['pipe assign', inVoidFunction('x |= flag;')],
             ['caret assign', inVoidFunction('x ^= mask;')],
-            ['address-of', inInt32Function('int32* p = &x; return *p;')],
+            ['address-of', inInt32Function('Int32* p = &x; return *p;')],
             ['indirection', inInt32Function('return *p;')],
-            ['logical not', 'bool flip(bool flag) { return !flag; }'],
+            ['logical not', 'private Bool flip(Bool flag) { return !flag; }'],
             ['bitwise not', inInt32Function('return ~mask;')],
             ['unary minus', inInt32Function('return -n;')],
             ['unary plus', inInt32Function('return +n;')],
@@ -255,15 +272,15 @@ describe('ferrite.grammar integration', () =>
             ['empty call', inVoidFunction('main();')],
             ['member', inInt32Function('return obj.field;')],
             ['arrow', inInt32Function('return ptr->field;')],
-            ['cast paren', inInt32Function('return (int32)val;')],
+            ['cast paren', inInt32Function('return (Int32)val;')],
             ['hex literal', inInt32Function('return 0xFF;')],
             ['binary literal', inInt32Function('return 0b1010;')],
-            ['float literal', 'float64 scale() { return 1.5e10; }'],
-            ['string literal', 'Text greet() { return "hello"; }'],
-            ['null literal', 'int32* nil() { return null; }'],
-            ['new expression', 'Node* alloc() { return new Node(); }'],
-            ['new with args', 'Node* make() { return new Node(1, 2); }'],
-            ['complex precedence', 'bool ok(int32 a, int32 b, int32 c, int32 d, bool e, bool f) { return a + b * c < d && e || f; }'],
+            ['float literal', 'private Float64 scale() { return 1.5e10; }'],
+            ['string literal', 'private Text greet() { return "hello"; }'],
+            ['null literal', 'private Int32* nil() { return null; }'],
+            ['new expression', 'private Node* alloc() { return new Node(); }'],
+            ['new with args', 'private Node* make() { return new Node(1, 2); }'],
+            ['complex precedence', 'private Bool ok(Int32 a, Int32 b, Int32 c, Int32 d, Bool e, Bool f) { return a + b * c < d && e || f; }'],
         ])('parses %s', (_label, source) =>
         {
             expectFerriteParses(source);
@@ -275,22 +292,25 @@ describe('ferrite.grammar integration', () =>
         it('parses the ferrite header example program', () =>
         {
             const source = [
-                'namespace Ferrite.Math {',
-                '    struct Vec2 {',
-                '        float32 x;',
-                '        float32 y;',
-                '        float32 dot(Vec2* other) {',
-                '            return x * other->x + y * other->y;',
-                '        }',
-                '    };',
-                '}',
+                'namespace Ferrite.Math;',
                 '',
-                'using Ferrite.Math;',
+                'using Ferrite.Core;',
                 '',
-                'int32 main() {',
+                'public struct Vec2',
+                '{',
+                '    Float32 x;',
+                '    Float32 y;',
+                '    Float32 dot(Vec2* other)',
+                '    {',
+                '        return x * other->x + y * other->y;',
+                '    }',
+                '};',
+                '',
+                'public Int32 main()',
+                '{',
                 '    Vec2 a = { 1.0, 2.0 };',
                 '    Vec2* p = &a;',
-                '    return (int32)p->dot(&a);',
+                '    return (Int32)p->dot(&a);',
                 '}',
             ].join('\n');
 
@@ -309,7 +329,7 @@ describe('ferrite.grammar integration', () =>
         {
             const decls = Array.from(
                 { length: 30 },
-                (_, index) => `int32 id${String(index)}(int32 x) { return x; }`,
+                (_, index) => `private Int32 id${String(index)}(Int32 x) { return x; }`,
             );
             const source = decls.join('\n');
 
@@ -321,7 +341,7 @@ describe('ferrite.grammar integration', () =>
     {
         it('transforms a parsed program into an AST using the same table', () =>
         {
-            const source = 'int32 main() { return 1 + 2; }';
+            const source = 'public Int32 main() { return 1 + 2; }';
             const cst = parseFerriteCst(source);
             const schema = grammar.transformSchema;
 
@@ -333,15 +353,44 @@ describe('ferrite.grammar integration', () =>
             expect(ast?.symbol).toBe('program');
             expect(ast?.variant).toBe('program');
         });
+
+        it('preserves file namespace, usings, and access modifiers in the AST', () =>
+        {
+            const source = [
+                'namespace Ferrite.Math;',
+                'using Ferrite.Core;',
+                'public Int32 main() { return 0; }',
+            ].join('\n');
+            const cst = parseFerriteCst(source);
+            const schema = grammar.transformSchema;
+
+            expect(cst).not.toBeNull();
+            expect(schema).not.toBeNull();
+
+            const ast = transformCst(cst, schema!, table);
+
+            expect(ast?.symbol).toBe('program');
+            expect(ast?.children.some((child) => child.symbol === 'file_namespace')).toBe(true);
+            expect(ast?.children.some((child) => child.symbol === 'using_list')).toBe(true);
+            expect(ast?.children.some((child) => child.symbol === 'decl_list')).toBe(true);
+        });
     });
 
     describe('syntax errors', () =>
     {
         it.each([
-            ['missing semicolon on prototype', 'int32 f()'],
-            ['unclosed brace', 'int32 f() { return 0; '],
+            ['missing semicolon on prototype', 'public Int32 f()'],
+            ['unclosed brace', 'public Int32 f() { return 0; '],
             ['stray token in body', inInt32Function('x = ;')],
-            ['bad struct', 'struct { int32 x;'],
+            ['bad struct', 'public struct { Int32 x;'],
+            ['block namespace', 'namespace Internal { public Int32 x() { return 0; } }'],
+            ['namespace after using', 'using Ferrite.Math;\nnamespace Internal;'],
+            ['namespace after declaration', 'public Int32 main() { return 0; }\nnamespace Internal;'],
+            ['duplicate namespace', 'namespace A;\nnamespace B;'],
+            ['using after declaration', 'public Int32 main() { return 0; }\nusing Ferrite.Math;'],
+            ['missing access on function', 'Int32 main() { return 0; }'],
+            ['missing access on struct', 'struct Point { Int32 x; };'],
+            ['missing access on prototype', 'Void helper();'],
         ])('rejects %s', (_label, source) =>
         {
             expectFerriteRejects(source);
