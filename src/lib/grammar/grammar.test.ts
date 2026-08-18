@@ -10,7 +10,6 @@ describe('Grammar', () =>
             'calc',
             [],
             [],
-            [],
             'program',
             [
                 {
@@ -41,21 +40,18 @@ describe('Grammar', () =>
             'grammar',
             [{ name: 'identifier', pattern: '[A-Za-z_][A-Za-z0-9_]*', flags: '' }],
             [{ name: 'whitespace', pattern: '[ \\t\\r\\n]+', flags: '' }],
-            ['initial'],
             'grammar_file',
             [],
         );
 
         expect(grammar.tokenRules).toHaveLength(1);
         expect(grammar.skipRules).toHaveLength(1);
-        expect(grammar.states).toEqual(['initial']);
     });
 
     it('represents labeled choice alternatives', () =>
     {
         const grammar = new Grammar(
             'example',
-            [],
             [],
             [],
             'statement',

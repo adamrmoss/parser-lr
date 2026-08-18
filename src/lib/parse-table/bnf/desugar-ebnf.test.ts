@@ -16,7 +16,6 @@ describe('desugarEbnf', () =>
             'example',
             [{ name: 'kw_with', pattern: 'with', flags: '' }],
             [],
-            [],
             'optional_color',
             [
                 {
@@ -63,7 +62,6 @@ describe('desugarEbnf', () =>
             'example',
             [{ name: 'id', pattern: 'x', flags: '' }],
             [],
-            [],
             'stmt',
             [
                 {
@@ -109,7 +107,6 @@ describe('desugarEbnf', () =>
     {
         const grammar = new Grammar(
             'example',
-            [],
             [],
             [],
             'program',
@@ -162,7 +159,6 @@ describe('desugarEbnf', () =>
         const grammar = new Grammar(
             'example',
             [{ name: 'id', pattern: 'x', flags: '' }],
-            [],
             [],
             'line',
             [

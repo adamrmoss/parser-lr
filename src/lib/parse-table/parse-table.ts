@@ -1,20 +1,17 @@
 import { AstSchema } from '../grammar/ast-schema.js';
-import type { AstType } from '../grammar/ast-type.js';
 import { Grammar } from '../grammar/grammar.js';
 import type { TokenRule } from '../grammar/token-rule.js';
-import type { TransformRule } from '../grammar/transform-rule.js';
 import { TransformSchema } from '../grammar/transform-schema.js';
 
 import { desugarEbnf } from './bnf/desugar-ebnf.js';
 import { buildLrTable } from './build-lr-table.js';
 import type { LrAlgorithm } from './lr-algorithm.js';
 import { ParseTableError } from './parse-table-error.js';
-import {
-    isParseTableJsonV2,
-    type ParseTableActionJson,
-    type ParseTableGotoJson,
-    type ParseTableJsonV2,
-    type ParseTableProductionJson,
+import type {
+    ParseTableActionJson,
+    ParseTableGotoJson,
+    ParseTableJson,
+    ParseTableProductionJson,
 } from './parse-table-json.js';
 import {
     encodeProductionRhs,
@@ -24,32 +21,10 @@ import {
 import type { ParseAction, ParseConflict } from './table/parse-action.js';
 import { tokenInventory } from './token-inventory.js';
 
-/** Current on-disk JSON schema version for lexer-only parse tables. */
-export const PARSE_TABLE_VERSION = 1;
-
-/** JSON schema version for full LR parse tables. */
-export const PARSE_TABLE_VERSION_FULL = 2;
-
 /**
  * Serialized parse table payload written to JSON.
  */
-export interface ParseTableJson
-{
-    readonly version: typeof PARSE_TABLE_VERSION | typeof PARSE_TABLE_VERSION_FULL;
-    readonly algorithm: LrAlgorithm;
-    readonly grammarName: string;
-    readonly startSymbol: string;
-    readonly tokens: readonly string[];
-    readonly tokenRules: readonly TokenRule[];
-    readonly skipRules: readonly TokenRule[];
-    readonly states: readonly string[];
-    readonly parserStateCount?: number;
-    readonly productions?: readonly ParseTableProductionJson[];
-    readonly actions?: readonly ParseTableActionJson[];
-    readonly gotos?: readonly ParseTableGotoJson[];
-    readonly ast?: readonly AstType[];
-    readonly transform?: readonly TransformRule[];
-}
+export type { ParseTableJson } from './parse-table-json.js';
 
 /**
  * LR parse table metadata, including lexer inventory and parser table entries.
@@ -68,9 +43,8 @@ export class ParseTable
      * @param tokens - Ordered token rule names from the grammar `tokens` section.
      * @param tokenRules - Lexer token definitions.
      * @param skipRules - Lexer skip definitions.
-     * @param states - Lexer state names from the `states` section.
      * @param algorithm - LR algorithm used to build the table.
-     * @param parserStateCount - Number of parser states, or zero when absent.
+     * @param parserStateCount - Number of parser states.
      * @param productions - Flat BNF production metadata for reduce actions.
      * @param actions - ACTION entries keyed by state and terminal symbol.
      * @param gotos - GOTO entries keyed by state and non-terminal name.
@@ -84,9 +58,8 @@ export class ParseTable
         public readonly tokens: readonly string[],
         public readonly tokenRules: readonly TokenRule[],
         public readonly skipRules: readonly TokenRule[],
-        public readonly states: readonly string[],
         public readonly algorithm: LrAlgorithm,
-        public readonly parserStateCount: number = 0,
+        public readonly parserStateCount: number,
         productions: readonly ParseTableProductionJson[] = [],
         actions: ReadonlyMap<number, ReadonlyMap<string, ParseAction>> = new Map(),
         gotos: ReadonlyMap<number, ReadonlyMap<string, number>> = new Map(),
@@ -158,26 +131,7 @@ export class ParseTable
      */
     public static fromJson(json: ParseTableJson): ParseTable
     {
-        if (json.version !== PARSE_TABLE_VERSION && json.version !== PARSE_TABLE_VERSION_FULL)
-        {
-            throw new ParseTableError(
-                `Unsupported parse table version ${String(json.version)}; `
-                + `expected ${PARSE_TABLE_VERSION} or ${PARSE_TABLE_VERSION_FULL}`,
-            );
-        }
-
-        if (!isParseTableJsonV2(json))
-        {
-            return new ParseTable(
-                json.grammarName,
-                json.startSymbol,
-                [...json.tokens],
-                [...json.tokenRules],
-                [...json.skipRules],
-                [...json.states],
-                json.algorithm,
-            );
-        }
+        ParseTable.assertValidJson(json);
 
         const astSchema = json.ast === undefined
             ? null
@@ -192,8 +146,7 @@ export class ParseTable
             [...json.tokens],
             [...json.tokenRules],
             [...json.skipRules],
-            [...json.states],
-            json.algorithm,
+            json.algorithm as LrAlgorithm,
             json.parserStateCount,
             [...json.productions],
             ParseTable.actionsFromJson(json.actions),
@@ -245,29 +198,13 @@ export class ParseTable
      */
     public toJson(): ParseTableJson
     {
-        if (!this.hasParserTable)
-        {
-            return {
-                version: PARSE_TABLE_VERSION,
-                algorithm: this.algorithm,
-                grammarName: this.grammarName,
-                startSymbol: this.startSymbol,
-                tokens: [...this.tokens],
-                tokenRules: [...this.tokenRules],
-                skipRules: [...this.skipRules],
-                states: [...this.states],
-            };
-        }
-
-        const json: ParseTableJsonV2 = {
-            version: PARSE_TABLE_VERSION_FULL,
+        const json: ParseTableJson = {
             algorithm: this.algorithm,
             grammarName: this.grammarName,
             startSymbol: this.startSymbol,
             tokens: [...this.tokens],
             tokenRules: [...this.tokenRules],
             skipRules: [...this.skipRules],
-            states: [...this.states],
             parserStateCount: this.parserStateCount,
             productions: [...this.productionById.values()].sort((left, right) => left.id - right.id),
             actions: ParseTable.actionsToJson(this.actionByState),
@@ -290,7 +227,6 @@ export class ParseTable
             this.grammarName,
             this.tokenRules,
             this.skipRules,
-            this.states,
             this.startSymbol,
             [],
             this.astSchema,
@@ -352,7 +288,6 @@ export class ParseTable
             tokenInventory(grammar),
             [...grammar.tokenRules],
             [...grammar.skipRules],
-            [...grammar.states],
             lrTable.algorithm,
             lrTable.stateCount,
             productions,
@@ -515,5 +450,34 @@ export class ParseTable
         }
 
         return gotos;
+    }
+
+    /**
+     * Validates that serialized JSON includes required parse table fields.
+     *
+     * @param json - Candidate table JSON object.
+     */
+    private static assertValidJson(json: ParseTableJson): void
+    {
+        const requiredFields: (keyof ParseTableJson)[] = [
+            'algorithm',
+            'grammarName',
+            'startSymbol',
+            'tokens',
+            'tokenRules',
+            'skipRules',
+            'parserStateCount',
+            'productions',
+            'actions',
+            'gotos',
+        ];
+
+        for (const field of requiredFields)
+        {
+            if (json[field] === undefined || json[field] === null)
+            {
+                throw new ParseTableError(`Invalid parse table JSON: missing ${field}`);
+            }
+        }
     }
 }

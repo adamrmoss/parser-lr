@@ -11,37 +11,11 @@ import { parseWithTableResult } from '../shift-reduce/shift-reduce-engine.js';
 
 describe('ParseTable coverage gaps', () =>
 {
-    it('serializes lexer-only tables without parser entries', () =>
-    {
-        const table = new ParseTable(
-            'lexer-only',
-            'expr',
-            ['number', '$eof'],
-            [{ name: 'number', pattern: '[0-9]+', flags: '' }],
-            [],
-            [],
-            'lr1',
-        );
-
-        expect(table.hasParserTable).toBe(false);
-        expect(table.toJson()).toEqual({
-            version: 1,
-            algorithm: 'lr1',
-            grammarName: 'lexer-only',
-            startSymbol: 'expr',
-            tokens: ['number', '$eof'],
-            tokenRules: [{ name: 'number', pattern: '[0-9]+', flags: '' }],
-            skipRules: [],
-            states: [],
-        });
-    });
-
     it('preserves an explicit $eof entry in the token inventory', () =>
     {
         const grammar = new Grammar(
             'eof',
             [{ name: '$eof', pattern: '', flags: '' }],
-            [],
             [],
             'S',
             [],
@@ -81,7 +55,6 @@ describe('shift-reduce parse diagnostics', () =>
             'broken',
             'S',
             ['a', '$eof'],
-            [],
             [],
             [],
             'lr1',
@@ -138,7 +111,6 @@ describe('parseWithTableResult accept edge case', () =>
             'empty',
             'S',
             ['$eof'],
-            [],
             [],
             [],
             'lr1',

@@ -8,28 +8,11 @@ import { ParseTable } from './parse-table/parse-table.js';
 
 describe('ParseContext', () =>
 {
-    const calcGrammarSource = `
-name "calc" ;
-
-tokens
-    number = /[0-9]+/ ;
-    plus = /\\+/ ;
-
-skip
-    whitespace = /[ \\t\\r\\n]+/ ;
-
-start expr ;
-
-grammar
-    expr = number ;
-`;
-
     it('loads from serialized table JSON', () =>
     {
         const grammar = new Grammar(
             'calc',
             [{ name: 'number', pattern: '[0-9]+', flags: '' }],
-            [],
             [],
             'expr',
             [],
@@ -50,27 +33,6 @@ grammar
                 location: { offset: 2, length: 0 },
             },
         ]);
-    });
-
-    it('loads from table JSON through fromSources', () =>
-    {
-        const tableJson = ParseTable.fromGrammar(new Grammar(
-            'other',
-            [{ name: 'number', pattern: '[0-9]+', flags: '' }],
-            [],
-            [],
-            'expr',
-            [],
-        )).toJsonString();
-
-        const context = ParseContext.fromSources({ tableJson });
-
-        expect(context.table.grammarName).toBe('other');
-    });
-
-    it('throws ParseContextError when table JSON is missing', () =>
-    {
-        expect(() => ParseContext.fromSources({})).toThrow(ParseContextError);
     });
 });
 
@@ -107,7 +69,6 @@ grammar
         const tableJson = ParseTable.fromGrammar(new Grammar(
             'other',
             [{ name: 'number', pattern: '[0-9]+', flags: '' }],
-            [],
             [],
             'expr',
             [],

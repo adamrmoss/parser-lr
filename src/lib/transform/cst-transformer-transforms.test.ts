@@ -55,7 +55,6 @@ describe('transformCst fold and flatten expressions', () =>
         ['number', 'plus', 'star', '$eof'],
         [],
         [],
-        [],
         'lr1',
         1,
         [
@@ -189,7 +188,6 @@ describe('transformCst fold and flatten expressions', () =>
             ['number', '$eof'],
             [],
             [],
-            [],
             'lr1',
             1,
             [{
@@ -247,7 +245,6 @@ describe('transformCst fold and flatten expressions', () =>
             ['number', '$eof'],
             [],
             [],
-            [],
             'lr1',
             1,
             [{
@@ -279,7 +276,6 @@ describe('transformCst fold and flatten expressions', () =>
             ['$eof'],
             [],
             [],
-            [],
             'lr1',
             1,
             [{
@@ -302,7 +298,6 @@ describe('transformCst fold and flatten expressions', () =>
             'optional',
             'optional_color',
             ['$eof'],
-            [],
             [],
             [],
             'lr1',

@@ -1,5 +1,4 @@
 {
-    "version": 2,
     "algorithm": "lalr",
     "grammarName": "grammar",
     "startSymbol": "grammar_file",
@@ -7,7 +6,6 @@
         "name_kw",
         "tokens_kw",
         "skip_kw",
-        "states_kw",
         "start_kw",
         "grammar_kw",
         "ast_kw",
@@ -50,11 +48,6 @@
         {
             "name": "skip_kw",
             "pattern": "skip",
-            "flags": ""
-        },
-        {
-            "name": "states_kw",
-            "pattern": "states",
             "flags": ""
         },
         {
@@ -200,8 +193,7 @@
             "flags": ""
         }
     ],
-    "states": [],
-    "parserStateCount": 154,
+    "parserStateCount": 145,
     "productions": [
         {
             "id": 0,
@@ -321,15 +313,6 @@
         },
         {
             "id": 11,
-            "name": "section",
-            "rhs": [
-                "states_section"
-            ],
-            "variant": null,
-            "origin": "section"
-        },
-        {
-            "id": 12,
             "name": "token_section$repeat_1",
             "rhs": [
                 "token_def",
@@ -339,14 +322,14 @@
             "origin": "token_section$repeat_1"
         },
         {
-            "id": 13,
+            "id": 12,
             "name": "token_section$repeat_1",
             "rhs": [],
             "variant": null,
             "origin": "token_section$repeat_1"
         },
         {
-            "id": 14,
+            "id": 13,
             "name": "token_section",
             "rhs": [
                 "tokens_kw",
@@ -357,7 +340,7 @@
             "origin": "token_section"
         },
         {
-            "id": 15,
+            "id": 14,
             "name": "skip_section$repeat_2",
             "rhs": [
                 "token_def",
@@ -367,14 +350,14 @@
             "origin": "skip_section$repeat_2"
         },
         {
-            "id": 16,
+            "id": 15,
             "name": "skip_section$repeat_2",
             "rhs": [],
             "variant": null,
             "origin": "skip_section$repeat_2"
         },
         {
-            "id": 17,
+            "id": 16,
             "name": "skip_section",
             "rhs": [
                 "skip_kw",
@@ -385,37 +368,7 @@
             "origin": "skip_section"
         },
         {
-            "id": 18,
-            "name": "states_section$repeat_3",
-            "rhs": [
-                "comma",
-                "state_name",
-                "states_section$repeat_3"
-            ],
-            "variant": null,
-            "origin": "states_section$repeat_3"
-        },
-        {
-            "id": 19,
-            "name": "states_section$repeat_3",
-            "rhs": [],
-            "variant": null,
-            "origin": "states_section$repeat_3"
-        },
-        {
-            "id": 20,
-            "name": "states_section",
-            "rhs": [
-                "states_kw",
-                "state_name",
-                "states_section$repeat_3",
-                "semicolon"
-            ],
-            "variant": null,
-            "origin": "states_section"
-        },
-        {
-            "id": 21,
+            "id": 17,
             "name": "token_def",
             "rhs": [
                 "identifier",
@@ -427,16 +380,7 @@
             "origin": "token_def"
         },
         {
-            "id": 22,
-            "name": "state_name",
-            "rhs": [
-                "identifier"
-            ],
-            "variant": null,
-            "origin": "state_name"
-        },
-        {
-            "id": 23,
+            "id": 18,
             "name": "start_decl",
             "rhs": [
                 "start_kw",
@@ -447,91 +391,91 @@
             "origin": "start_decl"
         },
         {
-            "id": 24,
-            "name": "grammar_section$repeat_4",
+            "id": 19,
+            "name": "grammar_section$repeat_3",
             "rhs": [
                 "production",
-                "grammar_section$repeat_4"
+                "grammar_section$repeat_3"
             ],
             "variant": null,
-            "origin": "grammar_section$repeat_4"
+            "origin": "grammar_section$repeat_3"
         },
         {
-            "id": 25,
-            "name": "grammar_section$repeat_4",
+            "id": 20,
+            "name": "grammar_section$repeat_3",
             "rhs": [],
             "variant": null,
-            "origin": "grammar_section$repeat_4"
+            "origin": "grammar_section$repeat_3"
         },
         {
-            "id": 26,
+            "id": 21,
             "name": "grammar_section",
             "rhs": [
                 "grammar_kw",
                 "production",
-                "grammar_section$repeat_4"
+                "grammar_section$repeat_3"
             ],
             "variant": null,
             "origin": "grammar_section"
         },
         {
-            "id": 27,
-            "name": "ast_section$repeat_5",
+            "id": 22,
+            "name": "ast_section$repeat_4",
             "rhs": [
                 "ast_type",
-                "ast_section$repeat_5"
+                "ast_section$repeat_4"
             ],
             "variant": null,
-            "origin": "ast_section$repeat_5"
+            "origin": "ast_section$repeat_4"
         },
         {
-            "id": 28,
-            "name": "ast_section$repeat_5",
+            "id": 23,
+            "name": "ast_section$repeat_4",
             "rhs": [],
             "variant": null,
-            "origin": "ast_section$repeat_5"
+            "origin": "ast_section$repeat_4"
         },
         {
-            "id": 29,
+            "id": 24,
             "name": "ast_section",
             "rhs": [
                 "ast_kw",
                 "ast_type",
-                "ast_section$repeat_5"
+                "ast_section$repeat_4"
             ],
             "variant": null,
             "origin": "ast_section"
         },
         {
-            "id": 30,
-            "name": "transform_section$repeat_6",
+            "id": 25,
+            "name": "transform_section$repeat_5",
             "rhs": [
                 "transform_rule",
-                "transform_section$repeat_6"
+                "transform_section$repeat_5"
             ],
             "variant": null,
-            "origin": "transform_section$repeat_6"
+            "origin": "transform_section$repeat_5"
         },
         {
-            "id": 31,
-            "name": "transform_section$repeat_6",
+            "id": 26,
+            "name": "transform_section$repeat_5",
             "rhs": [],
             "variant": null,
-            "origin": "transform_section$repeat_6"
+            "origin": "transform_section$repeat_5"
         },
         {
-            "id": 32,
+            "id": 27,
             "name": "transform_section",
             "rhs": [
                 "transform_kw",
                 "transform_rule",
-                "transform_section$repeat_6"
+                "transform_section$repeat_5"
             ],
             "variant": null,
             "origin": "transform_section"
         },
         {
-            "id": 33,
+            "id": 28,
             "name": "production",
             "rhs": [
                 "identifier",
@@ -543,7 +487,7 @@
             "origin": "production"
         },
         {
-            "id": 34,
+            "id": 29,
             "name": "ast_type",
             "rhs": [
                 "identifier",
@@ -555,38 +499,38 @@
             "origin": "ast_type"
         },
         {
-            "id": 35,
-            "name": "transform_rule$repeat_7",
+            "id": 30,
+            "name": "transform_rule$repeat_6",
             "rhs": [
                 "bar",
                 "labeled_transform",
-                "transform_rule$repeat_7"
+                "transform_rule$repeat_6"
             ],
             "variant": null,
-            "origin": "transform_rule$repeat_7"
+            "origin": "transform_rule$repeat_6"
         },
         {
-            "id": 36,
-            "name": "transform_rule$repeat_7",
+            "id": 31,
+            "name": "transform_rule$repeat_6",
             "rhs": [],
             "variant": null,
-            "origin": "transform_rule$repeat_7"
+            "origin": "transform_rule$repeat_6"
         },
         {
-            "id": 37,
+            "id": 32,
             "name": "transform_rule",
             "rhs": [
                 "identifier",
                 "arrow",
                 "labeled_transform",
-                "transform_rule$repeat_7",
+                "transform_rule$repeat_6",
                 "semicolon"
             ],
             "variant": null,
             "origin": "transform_rule"
         },
         {
-            "id": 38,
+            "id": 33,
             "name": "labeled_transform",
             "rhs": [
                 "hash",
@@ -597,7 +541,7 @@
             "origin": "labeled_transform"
         },
         {
-            "id": 39,
+            "id": 34,
             "name": "transform_expr",
             "rhs": [
                 "drop_kw"
@@ -606,7 +550,7 @@
             "origin": "transform_expr"
         },
         {
-            "id": 40,
+            "id": 35,
             "name": "transform_expr",
             "rhs": [
                 "pass_expr"
@@ -615,7 +559,7 @@
             "origin": "transform_expr"
         },
         {
-            "id": 41,
+            "id": 36,
             "name": "transform_expr",
             "rhs": [
                 "fold_left_expr"
@@ -624,7 +568,7 @@
             "origin": "transform_expr"
         },
         {
-            "id": 42,
+            "id": 37,
             "name": "transform_expr",
             "rhs": [
                 "fold_right_expr"
@@ -633,7 +577,7 @@
             "origin": "transform_expr"
         },
         {
-            "id": 43,
+            "id": 38,
             "name": "transform_expr",
             "rhs": [
                 "flatten_expr"
@@ -642,7 +586,7 @@
             "origin": "transform_expr"
         },
         {
-            "id": 44,
+            "id": 39,
             "name": "transform_expr",
             "rhs": [
                 "build_expr"
@@ -651,7 +595,7 @@
             "origin": "transform_expr"
         },
         {
-            "id": 45,
+            "id": 40,
             "name": "pass_expr",
             "rhs": [
                 "pass_kw",
@@ -663,7 +607,7 @@
             "origin": "pass_expr"
         },
         {
-            "id": 46,
+            "id": 41,
             "name": "fold_left_expr",
             "rhs": [
                 "fold_left_kw",
@@ -677,7 +621,7 @@
             "origin": "fold_left_expr"
         },
         {
-            "id": 47,
+            "id": 42,
             "name": "fold_right_expr",
             "rhs": [
                 "fold_right_kw",
@@ -691,7 +635,7 @@
             "origin": "fold_right_expr"
         },
         {
-            "id": 48,
+            "id": 43,
             "name": "flatten_expr",
             "rhs": [
                 "flatten_kw",
@@ -707,7 +651,7 @@
             "origin": "flatten_expr"
         },
         {
-            "id": 49,
+            "id": 44,
             "name": "build_expr",
             "rhs": [
                 "build_target"
@@ -716,7 +660,7 @@
             "origin": "build_expr"
         },
         {
-            "id": 50,
+            "id": 45,
             "name": "build_expr",
             "rhs": [
                 "build_target",
@@ -728,7 +672,7 @@
             "origin": "build_expr"
         },
         {
-            "id": 51,
+            "id": 46,
             "name": "build_target",
             "rhs": [
                 "identifier",
@@ -740,35 +684,35 @@
             "origin": "build_target"
         },
         {
-            "id": 52,
-            "name": "reference_list$repeat_8",
+            "id": 47,
+            "name": "reference_list$repeat_7",
             "rhs": [
                 "comma",
                 "reference",
-                "reference_list$repeat_8"
+                "reference_list$repeat_7"
             ],
             "variant": null,
-            "origin": "reference_list$repeat_8"
+            "origin": "reference_list$repeat_7"
         },
         {
-            "id": 53,
-            "name": "reference_list$repeat_8",
+            "id": 48,
+            "name": "reference_list$repeat_7",
             "rhs": [],
             "variant": null,
-            "origin": "reference_list$repeat_8"
+            "origin": "reference_list$repeat_7"
         },
         {
-            "id": 54,
+            "id": 49,
             "name": "reference_list",
             "rhs": [
                 "reference",
-                "reference_list$repeat_8"
+                "reference_list$repeat_7"
             ],
             "variant": null,
             "origin": "reference_list"
         },
         {
-            "id": 55,
+            "id": 50,
             "name": "reference",
             "rhs": [
                 "identifier"
@@ -777,7 +721,7 @@
             "origin": "reference"
         },
         {
-            "id": 56,
+            "id": 51,
             "name": "expression",
             "rhs": [
                 "choice"
@@ -786,35 +730,35 @@
             "origin": "expression"
         },
         {
-            "id": 57,
-            "name": "choice$repeat_9",
+            "id": 52,
+            "name": "choice$repeat_8",
             "rhs": [
                 "bar",
                 "alternative",
-                "choice$repeat_9"
+                "choice$repeat_8"
             ],
             "variant": null,
-            "origin": "choice$repeat_9"
+            "origin": "choice$repeat_8"
         },
         {
-            "id": 58,
-            "name": "choice$repeat_9",
+            "id": 53,
+            "name": "choice$repeat_8",
             "rhs": [],
             "variant": null,
-            "origin": "choice$repeat_9"
+            "origin": "choice$repeat_8"
         },
         {
-            "id": 59,
+            "id": 54,
             "name": "choice",
             "rhs": [
                 "alternative",
-                "choice$repeat_9"
+                "choice$repeat_8"
             ],
             "variant": null,
             "origin": "choice"
         },
         {
-            "id": 60,
+            "id": 55,
             "name": "alternative",
             "rhs": [
                 "labeled_alternative"
@@ -823,7 +767,7 @@
             "origin": "alternative"
         },
         {
-            "id": 61,
+            "id": 56,
             "name": "labeled_alternative",
             "rhs": [
                 "hash",
@@ -833,7 +777,7 @@
             "origin": "labeled_alternative"
         },
         {
-            "id": 62,
+            "id": 57,
             "name": "labeled_alternative",
             "rhs": [
                 "hash",
@@ -844,7 +788,7 @@
             "origin": "labeled_alternative"
         },
         {
-            "id": 63,
+            "id": 58,
             "name": "labeled_alternative",
             "rhs": [
                 "sequence"
@@ -853,34 +797,34 @@
             "origin": "labeled_alternative"
         },
         {
-            "id": 64,
-            "name": "sequence$repeat_10",
+            "id": 59,
+            "name": "sequence$repeat_9",
             "rhs": [
                 "factor",
-                "sequence$repeat_10"
+                "sequence$repeat_9"
             ],
             "variant": null,
-            "origin": "sequence$repeat_10"
+            "origin": "sequence$repeat_9"
         },
         {
-            "id": 65,
-            "name": "sequence$repeat_10",
+            "id": 60,
+            "name": "sequence$repeat_9",
             "rhs": [],
             "variant": null,
-            "origin": "sequence$repeat_10"
+            "origin": "sequence$repeat_9"
         },
         {
-            "id": 66,
+            "id": 61,
             "name": "sequence",
             "rhs": [
                 "factor",
-                "sequence$repeat_10"
+                "sequence$repeat_9"
             ],
             "variant": null,
             "origin": "sequence"
         },
         {
-            "id": 67,
+            "id": 62,
             "name": "factor",
             "rhs": [
                 "bracketed"
@@ -889,7 +833,7 @@
             "origin": "factor"
         },
         {
-            "id": 68,
+            "id": 63,
             "name": "factor",
             "rhs": [
                 "repeat"
@@ -898,7 +842,7 @@
             "origin": "factor"
         },
         {
-            "id": 69,
+            "id": 64,
             "name": "factor",
             "rhs": [
                 "group"
@@ -907,7 +851,7 @@
             "origin": "factor"
         },
         {
-            "id": 70,
+            "id": 65,
             "name": "factor",
             "rhs": [
                 "primary"
@@ -916,7 +860,7 @@
             "origin": "factor"
         },
         {
-            "id": 71,
+            "id": 66,
             "name": "bracketed",
             "rhs": [
                 "lbracket",
@@ -927,7 +871,7 @@
             "origin": "bracketed"
         },
         {
-            "id": 72,
+            "id": 67,
             "name": "bracketed",
             "rhs": [
                 "lbracket",
@@ -940,7 +884,7 @@
             "origin": "bracketed"
         },
         {
-            "id": 73,
+            "id": 68,
             "name": "repeat",
             "rhs": [
                 "lbrace",
@@ -951,7 +895,7 @@
             "origin": "repeat"
         },
         {
-            "id": 74,
+            "id": 69,
             "name": "group",
             "rhs": [
                 "lpar",
@@ -962,7 +906,7 @@
             "origin": "group"
         },
         {
-            "id": 75,
+            "id": 70,
             "name": "primary",
             "rhs": [
                 "string_literal"
@@ -971,7 +915,7 @@
             "origin": "primary"
         },
         {
-            "id": 76,
+            "id": 71,
             "name": "primary",
             "rhs": [
                 "identifier"
@@ -980,7 +924,7 @@
             "origin": "primary"
         },
         {
-            "id": 77,
+            "id": 72,
             "name": "$accept",
             "rhs": [
                 "grammar_file"
@@ -1015,15 +959,9 @@
         },
         {
             "state": 2,
-            "symbol": "states_kw",
-            "kind": "shift",
-            "target": 12
-        },
-        {
-            "state": 2,
             "symbol": "tokens_kw",
             "kind": "shift",
-            "target": 15
+            "target": 13
         },
         {
             "state": 3,
@@ -1075,12 +1013,6 @@
         },
         {
             "state": 7,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 6
-        },
-        {
-            "state": 7,
             "symbol": "tokens_kw",
             "kind": "reduce",
             "productionId": 6
@@ -1089,7 +1021,7 @@
             "state": 8,
             "symbol": "start_kw",
             "kind": "shift",
-            "target": 37
+            "target": 28
         },
         {
             "state": 9,
@@ -1105,21 +1037,15 @@
         },
         {
             "state": 9,
-            "symbol": "states_kw",
-            "kind": "shift",
-            "target": 12
-        },
-        {
-            "state": 9,
             "symbol": "tokens_kw",
             "kind": "shift",
-            "target": 15
+            "target": 13
         },
         {
             "state": 10,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 16
+            "target": 14
         },
         {
             "state": 11,
@@ -1136,12 +1062,6 @@
         {
             "state": 11,
             "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 10
-        },
-        {
-            "state": 11,
-            "symbol": "states_kw",
             "kind": "reduce",
             "productionId": 10
         },
@@ -1153,915 +1073,825 @@
         },
         {
             "state": 12,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 9
+        },
+        {
+            "state": 12,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 9
+        },
+        {
+            "state": 12,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 9
+        },
+        {
+            "state": 12,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 9
+        },
+        {
+            "state": 13,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 24
+            "target": 14
         },
         {
-            "state": 13,
+            "state": 14,
+            "symbol": "equal",
+            "kind": "shift",
+            "target": 19
+        },
+        {
+            "state": 15,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 11
-        },
-        {
-            "state": 13,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 11
-        },
-        {
-            "state": 13,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 11
-        },
-        {
-            "state": 13,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 11
-        },
-        {
-            "state": 13,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 11
-        },
-        {
-            "state": 14,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 9
-        },
-        {
-            "state": 14,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 9
-        },
-        {
-            "state": 14,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 9
-        },
-        {
-            "state": 14,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 9
-        },
-        {
-            "state": 14,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 9
+            "productionId": 12
         },
         {
             "state": 15,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 16
+            "target": 14
+        },
+        {
+            "state": 15,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 12
+        },
+        {
+            "state": 15,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 12
+        },
+        {
+            "state": 15,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 12
         },
         {
             "state": 16,
-            "symbol": "equal",
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 12
+        },
+        {
+            "state": 16,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 14
+        },
+        {
+            "state": 16,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 12
+        },
+        {
+            "state": 16,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 12
+        },
+        {
+            "state": 16,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 12
+        },
+        {
+            "state": 17,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 13
+        },
+        {
+            "state": 17,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 13
+        },
+        {
+            "state": 17,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 13
+        },
+        {
+            "state": 17,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 13
+        },
+        {
+            "state": 18,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 11
+        },
+        {
+            "state": 18,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 11
+        },
+        {
+            "state": 18,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 11
+        },
+        {
+            "state": 18,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 11
+        },
+        {
+            "state": 19,
+            "symbol": "regex_literal",
+            "kind": "shift",
+            "target": 20
+        },
+        {
+            "state": 20,
+            "symbol": "semicolon",
             "kind": "shift",
             "target": 21
         },
         {
-            "state": 17,
+            "state": 21,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 17,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 16
-        },
-        {
-            "state": 17,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 17,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 17,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 17,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 18,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 18,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 16
-        },
-        {
-            "state": 18,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 18,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 18,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 18,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 13
-        },
-        {
-            "state": 19,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 14
-        },
-        {
-            "state": 19,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 14
-        },
-        {
-            "state": 19,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 14
-        },
-        {
-            "state": 19,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 14
-        },
-        {
-            "state": 19,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 14
-        },
-        {
-            "state": 20,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 12
-        },
-        {
-            "state": 20,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 12
-        },
-        {
-            "state": 20,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 12
-        },
-        {
-            "state": 20,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 12
-        },
-        {
-            "state": 20,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 12
+            "productionId": 17
         },
         {
             "state": 21,
-            "symbol": "regex_literal",
-            "kind": "shift",
-            "target": 22
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 17
+        },
+        {
+            "state": 21,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 17
+        },
+        {
+            "state": 21,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 17
+        },
+        {
+            "state": 21,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 17
         },
         {
             "state": 22,
-            "symbol": "semicolon",
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 15
+        },
+        {
+            "state": 22,
+            "symbol": "identifier",
             "kind": "shift",
-            "target": 23
+            "target": 14
+        },
+        {
+            "state": 22,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 15
+        },
+        {
+            "state": 22,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 15
+        },
+        {
+            "state": 22,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 15
         },
         {
             "state": 23,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 21
-        },
-        {
-            "state": 23,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 21
+            "productionId": 16
         },
         {
             "state": 23,
             "symbol": "skip_kw",
             "kind": "reduce",
-            "productionId": 21
+            "productionId": 16
         },
         {
             "state": 23,
             "symbol": "start_kw",
             "kind": "reduce",
-            "productionId": 21
-        },
-        {
-            "state": 23,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 21
+            "productionId": 16
         },
         {
             "state": 23,
             "symbol": "tokens_kw",
             "kind": "reduce",
-            "productionId": 21
+            "productionId": 16
         },
         {
             "state": 24,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 22
+            "productionId": 15
         },
         {
             "state": 24,
-            "symbol": "comma",
-            "kind": "reduce",
-            "productionId": 22
-        },
-        {
-            "state": 24,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 22
-        },
-        {
-            "state": 25,
-            "symbol": "comma",
+            "symbol": "identifier",
             "kind": "shift",
-            "target": 26
+            "target": 14
+        },
+        {
+            "state": 24,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 15
+        },
+        {
+            "state": 24,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 15
+        },
+        {
+            "state": 24,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 15
         },
         {
             "state": 25,
-            "symbol": "semicolon",
+            "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 19
+            "productionId": 14
+        },
+        {
+            "state": 25,
+            "symbol": "skip_kw",
+            "kind": "reduce",
+            "productionId": 14
+        },
+        {
+            "state": 25,
+            "symbol": "start_kw",
+            "kind": "reduce",
+            "productionId": 14
+        },
+        {
+            "state": 25,
+            "symbol": "tokens_kw",
+            "kind": "reduce",
+            "productionId": 14
         },
         {
             "state": 26,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 24
-        },
-        {
-            "state": 27,
-            "symbol": "semicolon",
-            "kind": "shift",
-            "target": 28
-        },
-        {
-            "state": 28,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 20
-        },
-        {
-            "state": 28,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 20
-        },
-        {
-            "state": 28,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 20
-        },
-        {
-            "state": 28,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 20
-        },
-        {
-            "state": 28,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 20
-        },
-        {
-            "state": 29,
-            "symbol": "comma",
-            "kind": "shift",
-            "target": 26
-        },
-        {
-            "state": 29,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 19
-        },
-        {
-            "state": 30,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 18
-        },
-        {
-            "state": 31,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 31,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 16
-        },
-        {
-            "state": 31,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 31,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 31,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 31,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 32,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 17
-        },
-        {
-            "state": 32,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 17
-        },
-        {
-            "state": 32,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 17
-        },
-        {
-            "state": 32,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 17
-        },
-        {
-            "state": 32,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 17
-        },
-        {
-            "state": 33,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 33,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 16
-        },
-        {
-            "state": 33,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 33,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 33,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 33,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 16
-        },
-        {
-            "state": 34,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 15
-        },
-        {
-            "state": 34,
-            "symbol": "skip_kw",
-            "kind": "reduce",
-            "productionId": 15
-        },
-        {
-            "state": 34,
-            "symbol": "start_kw",
-            "kind": "reduce",
-            "productionId": 15
-        },
-        {
-            "state": 34,
-            "symbol": "states_kw",
-            "kind": "reduce",
-            "productionId": 15
-        },
-        {
-            "state": 34,
-            "symbol": "tokens_kw",
-            "kind": "reduce",
-            "productionId": 15
-        },
-        {
-            "state": 35,
             "symbol": "start_kw",
             "kind": "reduce",
             "productionId": 0
         },
         {
-            "state": 36,
+            "state": 27,
             "symbol": "grammar_kw",
             "kind": "shift",
-            "target": 40
+            "target": 31
         },
         {
-            "state": 37,
+            "state": 28,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 38
+            "target": 29
         },
         {
-            "state": 38,
+            "state": 29,
             "symbol": "semicolon",
             "kind": "shift",
-            "target": 39
+            "target": 30
         },
         {
-            "state": 39,
+            "state": 30,
             "symbol": "grammar_kw",
             "kind": "reduce",
-            "productionId": 23
+            "productionId": 18
         },
         {
-            "state": 40,
+            "state": 31,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 146
+            "target": 137
         },
         {
-            "state": 41,
+            "state": 32,
             "symbol": "$eof",
             "kind": "reduce",
             "productionId": 2
         },
         {
-            "state": 41,
+            "state": 32,
             "symbol": "ast_kw",
             "kind": "shift",
-            "target": 42
+            "target": 33
         },
         {
-            "state": 41,
+            "state": 32,
             "symbol": "transform_kw",
             "kind": "shift",
-            "target": 44
+            "target": 35
         },
         {
-            "state": 42,
+            "state": 33,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 107
+            "target": 98
         },
         {
-            "state": 43,
+            "state": 34,
             "symbol": "$eof",
             "kind": "reduce",
             "productionId": 4
         },
         {
-            "state": 43,
+            "state": 34,
             "symbol": "transform_kw",
             "kind": "shift",
-            "target": 44
+            "target": 35
         },
         {
-            "state": 44,
+            "state": 35,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 46
+            "target": 37
         },
         {
-            "state": 45,
+            "state": 36,
             "symbol": "$eof",
             "kind": "reduce",
             "productionId": 3
         },
         {
-            "state": 46,
+            "state": 37,
             "symbol": "arrow",
             "kind": "shift",
-            "target": 51
+            "target": 42
         },
         {
-            "state": 47,
+            "state": 38,
             "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 26
+        },
+        {
+            "state": 38,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 37
+        },
+        {
+            "state": 39,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 26
+        },
+        {
+            "state": 39,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 37
+        },
+        {
+            "state": 40,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 27
+        },
+        {
+            "state": 41,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 25
+        },
+        {
+            "state": 42,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 43
+        },
+        {
+            "state": 43,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 50
+        },
+        {
+            "state": 44,
+            "symbol": "bar",
+            "kind": "shift",
+            "target": 45
+        },
+        {
+            "state": 44,
+            "symbol": "semicolon",
             "kind": "reduce",
             "productionId": 31
         },
         {
+            "state": 45,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 43
+        },
+        {
+            "state": 46,
+            "symbol": "semicolon",
+            "kind": "shift",
+            "target": 47
+        },
+        {
             "state": 47,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 46
-        },
-        {
-            "state": 48,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 31
-        },
-        {
-            "state": 48,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 46
-        },
-        {
-            "state": 49,
             "symbol": "$eof",
             "kind": "reduce",
             "productionId": 32
         },
         {
-            "state": 50,
-            "symbol": "$eof",
+            "state": 47,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 32
+        },
+        {
+            "state": 48,
+            "symbol": "bar",
+            "kind": "shift",
+            "target": 45
+        },
+        {
+            "state": 48,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 31
+        },
+        {
+            "state": 49,
+            "symbol": "semicolon",
             "kind": "reduce",
             "productionId": 30
         },
         {
-            "state": 51,
-            "symbol": "hash",
+            "state": 50,
+            "symbol": "drop_kw",
             "kind": "shift",
-            "target": 52
+            "target": 53
         },
         {
-            "state": 52,
-            "symbol": "identifier",
+            "state": 50,
+            "symbol": "flatten_kw",
+            "kind": "shift",
+            "target": 55
+        },
+        {
+            "state": 50,
+            "symbol": "fold_left_kw",
+            "kind": "shift",
+            "target": 57
+        },
+        {
+            "state": 50,
+            "symbol": "fold_right_kw",
             "kind": "shift",
             "target": 59
         },
         {
+            "state": 50,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 60
+        },
+        {
+            "state": 50,
+            "symbol": "pass_kw",
+            "kind": "shift",
+            "target": 62
+        },
+        {
+            "state": 51,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 39
+        },
+        {
+            "state": 51,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 39
+        },
+        {
+            "state": 51,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 39
+        },
+        {
+            "state": 52,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 44
+        },
+        {
+            "state": 52,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 44
+        },
+        {
+            "state": 52,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 93
+        },
+        {
+            "state": 52,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 44
+        },
+        {
+            "state": 53,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 34
+        },
+        {
             "state": 53,
             "symbol": "bar",
-            "kind": "shift",
-            "target": 54
+            "kind": "reduce",
+            "productionId": 34
         },
         {
             "state": 53,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 36
+            "productionId": 34
         },
         {
             "state": 54,
-            "symbol": "hash",
-            "kind": "shift",
-            "target": 52
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 38
+        },
+        {
+            "state": 54,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 38
+        },
+        {
+            "state": 54,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 38
         },
         {
             "state": 55,
-            "symbol": "semicolon",
+            "symbol": "lpar",
             "kind": "shift",
-            "target": 56
+            "target": 86
         },
         {
             "state": 56,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 37
+            "productionId": 36
         },
         {
             "state": 56,
-            "symbol": "identifier",
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 36
+        },
+        {
+            "state": 56,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 36
+        },
+        {
+            "state": 57,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 81
+        },
+        {
+            "state": 58,
+            "symbol": "$eof",
             "kind": "reduce",
             "productionId": 37
         },
         {
-            "state": 57,
+            "state": 58,
             "symbol": "bar",
-            "kind": "shift",
-            "target": 54
-        },
-        {
-            "state": 57,
-            "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 36
+            "productionId": 37
         },
         {
             "state": 58,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 35
+            "productionId": 37
         },
         {
             "state": 59,
-            "symbol": "drop_kw",
-            "kind": "shift",
-            "target": 62
-        },
-        {
-            "state": 59,
-            "symbol": "flatten_kw",
-            "kind": "shift",
-            "target": 64
-        },
-        {
-            "state": 59,
-            "symbol": "fold_left_kw",
-            "kind": "shift",
-            "target": 66
-        },
-        {
-            "state": 59,
-            "symbol": "fold_right_kw",
-            "kind": "shift",
-            "target": 68
-        },
-        {
-            "state": 59,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 69
-        },
-        {
-            "state": 59,
-            "symbol": "pass_kw",
+            "symbol": "lpar",
             "kind": "shift",
             "target": 71
         },
         {
             "state": 60,
+            "symbol": "dot",
+            "kind": "shift",
+            "target": 68
+        },
+        {
+            "state": 61,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 44
+            "productionId": 35
         },
         {
-            "state": 60,
+            "state": 61,
             "symbol": "bar",
             "kind": "reduce",
-            "productionId": 44
+            "productionId": 35
         },
         {
-            "state": 60,
+            "state": 61,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 44
+            "productionId": 35
         },
         {
-            "state": 61,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 49
-        },
-        {
-            "state": 61,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 49
-        },
-        {
-            "state": 61,
+            "state": 62,
             "symbol": "lpar",
             "kind": "shift",
-            "target": 102
-        },
-        {
-            "state": 61,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 49
-        },
-        {
-            "state": 62,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 39
-        },
-        {
-            "state": 62,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 39
-        },
-        {
-            "state": 62,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 39
+            "target": 64
         },
         {
             "state": 63,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 43
+            "productionId": 33
         },
         {
             "state": 63,
             "symbol": "bar",
             "kind": "reduce",
-            "productionId": 43
+            "productionId": 33
         },
         {
             "state": 63,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 43
+            "productionId": 33
         },
         {
             "state": 64,
-            "symbol": "lpar",
+            "symbol": "identifier",
             "kind": "shift",
-            "target": 95
+            "target": 65
         },
         {
             "state": 65,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 41
+            "productionId": 50
         },
         {
             "state": 65,
-            "symbol": "bar",
+            "symbol": "comma",
             "kind": "reduce",
-            "productionId": 41
+            "productionId": 50
         },
         {
             "state": 65,
-            "symbol": "semicolon",
+            "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 41
+            "productionId": 50
         },
         {
             "state": 66,
-            "symbol": "lpar",
+            "symbol": "rpar",
             "kind": "shift",
-            "target": 90
+            "target": 67
         },
         {
             "state": 67,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 42
+            "productionId": 40
         },
         {
             "state": 67,
             "symbol": "bar",
             "kind": "reduce",
-            "productionId": 42
+            "productionId": 40
         },
         {
             "state": 67,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 42
+            "productionId": 40
         },
         {
             "state": 68,
-            "symbol": "lpar",
+            "symbol": "hash",
             "kind": "shift",
-            "target": 80
+            "target": 69
         },
         {
             "state": 69,
-            "symbol": "dot",
+            "symbol": "identifier",
             "kind": "shift",
-            "target": 77
+            "target": 70
         },
         {
             "state": 70,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 40
+            "productionId": 46
         },
         {
             "state": 70,
             "symbol": "bar",
             "kind": "reduce",
-            "productionId": 40
+            "productionId": 46
+        },
+        {
+            "state": 70,
+            "symbol": "comma",
+            "kind": "reduce",
+            "productionId": 46
+        },
+        {
+            "state": 70,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 46
         },
         {
             "state": 70,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 40
+            "productionId": 46
         },
         {
             "state": 71,
-            "symbol": "lpar",
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 60
+        },
+        {
+            "state": 72,
+            "symbol": "comma",
             "kind": "shift",
             "target": 73
-        },
-        {
-            "state": 72,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 38
-        },
-        {
-            "state": 72,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 38
-        },
-        {
-            "state": 72,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 38
         },
         {
             "state": 73,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 74
-        },
-        {
-            "state": 74,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 55
+            "target": 65
         },
         {
             "state": 74,
             "symbol": "comma",
-            "kind": "reduce",
-            "productionId": 55
+            "kind": "shift",
+            "target": 77
         },
         {
             "state": 74,
             "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 55
+            "productionId": 48
         },
         {
             "state": 75,
@@ -2073,91 +1903,67 @@
             "state": 76,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 45
+            "productionId": 42
         },
         {
             "state": 76,
             "symbol": "bar",
             "kind": "reduce",
-            "productionId": 45
+            "productionId": 42
         },
         {
             "state": 76,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 45
+            "productionId": 42
         },
         {
             "state": 77,
-            "symbol": "hash",
+            "symbol": "identifier",
             "kind": "shift",
-            "target": 78
+            "target": 65
         },
         {
             "state": 78,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 79
-        },
-        {
-            "state": 79,
-            "symbol": "$eof",
+            "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 51
-        },
-        {
-            "state": 79,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 51
+            "productionId": 49
         },
         {
             "state": 79,
             "symbol": "comma",
-            "kind": "reduce",
-            "productionId": 51
+            "kind": "shift",
+            "target": 77
         },
         {
             "state": 79,
-            "symbol": "lpar",
+            "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 51
-        },
-        {
-            "state": 79,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 51
+            "productionId": 48
         },
         {
             "state": 80,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 69
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 47
         },
         {
             "state": 81,
-            "symbol": "comma",
+            "symbol": "identifier",
             "kind": "shift",
-            "target": 82
+            "target": 60
         },
         {
             "state": 82,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 74
-        },
-        {
-            "state": 83,
             "symbol": "comma",
             "kind": "shift",
-            "target": 86
+            "target": 83
         },
         {
             "state": 83,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 53
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 65
         },
         {
             "state": 84,
@@ -2169,1813 +1975,1741 @@
             "state": 85,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 47
+            "productionId": 41
         },
         {
             "state": 85,
             "symbol": "bar",
             "kind": "reduce",
-            "productionId": 47
+            "productionId": 41
         },
         {
             "state": 85,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 47
+            "productionId": 41
         },
         {
             "state": 86,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 74
+            "target": 60
         },
         {
             "state": 87,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 54
-        },
-        {
-            "state": 88,
             "symbol": "comma",
             "kind": "shift",
-            "target": 86
+            "target": 88
         },
         {
             "state": 88,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 53
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 65
         },
         {
             "state": 89,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 52
+            "symbol": "comma",
+            "kind": "shift",
+            "target": 90
         },
         {
             "state": 90,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 69
+            "target": 65
         },
         {
             "state": 91,
-            "symbol": "comma",
+            "symbol": "rpar",
             "kind": "shift",
             "target": 92
         },
         {
             "state": 92,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 74
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 43
+        },
+        {
+            "state": 92,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 43
+        },
+        {
+            "state": 92,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 43
         },
         {
             "state": 93,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 65
+        },
+        {
+            "state": 94,
             "symbol": "rpar",
             "kind": "shift",
-            "target": 94
-        },
-        {
-            "state": 94,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 46
-        },
-        {
-            "state": 94,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 46
-        },
-        {
-            "state": 94,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 46
+            "target": 95
         },
         {
             "state": 95,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 69
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 45
+        },
+        {
+            "state": 95,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 45
+        },
+        {
+            "state": 95,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 45
         },
         {
             "state": 96,
-            "symbol": "comma",
-            "kind": "shift",
-            "target": 97
-        },
-        {
-            "state": 97,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 74
-        },
-        {
-            "state": 98,
-            "symbol": "comma",
-            "kind": "shift",
-            "target": 99
-        },
-        {
-            "state": 99,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 74
-        },
-        {
-            "state": 100,
-            "symbol": "rpar",
-            "kind": "shift",
-            "target": 101
-        },
-        {
-            "state": 101,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 48
-        },
-        {
-            "state": 101,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 48
-        },
-        {
-            "state": 101,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 48
-        },
-        {
-            "state": 102,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 74
-        },
-        {
-            "state": 103,
-            "symbol": "rpar",
-            "kind": "shift",
-            "target": 104
-        },
-        {
-            "state": 104,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 50
-        },
-        {
-            "state": 104,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 50
-        },
-        {
-            "state": 104,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 50
-        },
-        {
-            "state": 105,
             "symbol": "$eof",
             "kind": "reduce",
             "productionId": 5
         },
         {
-            "state": 106,
+            "state": 97,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 28
+            "productionId": 23
         },
         {
-            "state": 106,
+            "state": 97,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 98
+        },
+        {
+            "state": 97,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 23
+        },
+        {
+            "state": 98,
+            "symbol": "equal",
+            "kind": "shift",
+            "target": 99
+        },
+        {
+            "state": 99,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 106
+        },
+        {
+            "state": 99,
             "symbol": "identifier",
             "kind": "shift",
             "target": 107
         },
         {
-            "state": 106,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 28
-        },
-        {
-            "state": 107,
-            "symbol": "equal",
+            "state": 99,
+            "symbol": "lbrace",
             "kind": "shift",
-            "target": 108
+            "target": 109
         },
         {
-            "state": 108,
-            "symbol": "hash",
+            "state": 99,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 99,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 99,
+            "symbol": "string_literal",
             "kind": "shift",
             "target": 115
         },
         {
-            "state": 108,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 108,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 108,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 108,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 108,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 109,
+            "state": 100,
             "symbol": "bar",
-            "kind": "shift",
-            "target": 138
-        },
-        {
-            "state": 109,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 58
-        },
-        {
-            "state": 109,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 58
-        },
-        {
-            "state": 109,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 58
-        },
-        {
-            "state": 109,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 58
-        },
-        {
-            "state": 110,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 110,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 67
-        },
-        {
-            "state": 111,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 56
-        },
-        {
-            "state": 111,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 56
-        },
-        {
-            "state": 111,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 56
-        },
-        {
-            "state": 111,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 56
-        },
-        {
-            "state": 112,
-            "symbol": "semicolon",
-            "kind": "shift",
-            "target": 142
-        },
-        {
-            "state": 113,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 113,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 113,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 113,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 113,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 113,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 113,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 113,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 113,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 113,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 113,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 114,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 114,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 69
-        },
-        {
-            "state": 115,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 133
-        },
-        {
-            "state": 116,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 116,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 76
-        },
-        {
-            "state": 117,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 60
-        },
-        {
-            "state": 117,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 60
-        },
-        {
-            "state": 117,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 60
-        },
-        {
-            "state": 117,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 60
-        },
-        {
-            "state": 117,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 60
-        },
-        {
-            "state": 117,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 60
-        },
-        {
-            "state": 118,
-            "symbol": "hash",
-            "kind": "shift",
-            "target": 115
-        },
-        {
-            "state": 118,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 118,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 118,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 118,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 118,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 119,
-            "symbol": "hash",
-            "kind": "shift",
-            "target": 115
-        },
-        {
-            "state": 119,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 119,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 119,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 119,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 119,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 120,
-            "symbol": "hash",
-            "kind": "shift",
-            "target": 115
-        },
-        {
-            "state": 120,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 120,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 120,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 120,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 120,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 121,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 121,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 70
-        },
-        {
-            "state": 122,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 122,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 68
-        },
-        {
-            "state": 123,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 63
-        },
-        {
-            "state": 123,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 63
-        },
-        {
-            "state": 123,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 63
-        },
-        {
-            "state": 123,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 63
-        },
-        {
-            "state": 123,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 63
-        },
-        {
-            "state": 123,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 63
-        },
-        {
-            "state": 124,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 124,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 75
-        },
-        {
-            "state": 125,
-            "symbol": "rpar",
-            "kind": "shift",
-            "target": 126
-        },
-        {
-            "state": 126,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 126,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 74
-        },
-        {
-            "state": 127,
-            "symbol": "rbracket",
-            "kind": "shift",
-            "target": 128
-        },
-        {
-            "state": 128,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 71
-        },
-        {
-            "state": 128,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 71
-        },
-        {
-            "state": 128,
-            "symbol": "colon",
             "kind": "shift",
             "target": 129
         },
         {
-            "state": 128,
+            "state": 100,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 53
+        },
+        {
+            "state": 100,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 53
+        },
+        {
+            "state": 100,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 53
+        },
+        {
+            "state": 100,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 53
+        },
+        {
+            "state": 101,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 101,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 62
+        },
+        {
+            "state": 102,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 51
+        },
+        {
+            "state": 102,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 51
+        },
+        {
+            "state": 102,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 51
+        },
+        {
+            "state": 102,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 51
+        },
+        {
+            "state": 103,
+            "symbol": "semicolon",
+            "kind": "shift",
+            "target": 133
+        },
+        {
+            "state": 104,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 104,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 104,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 107
+        },
+        {
+            "state": 104,
+            "symbol": "lbrace",
+            "kind": "shift",
+            "target": 109
+        },
+        {
+            "state": 104,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 104,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 104,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 104,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 104,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 104,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 104,
+            "symbol": "string_literal",
+            "kind": "shift",
+            "target": 115
+        },
+        {
+            "state": 105,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 105,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 64
+        },
+        {
+            "state": 106,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 124
+        },
+        {
+            "state": 107,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 71
+        },
+        {
+            "state": 107,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 71
+        },
+        {
+            "state": 107,
             "symbol": "identifier",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "lbrace",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "lbracket",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "lpar",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "rbrace",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "rbracket",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "rpar",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "semicolon",
             "kind": "reduce",
             "productionId": 71
         },
         {
-            "state": 128,
+            "state": 107,
             "symbol": "string_literal",
             "kind": "reduce",
             "productionId": 71
+        },
+        {
+            "state": 108,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 55
+        },
+        {
+            "state": 108,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 55
+        },
+        {
+            "state": 108,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 55
+        },
+        {
+            "state": 108,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 55
+        },
+        {
+            "state": 108,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 55
+        },
+        {
+            "state": 108,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 55
+        },
+        {
+            "state": 109,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 106
+        },
+        {
+            "state": 109,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 107
+        },
+        {
+            "state": 109,
+            "symbol": "lbrace",
+            "kind": "shift",
+            "target": 109
+        },
+        {
+            "state": 109,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 109,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 109,
+            "symbol": "string_literal",
+            "kind": "shift",
+            "target": 115
+        },
+        {
+            "state": 110,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 106
+        },
+        {
+            "state": 110,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 107
+        },
+        {
+            "state": 110,
+            "symbol": "lbrace",
+            "kind": "shift",
+            "target": 109
+        },
+        {
+            "state": 110,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 110,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 110,
+            "symbol": "string_literal",
+            "kind": "shift",
+            "target": 115
+        },
+        {
+            "state": 111,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 106
+        },
+        {
+            "state": 111,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 107
+        },
+        {
+            "state": 111,
+            "symbol": "lbrace",
+            "kind": "shift",
+            "target": 109
+        },
+        {
+            "state": 111,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 111,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 111,
+            "symbol": "string_literal",
+            "kind": "shift",
+            "target": 115
+        },
+        {
+            "state": 112,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 112,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 65
+        },
+        {
+            "state": 113,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 113,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 63
+        },
+        {
+            "state": 114,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 58
+        },
+        {
+            "state": 114,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 58
+        },
+        {
+            "state": 114,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 58
+        },
+        {
+            "state": 114,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 58
+        },
+        {
+            "state": 114,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 58
+        },
+        {
+            "state": 114,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 58
+        },
+        {
+            "state": 115,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 115,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 70
+        },
+        {
+            "state": 116,
+            "symbol": "rpar",
+            "kind": "shift",
+            "target": 117
+        },
+        {
+            "state": 117,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 117,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 69
+        },
+        {
+            "state": 118,
+            "symbol": "rbracket",
+            "kind": "shift",
+            "target": 119
+        },
+        {
+            "state": 119,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "colon",
+            "kind": "shift",
+            "target": 120
+        },
+        {
+            "state": 119,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 119,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 66
+        },
+        {
+            "state": 120,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 121
+        },
+        {
+            "state": 121,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 121,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 67
+        },
+        {
+            "state": 122,
+            "symbol": "rbrace",
+            "kind": "shift",
+            "target": 123
+        },
+        {
+            "state": 123,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "identifier",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "lbrace",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "lbracket",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "lpar",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 123,
+            "symbol": "string_literal",
+            "kind": "reduce",
+            "productionId": 68
+        },
+        {
+            "state": 124,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 56
+        },
+        {
+            "state": 124,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 56
+        },
+        {
+            "state": 124,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 107
+        },
+        {
+            "state": 124,
+            "symbol": "lbrace",
+            "kind": "shift",
+            "target": 109
+        },
+        {
+            "state": 124,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 124,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 124,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 56
+        },
+        {
+            "state": 124,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 56
+        },
+        {
+            "state": 124,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 56
+        },
+        {
+            "state": 124,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 56
+        },
+        {
+            "state": 124,
+            "symbol": "string_literal",
+            "kind": "shift",
+            "target": 115
+        },
+        {
+            "state": 125,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 57
+        },
+        {
+            "state": 125,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 57
+        },
+        {
+            "state": 125,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 57
+        },
+        {
+            "state": 125,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 57
+        },
+        {
+            "state": 125,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 57
+        },
+        {
+            "state": 125,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 57
+        },
+        {
+            "state": 126,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 126,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 126,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 107
+        },
+        {
+            "state": 126,
+            "symbol": "lbrace",
+            "kind": "shift",
+            "target": 109
+        },
+        {
+            "state": 126,
+            "symbol": "lbracket",
+            "kind": "shift",
+            "target": 110
+        },
+        {
+            "state": 126,
+            "symbol": "lpar",
+            "kind": "shift",
+            "target": 111
+        },
+        {
+            "state": 126,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 126,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 126,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 126,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 60
+        },
+        {
+            "state": 126,
+            "symbol": "string_literal",
+            "kind": "shift",
+            "target": 115
+        },
+        {
+            "state": 127,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 61
+        },
+        {
+            "state": 127,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 61
+        },
+        {
+            "state": 127,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 61
+        },
+        {
+            "state": 127,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 61
+        },
+        {
+            "state": 127,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 61
+        },
+        {
+            "state": 127,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 61
+        },
+        {
+            "state": 128,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 59
+        },
+        {
+            "state": 128,
+            "symbol": "bar",
+            "kind": "reduce",
+            "productionId": 59
+        },
+        {
+            "state": 128,
+            "symbol": "rbrace",
+            "kind": "reduce",
+            "productionId": 59
+        },
+        {
+            "state": 128,
+            "symbol": "rbracket",
+            "kind": "reduce",
+            "productionId": 59
+        },
+        {
+            "state": 128,
+            "symbol": "rpar",
+            "kind": "reduce",
+            "productionId": 59
+        },
+        {
+            "state": 128,
+            "symbol": "semicolon",
+            "kind": "reduce",
+            "productionId": 59
+        },
+        {
+            "state": 129,
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 106
         },
         {
             "state": 129,
             "symbol": "identifier",
             "kind": "shift",
-            "target": 130
+            "target": 107
         },
         {
-            "state": 130,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 130,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 72
-        },
-        {
-            "state": 131,
-            "symbol": "rbrace",
-            "kind": "shift",
-            "target": 132
-        },
-        {
-            "state": 132,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "identifier",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "lbrace",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "lbracket",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "lpar",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 132,
-            "symbol": "string_literal",
-            "kind": "reduce",
-            "productionId": 73
-        },
-        {
-            "state": 133,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 61
-        },
-        {
-            "state": 133,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 61
-        },
-        {
-            "state": 133,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 133,
+            "state": 129,
             "symbol": "lbrace",
             "kind": "shift",
-            "target": 118
+            "target": 109
         },
         {
-            "state": 133,
+            "state": 129,
             "symbol": "lbracket",
             "kind": "shift",
-            "target": 119
+            "target": 110
         },
         {
-            "state": 133,
+            "state": 129,
             "symbol": "lpar",
             "kind": "shift",
-            "target": 120
+            "target": 111
         },
         {
-            "state": 133,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 61
-        },
-        {
-            "state": 133,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 61
-        },
-        {
-            "state": 133,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 61
-        },
-        {
-            "state": 133,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 61
-        },
-        {
-            "state": 133,
+            "state": 129,
             "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 134,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 62
-        },
-        {
-            "state": 134,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 62
-        },
-        {
-            "state": 134,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 62
-        },
-        {
-            "state": 134,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 62
-        },
-        {
-            "state": 134,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 62
-        },
-        {
-            "state": 134,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 62
-        },
-        {
-            "state": 135,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 135,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 135,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 135,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 135,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 135,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 135,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 135,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 135,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 135,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 65
-        },
-        {
-            "state": 135,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 136,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 66
-        },
-        {
-            "state": 136,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 66
-        },
-        {
-            "state": 136,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 66
-        },
-        {
-            "state": 136,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 66
-        },
-        {
-            "state": 136,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 66
-        },
-        {
-            "state": 136,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 66
-        },
-        {
-            "state": 137,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 64
-        },
-        {
-            "state": 137,
-            "symbol": "bar",
-            "kind": "reduce",
-            "productionId": 64
-        },
-        {
-            "state": 137,
-            "symbol": "rbrace",
-            "kind": "reduce",
-            "productionId": 64
-        },
-        {
-            "state": 137,
-            "symbol": "rbracket",
-            "kind": "reduce",
-            "productionId": 64
-        },
-        {
-            "state": 137,
-            "symbol": "rpar",
-            "kind": "reduce",
-            "productionId": 64
-        },
-        {
-            "state": 137,
-            "symbol": "semicolon",
-            "kind": "reduce",
-            "productionId": 64
-        },
-        {
-            "state": 138,
-            "symbol": "hash",
             "kind": "shift",
             "target": 115
         },
         {
-            "state": 138,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 138,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 138,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 138,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 138,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 139,
+            "state": 130,
             "symbol": "rbrace",
             "kind": "reduce",
-            "productionId": 59
+            "productionId": 54
         },
         {
-            "state": 139,
+            "state": 130,
             "symbol": "rbracket",
             "kind": "reduce",
-            "productionId": 59
+            "productionId": 54
         },
         {
-            "state": 139,
+            "state": 130,
             "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 59
+            "productionId": 54
         },
         {
-            "state": 139,
+            "state": 130,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 59
+            "productionId": 54
         },
         {
-            "state": 140,
+            "state": 131,
             "symbol": "bar",
             "kind": "shift",
-            "target": 138
+            "target": 129
         },
         {
-            "state": 140,
+            "state": 131,
             "symbol": "rbrace",
             "kind": "reduce",
-            "productionId": 58
+            "productionId": 53
         },
         {
-            "state": 140,
+            "state": 131,
             "symbol": "rbracket",
             "kind": "reduce",
-            "productionId": 58
+            "productionId": 53
         },
         {
-            "state": 140,
+            "state": 131,
             "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 58
+            "productionId": 53
         },
         {
-            "state": 140,
+            "state": 131,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 58
+            "productionId": 53
         },
         {
-            "state": 141,
+            "state": 132,
             "symbol": "rbrace",
             "kind": "reduce",
-            "productionId": 57
+            "productionId": 52
         },
         {
-            "state": 141,
+            "state": 132,
             "symbol": "rbracket",
             "kind": "reduce",
-            "productionId": 57
+            "productionId": 52
         },
         {
-            "state": 141,
+            "state": 132,
             "symbol": "rpar",
             "kind": "reduce",
-            "productionId": 57
+            "productionId": 52
         },
         {
-            "state": 141,
+            "state": 132,
             "symbol": "semicolon",
             "kind": "reduce",
-            "productionId": 57
+            "productionId": 52
         },
         {
-            "state": 142,
+            "state": 133,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 34
+            "productionId": 29
         },
         {
-            "state": 142,
+            "state": 133,
             "symbol": "identifier",
             "kind": "reduce",
-            "productionId": 34
+            "productionId": 29
+        },
+        {
+            "state": 133,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 29
+        },
+        {
+            "state": 134,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 24
+        },
+        {
+            "state": 134,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 24
+        },
+        {
+            "state": 135,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 23
+        },
+        {
+            "state": 135,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 98
+        },
+        {
+            "state": 135,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 23
+        },
+        {
+            "state": 136,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 22
+        },
+        {
+            "state": 136,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 22
+        },
+        {
+            "state": 137,
+            "symbol": "equal",
+            "kind": "shift",
+            "target": 142
+        },
+        {
+            "state": 138,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 20
+        },
+        {
+            "state": 138,
+            "symbol": "ast_kw",
+            "kind": "reduce",
+            "productionId": 20
+        },
+        {
+            "state": 138,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 137
+        },
+        {
+            "state": 138,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 20
+        },
+        {
+            "state": 139,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 21
+        },
+        {
+            "state": 139,
+            "symbol": "ast_kw",
+            "kind": "reduce",
+            "productionId": 21
+        },
+        {
+            "state": 139,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 21
+        },
+        {
+            "state": 140,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 20
+        },
+        {
+            "state": 140,
+            "symbol": "ast_kw",
+            "kind": "reduce",
+            "productionId": 20
+        },
+        {
+            "state": 140,
+            "symbol": "identifier",
+            "kind": "shift",
+            "target": 137
+        },
+        {
+            "state": 140,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 20
+        },
+        {
+            "state": 141,
+            "symbol": "$eof",
+            "kind": "reduce",
+            "productionId": 19
+        },
+        {
+            "state": 141,
+            "symbol": "ast_kw",
+            "kind": "reduce",
+            "productionId": 19
+        },
+        {
+            "state": 141,
+            "symbol": "transform_kw",
+            "kind": "reduce",
+            "productionId": 19
         },
         {
             "state": 142,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 34
+            "symbol": "hash",
+            "kind": "shift",
+            "target": 106
         },
         {
-            "state": 143,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 29
-        },
-        {
-            "state": 143,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 29
-        },
-        {
-            "state": 144,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 28
-        },
-        {
-            "state": 144,
+            "state": 142,
             "symbol": "identifier",
             "kind": "shift",
             "target": 107
         },
         {
-            "state": 144,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 28
-        },
-        {
-            "state": 145,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 27
-        },
-        {
-            "state": 145,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 27
-        },
-        {
-            "state": 146,
-            "symbol": "equal",
+            "state": 142,
+            "symbol": "lbrace",
             "kind": "shift",
-            "target": 151
+            "target": 109
         },
         {
-            "state": 147,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 25
-        },
-        {
-            "state": 147,
-            "symbol": "ast_kw",
-            "kind": "reduce",
-            "productionId": 25
-        },
-        {
-            "state": 147,
-            "symbol": "identifier",
+            "state": 142,
+            "symbol": "lbracket",
             "kind": "shift",
-            "target": 146
+            "target": 110
         },
         {
-            "state": 147,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 25
-        },
-        {
-            "state": 148,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 26
-        },
-        {
-            "state": 148,
-            "symbol": "ast_kw",
-            "kind": "reduce",
-            "productionId": 26
-        },
-        {
-            "state": 148,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 26
-        },
-        {
-            "state": 149,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 25
-        },
-        {
-            "state": 149,
-            "symbol": "ast_kw",
-            "kind": "reduce",
-            "productionId": 25
-        },
-        {
-            "state": 149,
-            "symbol": "identifier",
+            "state": 142,
+            "symbol": "lpar",
             "kind": "shift",
-            "target": 146
+            "target": 111
         },
         {
-            "state": 149,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 25
-        },
-        {
-            "state": 150,
-            "symbol": "$eof",
-            "kind": "reduce",
-            "productionId": 24
-        },
-        {
-            "state": 150,
-            "symbol": "ast_kw",
-            "kind": "reduce",
-            "productionId": 24
-        },
-        {
-            "state": 150,
-            "symbol": "transform_kw",
-            "kind": "reduce",
-            "productionId": 24
-        },
-        {
-            "state": 151,
-            "symbol": "hash",
+            "state": 142,
+            "symbol": "string_literal",
             "kind": "shift",
             "target": 115
         },
         {
-            "state": 151,
-            "symbol": "identifier",
-            "kind": "shift",
-            "target": 116
-        },
-        {
-            "state": 151,
-            "symbol": "lbrace",
-            "kind": "shift",
-            "target": 118
-        },
-        {
-            "state": 151,
-            "symbol": "lbracket",
-            "kind": "shift",
-            "target": 119
-        },
-        {
-            "state": 151,
-            "symbol": "lpar",
-            "kind": "shift",
-            "target": 120
-        },
-        {
-            "state": 151,
-            "symbol": "string_literal",
-            "kind": "shift",
-            "target": 124
-        },
-        {
-            "state": 152,
+            "state": 143,
             "symbol": "semicolon",
             "kind": "shift",
-            "target": 153
+            "target": 144
         },
         {
-            "state": 153,
+            "state": 144,
             "symbol": "$eof",
             "kind": "reduce",
-            "productionId": 33
+            "productionId": 28
         },
         {
-            "state": 153,
+            "state": 144,
             "symbol": "ast_kw",
             "kind": "reduce",
-            "productionId": 33
+            "productionId": 28
         },
         {
-            "state": 153,
+            "state": 144,
             "symbol": "identifier",
             "kind": "reduce",
-            "productionId": 33
+            "productionId": 28
         },
         {
-            "state": 153,
+            "state": 144,
             "symbol": "transform_kw",
             "kind": "reduce",
-            "productionId": 33
+            "productionId": 28
         }
     ],
     "gotos": [
@@ -4006,13 +3740,8 @@
         },
         {
             "state": 2,
-            "symbol": "states_section",
-            "target": 13
-        },
-        {
-            "state": 2,
             "symbol": "token_section",
-            "target": 14
+            "target": 12
         },
         {
             "state": 3,
@@ -4022,12 +3751,12 @@
         {
             "state": 8,
             "symbol": "start_decl",
-            "target": 36
+            "target": 27
         },
         {
             "state": 9,
             "symbol": "grammar_file$repeat_0",
-            "target": 35
+            "target": 26
         },
         {
             "state": 9,
@@ -4041,698 +3770,673 @@
         },
         {
             "state": 9,
-            "symbol": "states_section",
-            "target": 13
-        },
-        {
-            "state": 9,
             "symbol": "token_section",
-            "target": 14
+            "target": 12
         },
         {
             "state": 10,
             "symbol": "token_def",
-            "target": 31
+            "target": 22
         },
         {
-            "state": 12,
-            "symbol": "state_name",
-            "target": 25
+            "state": 13,
+            "symbol": "token_def",
+            "target": 15
         },
         {
             "state": 15,
             "symbol": "token_def",
+            "target": 16
+        },
+        {
+            "state": 15,
+            "symbol": "token_section$repeat_1",
             "target": 17
         },
         {
-            "state": 17,
+            "state": 16,
             "symbol": "token_def",
+            "target": 16
+        },
+        {
+            "state": 16,
+            "symbol": "token_section$repeat_1",
             "target": 18
         },
         {
-            "state": 17,
-            "symbol": "token_section$repeat_1",
-            "target": 19
-        },
-        {
-            "state": 18,
-            "symbol": "token_def",
-            "target": 18
-        },
-        {
-            "state": 18,
-            "symbol": "token_section$repeat_1",
-            "target": 20
-        },
-        {
-            "state": 25,
-            "symbol": "states_section$repeat_3",
-            "target": 27
-        },
-        {
-            "state": 26,
-            "symbol": "state_name",
-            "target": 29
-        },
-        {
-            "state": 29,
-            "symbol": "states_section$repeat_3",
-            "target": 30
-        },
-        {
-            "state": 31,
+            "state": 22,
             "symbol": "skip_section$repeat_2",
+            "target": 23
+        },
+        {
+            "state": 22,
+            "symbol": "token_def",
+            "target": 24
+        },
+        {
+            "state": 24,
+            "symbol": "skip_section$repeat_2",
+            "target": 25
+        },
+        {
+            "state": 24,
+            "symbol": "token_def",
+            "target": 24
+        },
+        {
+            "state": 27,
+            "symbol": "grammar_section",
             "target": 32
         },
         {
             "state": 31,
-            "symbol": "token_def",
-            "target": 33
+            "symbol": "production",
+            "target": 138
         },
         {
-            "state": 33,
-            "symbol": "skip_section$repeat_2",
+            "state": 32,
+            "symbol": "ast_section",
             "target": 34
         },
         {
-            "state": 33,
-            "symbol": "token_def",
-            "target": 33
+            "state": 32,
+            "symbol": "transform_section",
+            "target": 36
         },
         {
-            "state": 36,
-            "symbol": "grammar_section",
+            "state": 33,
+            "symbol": "ast_type",
+            "target": 97
+        },
+        {
+            "state": 34,
+            "symbol": "transform_section",
+            "target": 96
+        },
+        {
+            "state": 35,
+            "symbol": "transform_rule",
+            "target": 38
+        },
+        {
+            "state": 38,
+            "symbol": "transform_rule",
+            "target": 39
+        },
+        {
+            "state": 38,
+            "symbol": "transform_section$repeat_5",
+            "target": 40
+        },
+        {
+            "state": 39,
+            "symbol": "transform_rule",
+            "target": 39
+        },
+        {
+            "state": 39,
+            "symbol": "transform_section$repeat_5",
             "target": 41
         },
         {
-            "state": 40,
-            "symbol": "production",
-            "target": 147
-        },
-        {
-            "state": 41,
-            "symbol": "ast_section",
-            "target": 43
-        },
-        {
-            "state": 41,
-            "symbol": "transform_section",
-            "target": 45
-        },
-        {
             "state": 42,
-            "symbol": "ast_type",
-            "target": 106
-        },
-        {
-            "state": 43,
-            "symbol": "transform_section",
-            "target": 105
+            "symbol": "labeled_transform",
+            "target": 44
         },
         {
             "state": 44,
-            "symbol": "transform_rule",
-            "target": 47
+            "symbol": "transform_rule$repeat_6",
+            "target": 46
         },
         {
-            "state": 47,
-            "symbol": "transform_rule",
+            "state": 45,
+            "symbol": "labeled_transform",
             "target": 48
         },
         {
-            "state": 47,
-            "symbol": "transform_section$repeat_6",
+            "state": 48,
+            "symbol": "transform_rule$repeat_6",
             "target": 49
         },
         {
-            "state": 48,
-            "symbol": "transform_rule",
-            "target": 48
+            "state": 50,
+            "symbol": "build_expr",
+            "target": 51
         },
         {
-            "state": 48,
-            "symbol": "transform_section$repeat_6",
-            "target": 50
+            "state": 50,
+            "symbol": "build_target",
+            "target": 52
         },
         {
-            "state": 51,
-            "symbol": "labeled_transform",
-            "target": 53
+            "state": 50,
+            "symbol": "flatten_expr",
+            "target": 54
         },
         {
-            "state": 53,
-            "symbol": "transform_rule$repeat_7",
-            "target": 55
+            "state": 50,
+            "symbol": "fold_left_expr",
+            "target": 56
         },
         {
-            "state": 54,
-            "symbol": "labeled_transform",
-            "target": 57
-        },
-        {
-            "state": 57,
-            "symbol": "transform_rule$repeat_7",
+            "state": 50,
+            "symbol": "fold_right_expr",
             "target": 58
         },
         {
-            "state": 59,
-            "symbol": "build_expr",
-            "target": 60
-        },
-        {
-            "state": 59,
-            "symbol": "build_target",
+            "state": 50,
+            "symbol": "pass_expr",
             "target": 61
         },
         {
-            "state": 59,
-            "symbol": "flatten_expr",
+            "state": 50,
+            "symbol": "transform_expr",
             "target": 63
         },
         {
-            "state": 59,
-            "symbol": "fold_left_expr",
-            "target": 65
+            "state": 64,
+            "symbol": "reference",
+            "target": 66
         },
         {
-            "state": 59,
-            "symbol": "fold_right_expr",
-            "target": 67
-        },
-        {
-            "state": 59,
-            "symbol": "pass_expr",
-            "target": 70
-        },
-        {
-            "state": 59,
-            "symbol": "transform_expr",
+            "state": 71,
+            "symbol": "build_target",
             "target": 72
         },
         {
             "state": 73,
             "symbol": "reference",
+            "target": 74
+        },
+        {
+            "state": 73,
+            "symbol": "reference_list",
             "target": 75
         },
         {
-            "state": 80,
-            "symbol": "build_target",
-            "target": 81
+            "state": 74,
+            "symbol": "reference_list$repeat_7",
+            "target": 78
         },
         {
-            "state": 82,
+            "state": 77,
             "symbol": "reference",
-            "target": 83
+            "target": 79
         },
         {
-            "state": 82,
+            "state": 79,
+            "symbol": "reference_list$repeat_7",
+            "target": 80
+        },
+        {
+            "state": 81,
+            "symbol": "build_target",
+            "target": 82
+        },
+        {
+            "state": 83,
+            "symbol": "reference",
+            "target": 74
+        },
+        {
+            "state": 83,
             "symbol": "reference_list",
             "target": 84
         },
         {
-            "state": 83,
-            "symbol": "reference_list$repeat_8",
+            "state": 86,
+            "symbol": "build_target",
             "target": 87
         },
         {
-            "state": 86,
-            "symbol": "reference",
-            "target": 88
-        },
-        {
             "state": 88,
-            "symbol": "reference_list$repeat_8",
+            "symbol": "reference",
             "target": 89
         },
         {
             "state": 90,
-            "symbol": "build_target",
+            "symbol": "reference",
             "target": 91
         },
         {
-            "state": 92,
+            "state": 93,
             "symbol": "reference",
-            "target": 83
+            "target": 74
         },
         {
-            "state": 92,
+            "state": 93,
             "symbol": "reference_list",
-            "target": 93
-        },
-        {
-            "state": 95,
-            "symbol": "build_target",
-            "target": 96
+            "target": 94
         },
         {
             "state": 97,
-            "symbol": "reference",
-            "target": 98
-        },
-        {
-            "state": 99,
-            "symbol": "reference",
-            "target": 100
-        },
-        {
-            "state": 102,
-            "symbol": "reference",
-            "target": 83
-        },
-        {
-            "state": 102,
-            "symbol": "reference_list",
-            "target": 103
-        },
-        {
-            "state": 106,
-            "symbol": "ast_section$repeat_5",
-            "target": 143
-        },
-        {
-            "state": 106,
-            "symbol": "ast_type",
-            "target": 144
-        },
-        {
-            "state": 108,
-            "symbol": "alternative",
-            "target": 109
-        },
-        {
-            "state": 108,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 108,
-            "symbol": "choice",
-            "target": 111
-        },
-        {
-            "state": 108,
-            "symbol": "expression",
-            "target": 112
-        },
-        {
-            "state": 108,
-            "symbol": "factor",
-            "target": 113
-        },
-        {
-            "state": 108,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 108,
-            "symbol": "labeled_alternative",
-            "target": 117
-        },
-        {
-            "state": 108,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 108,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 108,
-            "symbol": "sequence",
-            "target": 123
-        },
-        {
-            "state": 109,
-            "symbol": "choice$repeat_9",
-            "target": 139
-        },
-        {
-            "state": 113,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 113,
-            "symbol": "factor",
-            "target": 135
-        },
-        {
-            "state": 113,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 113,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 113,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 113,
-            "symbol": "sequence$repeat_10",
-            "target": 136
-        },
-        {
-            "state": 118,
-            "symbol": "alternative",
-            "target": 109
-        },
-        {
-            "state": 118,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 118,
-            "symbol": "choice",
-            "target": 111
-        },
-        {
-            "state": 118,
-            "symbol": "expression",
-            "target": 131
-        },
-        {
-            "state": 118,
-            "symbol": "factor",
-            "target": 113
-        },
-        {
-            "state": 118,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 118,
-            "symbol": "labeled_alternative",
-            "target": 117
-        },
-        {
-            "state": 118,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 118,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 118,
-            "symbol": "sequence",
-            "target": 123
-        },
-        {
-            "state": 119,
-            "symbol": "alternative",
-            "target": 109
-        },
-        {
-            "state": 119,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 119,
-            "symbol": "choice",
-            "target": 111
-        },
-        {
-            "state": 119,
-            "symbol": "expression",
-            "target": 127
-        },
-        {
-            "state": 119,
-            "symbol": "factor",
-            "target": 113
-        },
-        {
-            "state": 119,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 119,
-            "symbol": "labeled_alternative",
-            "target": 117
-        },
-        {
-            "state": 119,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 119,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 119,
-            "symbol": "sequence",
-            "target": 123
-        },
-        {
-            "state": 120,
-            "symbol": "alternative",
-            "target": 109
-        },
-        {
-            "state": 120,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 120,
-            "symbol": "choice",
-            "target": 111
-        },
-        {
-            "state": 120,
-            "symbol": "expression",
-            "target": 125
-        },
-        {
-            "state": 120,
-            "symbol": "factor",
-            "target": 113
-        },
-        {
-            "state": 120,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 120,
-            "symbol": "labeled_alternative",
-            "target": 117
-        },
-        {
-            "state": 120,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 120,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 120,
-            "symbol": "sequence",
-            "target": 123
-        },
-        {
-            "state": 133,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 133,
-            "symbol": "factor",
-            "target": 113
-        },
-        {
-            "state": 133,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 133,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 133,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 133,
-            "symbol": "sequence",
+            "symbol": "ast_section$repeat_4",
             "target": 134
         },
         {
-            "state": 135,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 135,
-            "symbol": "factor",
+            "state": 97,
+            "symbol": "ast_type",
             "target": 135
         },
         {
-            "state": 135,
+            "state": 99,
+            "symbol": "alternative",
+            "target": 100
+        },
+        {
+            "state": 99,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 99,
+            "symbol": "choice",
+            "target": 102
+        },
+        {
+            "state": 99,
+            "symbol": "expression",
+            "target": 103
+        },
+        {
+            "state": 99,
+            "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 99,
             "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 99,
+            "symbol": "labeled_alternative",
+            "target": 108
+        },
+        {
+            "state": 99,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 99,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 99,
+            "symbol": "sequence",
             "target": 114
         },
         {
-            "state": 135,
-            "symbol": "primary",
-            "target": 121
+            "state": 100,
+            "symbol": "choice$repeat_8",
+            "target": 130
         },
         {
-            "state": 135,
+            "state": 104,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 104,
+            "symbol": "factor",
+            "target": 126
+        },
+        {
+            "state": 104,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 104,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 104,
             "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 104,
+            "symbol": "sequence$repeat_9",
+            "target": 127
+        },
+        {
+            "state": 109,
+            "symbol": "alternative",
+            "target": 100
+        },
+        {
+            "state": 109,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 109,
+            "symbol": "choice",
+            "target": 102
+        },
+        {
+            "state": 109,
+            "symbol": "expression",
             "target": 122
         },
         {
+            "state": 109,
+            "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 109,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 109,
+            "symbol": "labeled_alternative",
+            "target": 108
+        },
+        {
+            "state": 109,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 109,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 109,
+            "symbol": "sequence",
+            "target": 114
+        },
+        {
+            "state": 110,
+            "symbol": "alternative",
+            "target": 100
+        },
+        {
+            "state": 110,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 110,
+            "symbol": "choice",
+            "target": 102
+        },
+        {
+            "state": 110,
+            "symbol": "expression",
+            "target": 118
+        },
+        {
+            "state": 110,
+            "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 110,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 110,
+            "symbol": "labeled_alternative",
+            "target": 108
+        },
+        {
+            "state": 110,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 110,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 110,
+            "symbol": "sequence",
+            "target": 114
+        },
+        {
+            "state": 111,
+            "symbol": "alternative",
+            "target": 100
+        },
+        {
+            "state": 111,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 111,
+            "symbol": "choice",
+            "target": 102
+        },
+        {
+            "state": 111,
+            "symbol": "expression",
+            "target": 116
+        },
+        {
+            "state": 111,
+            "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 111,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 111,
+            "symbol": "labeled_alternative",
+            "target": 108
+        },
+        {
+            "state": 111,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 111,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 111,
+            "symbol": "sequence",
+            "target": 114
+        },
+        {
+            "state": 124,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 124,
+            "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 124,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 124,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 124,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 124,
+            "symbol": "sequence",
+            "target": 125
+        },
+        {
+            "state": 126,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 126,
+            "symbol": "factor",
+            "target": 126
+        },
+        {
+            "state": 126,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 126,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 126,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 126,
+            "symbol": "sequence$repeat_9",
+            "target": 128
+        },
+        {
+            "state": 129,
+            "symbol": "alternative",
+            "target": 131
+        },
+        {
+            "state": 129,
+            "symbol": "bracketed",
+            "target": 101
+        },
+        {
+            "state": 129,
+            "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 129,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 129,
+            "symbol": "labeled_alternative",
+            "target": 108
+        },
+        {
+            "state": 129,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 129,
+            "symbol": "repeat",
+            "target": 113
+        },
+        {
+            "state": 129,
+            "symbol": "sequence",
+            "target": 114
+        },
+        {
+            "state": 131,
+            "symbol": "choice$repeat_8",
+            "target": 132
+        },
+        {
             "state": 135,
-            "symbol": "sequence$repeat_10",
-            "target": 137
+            "symbol": "ast_section$repeat_4",
+            "target": 136
+        },
+        {
+            "state": 135,
+            "symbol": "ast_type",
+            "target": 135
         },
         {
             "state": 138,
-            "symbol": "alternative",
+            "symbol": "grammar_section$repeat_3",
+            "target": 139
+        },
+        {
+            "state": 138,
+            "symbol": "production",
             "target": 140
         },
         {
-            "state": 138,
-            "symbol": "bracketed",
-            "target": 110
-        },
-        {
-            "state": 138,
-            "symbol": "factor",
-            "target": 113
-        },
-        {
-            "state": 138,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 138,
-            "symbol": "labeled_alternative",
-            "target": 117
-        },
-        {
-            "state": 138,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 138,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 138,
-            "symbol": "sequence",
-            "target": 123
-        },
-        {
             "state": 140,
-            "symbol": "choice$repeat_9",
+            "symbol": "grammar_section$repeat_3",
             "target": 141
         },
         {
-            "state": 144,
-            "symbol": "ast_section$repeat_5",
-            "target": 145
-        },
-        {
-            "state": 144,
-            "symbol": "ast_type",
-            "target": 144
-        },
-        {
-            "state": 147,
-            "symbol": "grammar_section$repeat_4",
-            "target": 148
-        },
-        {
-            "state": 147,
+            "state": 140,
             "symbol": "production",
-            "target": 149
+            "target": 140
         },
         {
-            "state": 149,
-            "symbol": "grammar_section$repeat_4",
-            "target": 150
-        },
-        {
-            "state": 149,
-            "symbol": "production",
-            "target": 149
-        },
-        {
-            "state": 151,
+            "state": 142,
             "symbol": "alternative",
-            "target": 109
+            "target": 100
         },
         {
-            "state": 151,
+            "state": 142,
             "symbol": "bracketed",
-            "target": 110
+            "target": 101
         },
         {
-            "state": 151,
+            "state": 142,
             "symbol": "choice",
-            "target": 111
+            "target": 102
         },
         {
-            "state": 151,
+            "state": 142,
             "symbol": "expression",
-            "target": 152
+            "target": 143
         },
         {
-            "state": 151,
+            "state": 142,
             "symbol": "factor",
+            "target": 104
+        },
+        {
+            "state": 142,
+            "symbol": "group",
+            "target": 105
+        },
+        {
+            "state": 142,
+            "symbol": "labeled_alternative",
+            "target": 108
+        },
+        {
+            "state": 142,
+            "symbol": "primary",
+            "target": 112
+        },
+        {
+            "state": 142,
+            "symbol": "repeat",
             "target": 113
         },
         {
-            "state": 151,
-            "symbol": "group",
-            "target": 114
-        },
-        {
-            "state": 151,
-            "symbol": "labeled_alternative",
-            "target": 117
-        },
-        {
-            "state": 151,
-            "symbol": "primary",
-            "target": 121
-        },
-        {
-            "state": 151,
-            "symbol": "repeat",
-            "target": 122
-        },
-        {
-            "state": 151,
+            "state": 142,
             "symbol": "sequence",
-            "target": 123
+            "target": 114
         }
     ],
     "ast": [
@@ -4754,7 +4458,7 @@
                 ]
             },
             "location": {
-                "offset": 4736,
+                "offset": 4555,
                 "length": 50
             }
         },
@@ -4776,7 +4480,7 @@
                 ]
             },
             "location": {
-                "offset": 4792,
+                "offset": 4611,
                 "length": 56
             }
         },
@@ -4798,7 +4502,7 @@
                 ]
             },
             "location": {
-                "offset": 4854,
+                "offset": 4673,
                 "length": 55
             }
         },
@@ -4820,7 +4524,7 @@
                 ]
             },
             "location": {
-                "offset": 4915,
+                "offset": 4734,
                 "length": 59
             }
         },
@@ -4842,7 +4546,7 @@
                 ]
             },
             "location": {
-                "offset": 4980,
+                "offset": 4799,
                 "length": 47
             }
         },
@@ -4864,7 +4568,7 @@
                 ]
             },
             "location": {
-                "offset": 5033,
+                "offset": 4852,
                 "length": 59
             }
         },
@@ -4886,7 +4590,7 @@
                 ]
             },
             "location": {
-                "offset": 5098,
+                "offset": 4917,
                 "length": 66
             }
         },
@@ -4908,7 +4612,7 @@
                 ]
             },
             "location": {
-                "offset": 5170,
+                "offset": 4989,
                 "length": 56
             }
         },
@@ -4930,7 +4634,7 @@
                 ]
             },
             "location": {
-                "offset": 5232,
+                "offset": 5051,
                 "length": 52
             }
         },
@@ -4952,7 +4656,7 @@
                 ]
             },
             "location": {
-                "offset": 5290,
+                "offset": 5109,
                 "length": 44
             }
         }
@@ -4971,13 +4675,13 @@
                         "tail": "grammar_file$repeat_0"
                     },
                     "location": {
-                        "offset": 5383,
+                        "offset": 5202,
                         "length": 69
                     }
                 }
             ],
             "location": {
-                "offset": 5350,
+                "offset": 5169,
                 "length": 104
             }
         },
@@ -4994,13 +4698,13 @@
                         "tail": "token_section$repeat_1"
                     },
                     "location": {
-                        "offset": 5485,
+                        "offset": 5304,
                         "length": 76
                     }
                 }
             ],
             "location": {
-                "offset": 5460,
+                "offset": 5279,
                 "length": 103
             }
         },
@@ -5017,13 +4721,13 @@
                         "tail": "skip_section$repeat_2"
                     },
                     "location": {
-                        "offset": 5593,
+                        "offset": 5412,
                         "length": 74
                     }
                 }
             ],
             "location": {
-                "offset": 5569,
+                "offset": 5388,
                 "length": 100
             }
         },
@@ -5040,13 +4744,13 @@
                         "tail": "grammar_section$repeat_4"
                     },
                     "location": {
-                        "offset": 5702,
+                        "offset": 5521,
                         "length": 81
                     }
                 }
             ],
             "location": {
-                "offset": 5675,
+                "offset": 5494,
                 "length": 110
             }
         },
@@ -5063,13 +4767,13 @@
                         "tail": "ast_section$repeat_5"
                     },
                     "location": {
-                        "offset": 5814,
+                        "offset": 5633,
                         "length": 65
                     }
                 }
             ],
             "location": {
-                "offset": 5791,
+                "offset": 5610,
                 "length": 90
             }
         },
@@ -5086,13 +4790,13 @@
                         "tail": "transform_section$repeat_6"
                     },
                     "location": {
-                        "offset": 5916,
+                        "offset": 5735,
                         "length": 83
                     }
                 }
             ],
             "location": {
-                "offset": 5887,
+                "offset": 5706,
                 "length": 114
             }
         },
@@ -5109,13 +4813,13 @@
                         "tail": "transform_rule$repeat_7"
                     },
                     "location": {
-                        "offset": 6033,
+                        "offset": 5852,
                         "length": 87
                     }
                 }
             ],
             "location": {
-                "offset": 6007,
+                "offset": 5826,
                 "length": 115
             }
         },
@@ -5132,13 +4836,13 @@
                         "tail": "reference_list$repeat_8"
                     },
                     "location": {
-                        "offset": 6154,
+                        "offset": 5973,
                         "length": 77
                     }
                 }
             ],
             "location": {
-                "offset": 6128,
+                "offset": 5947,
                 "length": 105
             }
         },
@@ -5155,13 +4859,13 @@
                         "tail": "choice$repeat_9"
                     },
                     "location": {
-                        "offset": 6257,
+                        "offset": 6076,
                         "length": 65
                     }
                 }
             ],
             "location": {
-                "offset": 6239,
+                "offset": 6058,
                 "length": 85
             }
         },
@@ -5178,13 +4882,13 @@
                         "tail": "sequence$repeat_10"
                     },
                     "location": {
-                        "offset": 6350,
+                        "offset": 6169,
                         "length": 60
                     }
                 }
             ],
             "location": {
-                "offset": 6330,
+                "offset": 6149,
                 "length": 82
             }
         }

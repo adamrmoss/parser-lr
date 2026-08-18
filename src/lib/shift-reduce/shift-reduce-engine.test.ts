@@ -170,32 +170,6 @@ grammar
             { name: 'number', text: '1', location: { offset: 0, length: 1 } },
         ])).toBeNull();
     });
-
-    it('returns null for lexer-only tables without parser entries', () =>
-    {
-        const grammar = readGrammar(`
-name "calc" ;
-tokens number = /[0-9]+/ ;
-skip whitespace = /\\s+/ ;
-start expr ;
-grammar expr = number ;
-`);
-        const fullTable = ParseTable.fromGrammar(grammar, 'lr1');
-        const lexerOnly = ParseTable.fromJson({
-            ...fullTable.toJson(),
-            version: 1,
-            parserStateCount: undefined,
-            productions: undefined,
-            actions: undefined,
-            gotos: undefined,
-        });
-
-        expect(lexerOnly.hasParserTable).toBe(false);
-        expect(parseWithTable(lexerOnly, [
-            { name: 'number', text: '1', location: { offset: 0, length: 1 } },
-            { name: '$eof', text: '', location: { offset: 1, length: 0 } },
-        ])).toBeNull();
-    });
 });
 
 describe('tokenActionKey', () =>

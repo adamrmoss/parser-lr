@@ -6,11 +6,8 @@ import { Lexer } from '../lexer/lexer.js';
 import { LexerCompileError } from '../lexer/lexer-compile-error.js';
 import { LexerError } from '../lexer/lexer-error.js';
 import { LexerInputError } from '../lexer/lexer-input-error.js';
-import { LexerStateError } from '../lexer/lexer-state-error.js';
-import { ParseContextError } from '../parse-context-error.js';
 import { parseContextFromSources } from '../grammar-entry.js';
-import { ParseOutputError } from '../parse-output-error.js';
-import { formatParseOutput } from '../parse-output.js';
+import { ParseContextError } from '../parse-context-error.js';
 import { ParseTableError } from '../parse-table/parse-table-error.js';
 import { ParseTable } from '../parse-table/parse-table.js';
 import { LrAlgorithmError, parseLrAlgorithm } from '../parse-table/index.js';
@@ -54,7 +51,6 @@ describe('error discipline', () =>
             new Lexer(new Grammar(
                 'bad',
                 [{ name: 'broken', pattern: '(', flags: '' }],
-                [],
                 [],
                 'start',
                 [],
@@ -139,18 +135,16 @@ oops
         }
     });
 
-    it('reports unsupported parse table versions with ParseTableError', () =>
+    it('reports incomplete parse table JSON with ParseTableError', () =>
     {
         expect(() => ParseTable.fromJson({
-            version: 99 as unknown as 1,
             algorithm: 'lr1',
             grammarName: 'x',
             startSymbol: 'S',
             tokens: [],
             tokenRules: [],
             skipRules: [],
-            states: [],
-        })).toThrow(ParseTableError);
+        } as unknown as import('../parse-table/parse-table-json.js').ParseTableJson)).toThrow(ParseTableError);
     });
 
     it('reports LR conflicts as warnings without throwing', () =>
@@ -183,27 +177,6 @@ grammar
     {
         expect(() => parseContextFromSources({})).toThrow(ParseContextError);
         expectCleanUserError(new ParseContextError('required: grammar source or table JSON'));
-    });
-
-    it('reports unsupported parse output formats with ParseOutputError', () =>
-    {
-        expect(() => formatParseOutput(null, 'xml')).toThrow(ParseOutputError);
-        expectCleanUserError(new ParseOutputError('xml'));
-    });
-
-    it('reports unknown lexer states with LexerStateError', () =>
-    {
-        const grammar = new Grammar(
-            'states',
-            [{ name: 'word', pattern: '[a-z]+', flags: '', states: ['initial'] }],
-            [],
-            ['initial'],
-            'start',
-            [],
-        );
-        const lexer = new Lexer(grammar);
-
-        expect(() => lexer.enterState('missing')).toThrow(LexerStateError);
     });
 
     it('reports push-after-finish with LexerInputError', () =>

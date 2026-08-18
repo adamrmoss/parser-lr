@@ -1,12 +1,10 @@
 import type { Grammar } from '../grammar/grammar.js';
 
 import {
-    assertLexerState,
     compileLexerRules,
     findLongestMatch,
     hasLongerPossibleMatch,
     isPrefixOfPotentialMatch,
-    rulesForState,
 } from './lexer-compile.js';
 import type { CompiledLexerRules } from './lexer-compile.js';
 import { LexerError } from './lexer-error.js';
@@ -15,7 +13,7 @@ import { eofToken, token } from './token.js';
 import type { Token } from './token.js';
 
 /**
- * Stream-based lexer driven by a grammar's `tokens`, `skip`, and `states` sections.
+ * Stream-based lexer driven by a grammar's `tokens` and `skip` sections.
  *
  * Push source chunks with {@link push}, signal end-of-input with {@link finish},
  * then read tokens via {@link next} or iteration. The final token is always `$eof`.
@@ -28,7 +26,6 @@ export class Lexer
     private offset = 0;
     private finished = false;
     private eofEmitted = false;
-    private currentState: string;
 
     /**
      * Creates a lexer from a parsed grammar.
@@ -38,26 +35,6 @@ export class Lexer
     public constructor(grammar: Grammar)
     {
         this.compiled = compileLexerRules(grammar);
-        this.currentState = this.compiled.initialState;
-    }
-
-    /**
-     * Returns the active lexer state name.
-     */
-    public get state(): string
-    {
-        return this.currentState;
-    }
-
-    /**
-     * Enters a declared lexer state.
-     *
-     * @param stateName - Lexer state to activate.
-     */
-    public enterState(stateName: string): void
-    {
-        assertLexerState(this.compiled, stateName);
-        this.currentState = stateName;
     }
 
     /**
@@ -226,7 +203,7 @@ export class Lexer
             return null;
         }
 
-        const activeRules = rulesForState(this.compiled, this.currentState);
+        const activeRules = this.compiled.rules;
         const bestMatch = findLongestMatch(this.buffer, activeRules);
 
         if (bestMatch === null)

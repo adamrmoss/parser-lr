@@ -21,7 +21,6 @@ describe('ParseTable', () =>
         [
             { name: 'whitespace', pattern: '[ \\t\\r\\n]+', flags: '' },
         ],
-        [],
         'expr',
         [],
     );
@@ -65,17 +64,15 @@ describe('ParseTable', () =>
         expect(ast?.variant).toBe('binary');
     });
 
-    it('rejects unsupported schema versions', () =>
+    it('rejects table JSON missing required fields', () =>
     {
         expect(() => ParseTable.fromJson({
-            version: 99 as unknown as 1,
             algorithm: 'lr1',
             grammarName: 'calc',
             startSymbol: 'expr',
             tokens: [],
             tokenRules: [],
             skipRules: [],
-            states: [],
-        })).toThrow(ParseTableError);
+        } as unknown as import('./parse-table-json.js').ParseTableJson)).toThrow(ParseTableError);
     });
 });

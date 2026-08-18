@@ -74,7 +74,6 @@ Options:
 | `-g, --grammar <path>` | `.grammar` file (one of grammar or table) |
 | `-t, --table <path>` | Serialized table JSON from `table generate` |
 | `-o, --output <path>` | Output path (default: stdout) |
-| `--format <name>` | Output format (default: `json`) |
 
 Output is a JSON object `{ "ast": … }`. On a syntax error, `ast` is `null`.
 

@@ -1,10 +1,7 @@
 import grammarTableJson from './grammar.json' with { type: 'json' };
 
-import { Lexer } from '../lexer/lexer.js';
-import { isEofToken } from '../lexer/token.js';
-import type { Token } from '../lexer/token.js';
 import { ParseTable } from '../parse-table/parse-table.js';
-import type { ParseTableJson } from '../parse-table/parse-table.js';
+import type { ParseTableJson } from '../parse-table/parse-table-json.js';
 
 import type { Grammar } from './grammar.js';
 
@@ -47,17 +44,4 @@ export function metaGrammar(): Grammar
     }
 
     return bootstrapMetaGrammar;
-}
-
-/**
- * Lexes a `.grammar` source file using the bootstrapped meta-grammar table.
- *
- * @param source - Full grammar file text.
- * @returns Matched tokens excluding `$eof`.
- */
-export function lexGrammarSource(source: string): readonly Token[]
-{
-    const tokens = new Lexer(metaGrammar()).lex(source);
-
-    return tokens.filter((token) => !isEofToken(token));
 }

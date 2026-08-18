@@ -1,5 +1,4 @@
 import type { AstNode } from './ast/ast-node.js';
-import { ParseContextError } from './parse-context-error.js';
 import type { Lexer } from './lexer/lexer.js';
 import type { Token } from './lexer/token.js';
 import { ParseTable } from './parse-table/parse-table.js';
@@ -34,22 +33,6 @@ export class ParseContext
         const table = ParseTable.fromJsonString(json);
 
         return new ParseContext(ParserLr.fromParseTable(table), table);
-    }
-
-    /**
-     * Builds a parse context from serialized table JSON options.
-     *
-     * @param options - Table JSON source.
-     * @returns Parser and parse table ready for lexing or parsing.
-     */
-    public static fromSources(options: ParseContextSources): ParseContext
-    {
-        if (options.tableJson !== undefined)
-        {
-            return ParseContext.fromTableJson(options.tableJson);
-        }
-
-        throw new ParseContextError('required: table JSON');
     }
 
     /**
@@ -149,12 +132,4 @@ export class ParseContext
     {
         return this.parser.parseSource(source);
     }
-}
-
-/**
- * In-memory sources for constructing a {@link ParseContext} from table JSON.
- */
-export interface ParseContextSources
-{
-    readonly tableJson?: string;
 }

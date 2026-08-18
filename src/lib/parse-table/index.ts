@@ -11,11 +11,10 @@ export type { Lr1Item } from './lr1/index.js';
 export { LrAlgorithmError } from './lr-algorithm-error.js';
 export { ParseTableBuildError } from './parse-table-build-error.js';
 export { ParseTableError } from './parse-table-error.js';
-export { isParseTableJsonV2 } from './parse-table-json.js';
 export type {
     ParseTableActionJson,
     ParseTableGotoJson,
-    ParseTableJsonV2,
+    ParseTableJson,
     ParseTableProductionJson,
 } from './parse-table-json.js';
 export { buildSlrTable, formatSlrActions, formatSlrConflicts, SlrTable } from './slr/index.js';
@@ -29,5 +28,4 @@ export {
 } from './table/index.js';
 export type { ParseAction, ParseConflict } from './table/index.js';
 export { tokenInventory } from './token-inventory.js';
-export { PARSE_TABLE_VERSION, PARSE_TABLE_VERSION_FULL, ParseTable } from './parse-table.js';
-export type { ParseTableJson } from './parse-table.js';
+export { ParseTable } from './parse-table.js';

@@ -4,7 +4,6 @@ import { Grammar } from '../grammar/grammar.js';
 import { EOF_TOKEN_NAME, eofToken } from './token.js';
 
 import { LexerCompileError } from './lexer-compile-error.js';
-import { DEFAULT_LEXER_STATE } from './lexer-compile.js';
 import { LexerError } from './lexer-error.js';
 import { Lexer, lexChunkStream, lexChunks } from './lexer.js';
 
@@ -20,7 +19,6 @@ describe('Lexer', () =>
         [
             { name: 'whitespace', pattern: '[ \\t\\r\\n]+', flags: '' },
         ],
-        [],
         'expr',
         [],
     );
@@ -59,7 +57,6 @@ describe('Lexer', () =>
                 { name: 'colon', pattern: ':', flags: '' },
             ],
             [],
-            [],
             'start',
             [],
         );
@@ -85,7 +82,6 @@ describe('Lexer', () =>
                 { name: 'identifier', pattern: '[A-Za-z_][A-Za-z0-9_]*', flags: '' },
             ],
             [],
-            [],
             'start',
             [],
         );
@@ -102,7 +98,6 @@ describe('Lexer', () =>
             [
                 { name: 'regex_literal', pattern: '\\/(\\\\.|[^\\\\\\/])+\\/', flags: '' },
             ],
-            [],
             [],
             'start',
             [],
@@ -130,63 +125,9 @@ describe('Lexer', () =>
             'bad',
             [{ name: 'broken', pattern: '(', flags: '' }],
             [],
-            [],
             'start',
             [],
         ))).toThrow(LexerCompileError);
-    });
-
-    it('uses the default initial state when no states are declared', () =>
-    {
-        const lexer = new Lexer(calcGrammar);
-
-        expect(lexer.state).toBe(DEFAULT_LEXER_STATE);
-    });
-
-    it('starts in the first declared lexer state', () =>
-    {
-        const grammar = new Grammar(
-            'states',
-            [
-                {
-                    name: 'word',
-                    pattern: '[a-z]+',
-                    flags: '',
-                    states: ['initial'],
-                },
-                {
-                    name: 'digit',
-                    pattern: '[0-9]+',
-                    flags: '',
-                    states: ['numbers'],
-                },
-            ],
-            [],
-            ['initial', 'numbers'],
-            'start',
-            [],
-        );
-        const lexer = new Lexer(grammar);
-
-        expect(lexer.state).toBe('initial');
-        expect(lexer.lex('abc')).toEqual([
-            {
-                name: 'word',
-                text: 'abc',
-                location: { offset: 0, length: 3 },
-            },
-            eofToken(3),
-        ]);
-
-        lexer.enterState('numbers');
-        expect(lexer.lex('42')).toEqual([
-            {
-                name: 'digit',
-                text: '42',
-                location: { offset: 0, length: 2 },
-            },
-            eofToken(2),
-        ]);
     });
 
     it('lexes split tokens from chunked input', () =>
@@ -221,7 +162,6 @@ describe('Lexer', () =>
                 { name: 'assign', pattern: ':=', flags: '' },
                 { name: 'colon', pattern: ':', flags: '' },
             ],
-            [],
             [],
             'start',
             [],

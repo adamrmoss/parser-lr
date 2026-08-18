@@ -66,7 +66,6 @@ describe('Lexer edge conditions', () =>
         'calc',
         [{ name: 'number', pattern: '[0-9]+', flags: '' }],
         [],
-        [],
         'expr',
         [],
     );

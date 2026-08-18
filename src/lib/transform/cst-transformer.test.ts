@@ -60,7 +60,6 @@ describe('transformCst', () =>
         ['number', 'plus', '$eof'],
         [],
         [],
-        [],
         'lr1',
         1,
         [

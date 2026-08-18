@@ -7,7 +7,7 @@ A `.grammar` file describes a language: lexer rules, parser productions, and opt
 A grammar file contains these sections in order:
 
 1. `name` — grammar name
-2. Zero or more of: `tokens`, `skip`, `states`
+2. Zero or more of: `tokens`, `skip`
 3. `start` — entry non-terminal
 4. `grammar` — parse productions
 5. Optional `ast` — AST type definitions
@@ -48,14 +48,6 @@ skip
 ```
 
 Syntax matches `tokens`.
-
-## `states`
-
-Optional lexer start states (for multi-mode lexing):
-
-```ebnf
-states default, string ;
-```
 
 ## `start`
 
@@ -349,8 +341,6 @@ transform
 ```
 
 After `pass(stmt)`, consumers see `cls_stmt`, `print_stmt`, or `end_stmt` at the statement root. Add `ast` + `transform` rules per statement production rather than scanning for keyword terminals in bridge code.
-
-See [`docs/parser-lr-enhancement-proposals.md`](parser-lr-enhancement-proposals.md) for the EduBASIC migration that motivated these conventions.
 
 ## Complete example
 
