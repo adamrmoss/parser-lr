@@ -6,6 +6,22 @@ import { LexerCompileError } from './lexer-compile-error.js';
 const REGEX_LITERAL_TOKEN = 'regex_literal';
 
 /**
+ * Builds anchored sticky RegExp flags for lexer rules.
+ *
+ * @param ruleFlags - Flag letters from the grammar token rule.
+ * @returns Combined flags including `y` and excluding `g`.
+ */
+function lexerRegexFlags(ruleFlags: string): string
+{
+    const flags = new Set(ruleFlags.split(''));
+
+    flags.delete('g');
+    flags.add('y');
+
+    return [...flags].join('');
+}
+
+/**
  * Compiled token or skip rule ready for anchored matching.
  */
 export interface CompiledRule
@@ -53,7 +69,7 @@ function compileRule(rule: TokenRule, skip: boolean): CompiledRule
         return {
             name: rule.name,
             skip,
-            regex: new RegExp(`^(?:${rule.pattern})`, rule.flags),
+            regex: new RegExp(`(?:${rule.pattern})`, lexerRegexFlags(rule.flags)),
         };
     }
     catch (error)
@@ -67,14 +83,16 @@ function compileRule(rule: TokenRule, skip: boolean): CompiledRule
  * Matches a compiled rule at the start of a source slice.
  *
  * @param rule - Compiled token or skip rule.
- * @param slice - Remaining source text from the current offset.
+ * @param source - Full buffered source text.
+ * @param start - Offset into `source` where matching should begin.
  * @returns Matched lexeme text, or null when the rule does not match.
  */
-export function matchRule(rule: CompiledRule, slice: string): string | null
+export function matchRule(rule: CompiledRule, source: string, start = 0): string | null
 {
-    const match = rule.regex.exec(slice);
+    rule.regex.lastIndex = start;
+    const match = rule.regex.exec(source);
 
-    if (match === null || match.index !== 0)
+    if (match === null || match.index !== start)
     {
         return null;
     }
@@ -84,7 +102,7 @@ export function matchRule(rule: CompiledRule, slice: string): string | null
     // Extend regex literals with optional JS flag letters after the closing slash.
     if (rule.name === REGEX_LITERAL_TOKEN)
     {
-        const suffix = /^[gimsuy]*/.exec(slice.slice(text.length));
+        const suffix = /^[gimsuy]*/.exec(source.slice(start + text.length));
 
         if (suffix !== null)
         {
@@ -205,13 +223,15 @@ export function isPrefixOfPotentialMatch(
 /**
  * Finds the longest winning rule match at the start of a buffer.
  *
- * @param buffer - Buffered source to match from the start.
+ * @param source - Buffered source text.
  * @param rules - Candidate token and skip rules.
+ * @param start - Offset into `source` where matching should begin.
  * @returns The longest winning match, or null when nothing matches.
  */
 export function findLongestMatch(
-    buffer: string,
+    source: string,
     rules: readonly CompiledRule[],
+    start = 0,
 ): { name: string; text: string; skip: boolean } | null
 {
     let bestMatch: { name: string; text: string; skip: boolean } | null = null;
@@ -219,7 +239,7 @@ export function findLongestMatch(
     // Try every rule and keep the longest match, breaking ties by rule order.
     for (const rule of rules)
     {
-        const matchedText = matchRule(rule, buffer);
+        const matchedText = matchRule(rule, source, start);
 
         if (matchedText === null || matchedText.length === 0)
         {
