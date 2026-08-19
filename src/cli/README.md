@@ -29,6 +29,5 @@ Progress messages are written to **stderr** (`parser-lr: …`) so stdout stays c
 | `-g, --grammar <path>` | one of grammar/table | Build table from grammar |
 | `-t, --table <path>` | one of grammar/table | Load serialized table JSON |
 | `-o, --output <path>` | no | Write output (default: stdout) |
-| `--format <name>` | no | Output format (default: `json`) |
 
 Output: `{ "ast": … }` or `{ "ast": null }` on syntax error.

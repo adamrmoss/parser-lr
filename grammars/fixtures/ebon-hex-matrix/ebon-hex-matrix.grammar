@@ -1,0 +1,69 @@
+name "ebon-hex-matrix" ;
+
+tokens
+    hex_lit = /&[Hh][0-9A-Fa-f]+/ ;
+    lbracket = /\[/ ;
+    rbracket = /\]/ ;
+    comma = /,/ ;
+
+skip
+    whitespace = /[ \t\r\n]+/ ;
+
+start program_line ;
+
+grammar
+    program_line =
+        #expression [value]:expression
+    ;
+
+    expression =
+        #hex [value]:hex_lit
+      | #array [literal]:array_literal
+    ;
+
+    array_literal =
+        #empty lbracket rbracket
+      | #nonEmpty lbracket [list]:expression_list rbracket
+    ;
+
+    expression_list =
+        #list [first]:expression { comma [rest]:expression }
+    ;
+
+ast
+    program_line =
+        #expression [value]:expression
+    ;
+
+    expression =
+        #hex [value]:hex_lit
+      | #array [literal]:array_literal
+    ;
+
+    array_literal =
+        #empty
+      | #nonEmpty [list]:expression_list
+    ;
+
+    expression_list =
+        #list { expression }
+    ;
+
+transform
+    program_line ->
+        #expression pass(value)
+    ;
+
+    expression ->
+        #hex pass(value)
+      | #array pass(literal)
+    ;
+
+    array_literal ->
+        #empty pass(empty)
+      | #nonEmpty pass(list)
+    ;
+
+    expression_list ->
+        #list flatten(expression_list.#list, first, expression_list$repeat_0)
+    ;

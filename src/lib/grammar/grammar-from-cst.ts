@@ -28,7 +28,6 @@ export function grammarFromCst(root: AstNode): Grammar
     const name = parseNameDecl(requireChild(root, 'name_decl'));
     const tokenRules: TokenRule[] = [];
     const skipRules: TokenRule[] = [];
-    const states: string[] = [];
 
     // Walk optional top-level sections from the desugared repeat subtree.
     for (const section of collectSections(root))
@@ -42,12 +41,6 @@ export function grammarFromCst(root: AstNode): Grammar
         if (section.symbol === 'skip_section')
         {
             skipRules.push(...parseSkipSection(section));
-            continue;
-        }
-
-        if (section.symbol === 'states_section')
-        {
-            states.push(...parseStatesSection(section));
         }
     }
 
@@ -60,7 +53,6 @@ export function grammarFromCst(root: AstNode): Grammar
         name,
         tokenRules,
         skipRules,
-        states,
         startSymbol,
         productions,
         astTypes === null ? null : new AstSchema(astTypes),
@@ -98,13 +90,13 @@ function requireChild(node: AstNode, symbol: string): AstNode
 }
 
 /**
- * Collects top-level `token_section`, `skip_section`, and `states_section` nodes.
+ * Collects top-level `token_section` and `skip_section` nodes.
  *
  * @param root - `grammar_file` CST root.
  */
 function collectSections(root: AstNode): AstNode[]
 {
-    const sectionSymbols = new Set(['token_section', 'skip_section', 'states_section']);
+    const sectionSymbols = new Set(['token_section', 'skip_section']);
     const sections: AstNode[] = [];
 
     // Unwrap a `section` node into its concrete section production.
@@ -270,26 +262,6 @@ function parseTokenDef(node: AstNode): TokenRule
     const { pattern, flags } = splitRegexLiteral(regexLiteral);
 
     return { name, pattern, flags };
-}
-
-/**
- * Parses a `states` section.
- *
- * @param node - `states_section` CST node.
- */
-function parseStatesSection(node: AstNode): string[]
-{
-    return collectRepeated(node, 'state_name').map(parseStateName);
-}
-
-/**
- * Parses one state name.
- *
- * @param node - `state_name` CST node.
- */
-function parseStateName(node: AstNode): string
-{
-    return identifierText(requireChild(node, 'identifier'));
 }
 
 /**

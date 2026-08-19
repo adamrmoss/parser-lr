@@ -33,7 +33,6 @@ tokens
     name_kw = /name/ ;
     tokens_kw = /tokens/ ;
     skip_kw = /skip/ ;
-    states_kw = /states/ ;
     start_kw = /start/ ;
     grammar_kw = /grammar/ ;
     ast_kw = /ast/ ;
@@ -94,7 +93,6 @@ grammar
     section =
         token_section
       | skip_section
-      | states_section
     ;
 
     token_section =
@@ -105,16 +103,8 @@ grammar
         skip_kw token_def { token_def }
     ;
 
-    states_section =
-        states_kw state_name { comma state_name } semicolon
-    ;
-
     token_def =
         identifier equal regex_literal semicolon
-    ;
-
-    state_name =
-        identifier
     ;
 
     start_decl =

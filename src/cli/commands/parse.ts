@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import { formatDiagnostic } from '../../lib/diagnostics/format-diagnostic.js';
 import { parseContextFromGrammar } from '../../lib/grammar-entry.js';
-import { formatParseOutput, ParserLrError } from '../../lib/index.js';
+import { ParserLrError } from '../../lib/index.js';
 import { ParseContext } from '../../lib/parse-context.js';
 
 import { locateSourceError } from '../locate-source-error.js';
@@ -23,11 +23,6 @@ export function registerParseCommand(program: Command): void
         .option('-g, --grammar <path>', 'EBNF grammar file (builds a table in memory)')
         .option('-t, --table <path>', 'Serialized parse table JSON file')
         .option('-o, --output <path>', 'Write the AST to this file (default: stdout)')
-        .option(
-            '--format <name>',
-            'AST output format',
-            'json',
-        )
         .action(async (options: ParseOptions, command: Command) =>
         {
             if (options.grammar === undefined && options.table === undefined)
@@ -56,8 +51,8 @@ export function registerParseCommand(program: Command): void
                 }));
             }
 
-            logProgress(`formatting output (${options.format})`);
-            const output = formatParseOutput(result.tree, options.format);
+            logProgress('formatting output');
+            const output = JSON.stringify({ ast: result.tree }, null, 4);
 
             // Write output to disk or stdout.
             if (options.output !== undefined)
@@ -79,7 +74,6 @@ interface ParseOptions
     grammar?: string;
     table?: string;
     output?: string;
-    format: string;
 }
 
 /**

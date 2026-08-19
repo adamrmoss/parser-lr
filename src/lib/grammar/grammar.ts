@@ -16,7 +16,6 @@ export class Grammar
      * @param name - Grammar name from the `name` declaration.
      * @param tokenRules - Token definitions from the `tokens` section.
      * @param skipRules - Skip definitions from the `skip` section.
-     * @param states - State names from the `states` section.
      * @param startSymbol - Entry production from the `start` declaration.
      * @param productions - Productions from the `grammar` section.
      * @param astSchema - AST types from the `ast` section, or null when omitted.
@@ -26,7 +25,6 @@ export class Grammar
         public readonly name: string,
         public readonly tokenRules: readonly TokenRule[],
         public readonly skipRules: readonly TokenRule[],
-        public readonly states: readonly string[],
         public readonly startSymbol: string,
         public readonly productions: readonly Production[],
         public readonly astSchema: AstSchema | null = null,

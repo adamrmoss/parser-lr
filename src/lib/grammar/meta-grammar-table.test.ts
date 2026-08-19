@@ -1,8 +1,9 @@
 import { describe, expect, it } from '@jest/globals';
 
-import { lexGrammarSource, metaGrammarTable } from './meta-grammar-table.js';
-import { readGrammar } from './read-grammar.js';
+import { Lexer } from '../lexer/lexer.js';
 import { isEofToken } from '../lexer/token.js';
+import { metaGrammar, metaGrammarTable } from './meta-grammar-table.js';
+import { readGrammar } from './read-grammar.js';
 
 describe('metaGrammarTable', () =>
 {
@@ -18,19 +19,20 @@ describe('metaGrammarTable', () =>
 
     it('lexes grammar source through the bootstrapped table', () =>
     {
-        const tokens = lexGrammarSource('name "calc" ;');
+        const tokens = new Lexer(metaGrammar()).lex('name "calc" ;')
+            .filter((token) => !isEofToken(token));
 
         expect(tokens.map((token) => token.name)).toEqual([
             'name_kw',
             'string_literal',
             'semicolon',
         ]);
-        expect(tokens.some((token) => isEofToken(token))).toBe(false);
     });
 
     it('lexes regex literals with trailing flag letters as one token', () =>
     {
-        const tokens = lexGrammarSource('kw = /abc/gi ;');
+        const tokens = new Lexer(metaGrammar()).lex('kw = /abc/gi ;')
+            .filter((token) => !isEofToken(token));
 
         expect(tokens.map((token) => ({ name: token.name, text: token.text }))).toEqual([
             { name: 'identifier', text: 'kw' },

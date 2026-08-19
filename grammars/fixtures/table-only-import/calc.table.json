@@ -1,5 +1,4 @@
 {
-    "version": 2,
     "algorithm": "lalr",
     "grammarName": "calc",
     "startSymbol": "expr",
@@ -27,7 +26,6 @@
             "flags": ""
         }
     ],
-    "states": [],
     "parserStateCount": 5,
     "productions": [
         {

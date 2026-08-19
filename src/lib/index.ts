@@ -30,9 +30,8 @@ export type {
     TransformExpression,
 } from './grammar/transform-expression.js';
 export type { TransformAlternative, TransformRule } from './grammar/transform-rule.js';
-export { Lexer, LexerCompileError, LexerInputError, LexerStateError, lexChunkStream, lexChunkStreamAsync, lexChunks, lexChunksAsync } from './lexer/index.js';
+export { Lexer, LexerCompileError, LexerInputError, lexChunkStream, lexChunkStreamAsync, lexChunks, lexChunksAsync } from './lexer/index.js';
 export {
-    DEFAULT_LEXER_STATE,
     EOF_TOKEN_NAME,
     LexerError,
     compileLexerRules,
@@ -41,7 +40,7 @@ export {
     token,
 } from './lexer/index.js';
 export type { CompiledLexerRules, CompiledRule, Token } from './lexer/index.js';
-export { LrAlgorithmError, PARSE_TABLE_VERSION, ParseTable, ParseTableError, isLrAlgorithm, parseLrAlgorithm, tokenInventory } from './parse-table/index.js';
+export { LrAlgorithmError, ParseTable, ParseTableError, isLrAlgorithm, parseLrAlgorithm, tokenInventory } from './parse-table/index.js';
 export type { LrAlgorithm, ParseTableJson } from './parse-table/index.js';
 export { formatUserError, isParserLrError, messageContainsStackTrace, ParserLrError } from './errors/index.js';
 export {
@@ -52,10 +51,7 @@ export {
 } from './diagnostics/index.js';
 export type { DiagnosticSeverity, FormatDiagnosticOptions, SourcePosition } from './diagnostics/index.js';
 export { ParseContextError } from './parse-context-error.js';
-export { ParseOutputError } from './parse-output-error.js';
 export { ParseContext } from './parse-context.js';
-export type { ParseContextSources } from './parse-context.js';
-export { formatParseOutput } from './parse-output.js';
 export { ParserLr } from './parser-lr.js';
 export type { ParserLrParseResult } from './parser-lr.js';
 export { parseWithTable, parseWithTableResult, ShiftReduceEngine } from './shift-reduce/index.js';

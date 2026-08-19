@@ -39,7 +39,6 @@ describe('transformCst edge conditions', () =>
         ['number', 'plus', '$eof'],
         [],
         [],
-        [],
         'lr1',
         1,
         [
@@ -147,7 +146,6 @@ describe('transformCst edge conditions', () =>
             'optional',
             'optional_color',
             ['$eof'],
-            [],
             [],
             [],
             'lr1',

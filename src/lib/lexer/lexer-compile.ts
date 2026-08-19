@@ -2,12 +2,24 @@ import type { Grammar } from '../grammar/grammar.js';
 import type { TokenRule } from '../grammar/token-rule.js';
 
 import { LexerCompileError } from './lexer-compile-error.js';
-import { LexerStateError } from './lexer-state-error.js';
-
-/** Default lexer state when a grammar omits a `states` section. */
-export const DEFAULT_LEXER_STATE = 'initial';
 
 const REGEX_LITERAL_TOKEN = 'regex_literal';
+
+/**
+ * Builds anchored sticky RegExp flags for lexer rules.
+ *
+ * @param ruleFlags - Flag letters from the grammar token rule.
+ * @returns Combined flags including `y` and excluding `g`.
+ */
+function lexerRegexFlags(ruleFlags: string): string
+{
+    const flags = new Set(ruleFlags.split(''));
+
+    flags.delete('g');
+    flags.add('y');
+
+    return [...flags].join('');
+}
 
 /**
  * Compiled token or skip rule ready for anchored matching.
@@ -17,16 +29,13 @@ export interface CompiledRule
     readonly name: string;
     readonly skip: boolean;
     readonly regex: RegExp;
-    readonly states: readonly string[] | null;
 }
 
 /**
- * Compiled lexer rules and declared state names for one grammar.
+ * Compiled lexer rules for one grammar.
  */
 export interface CompiledLexerRules
 {
-    readonly states: readonly string[];
-    readonly initialState: string;
     readonly rules: readonly CompiledRule[];
 }
 
@@ -34,51 +43,16 @@ export interface CompiledLexerRules
  * Compiles token and skip rules from a grammar for streaming lexing.
  *
  * @param grammar - Grammar supplying lexer rule definitions.
- * @returns Compiled rules and lexer state metadata.
+ * @returns Compiled rules for longest-match scanning.
  */
 export function compileLexerRules(grammar: Grammar): CompiledLexerRules
 {
-    const states = resolveLexerStates(grammar.states);
-
     return {
-        states,
-        initialState: states[0] ?? DEFAULT_LEXER_STATE,
         rules: [
             ...grammar.tokenRules.map((rule) => compileRule(rule, false)),
             ...grammar.skipRules.map((rule) => compileRule(rule, true)),
         ],
     };
-}
-
-/**
- * Returns compiled rules active in a lexer state.
- *
- * @param compiled - Compiled lexer rules for a grammar.
- * @param state - Current lexer state name.
- * @returns Rules that apply in the state, preserving declaration order.
- */
-export function rulesForState(
-    compiled: CompiledLexerRules,
-    state: string,
-): readonly CompiledRule[]
-{
-    return compiled.rules.filter((rule) => rule.states === null || rule.states.includes(state));
-}
-
-/**
- * Resolves declared lexer states, supplying a default when omitted.
- *
- * @param states - State names from the grammar `states` section.
- * @returns Non-empty state name list.
- */
-export function resolveLexerStates(states: readonly string[]): readonly string[]
-{
-    if (states.length === 0)
-    {
-        return [DEFAULT_LEXER_STATE];
-    }
-
-    return states;
 }
 
 /**
@@ -95,8 +69,7 @@ function compileRule(rule: TokenRule, skip: boolean): CompiledRule
         return {
             name: rule.name,
             skip,
-            regex: new RegExp(`^(?:${rule.pattern})`, rule.flags),
-            states: rule.states === undefined ? null : [...rule.states],
+            regex: new RegExp(`(?:${rule.pattern})`, lexerRegexFlags(rule.flags)),
         };
     }
     catch (error)
@@ -110,14 +83,16 @@ function compileRule(rule: TokenRule, skip: boolean): CompiledRule
  * Matches a compiled rule at the start of a source slice.
  *
  * @param rule - Compiled token or skip rule.
- * @param slice - Remaining source text from the current offset.
+ * @param source - Full buffered source text.
+ * @param start - Offset into `source` where matching should begin.
  * @returns Matched lexeme text, or null when the rule does not match.
  */
-export function matchRule(rule: CompiledRule, slice: string): string | null
+export function matchRule(rule: CompiledRule, source: string, start = 0): string | null
 {
-    const match = rule.regex.exec(slice);
+    rule.regex.lastIndex = start;
+    const match = rule.regex.exec(source);
 
-    if (match === null || match.index !== 0)
+    if (match === null || match.index !== start)
     {
         return null;
     }
@@ -127,7 +102,7 @@ export function matchRule(rule: CompiledRule, slice: string): string | null
     // Extend regex literals with optional JS flag letters after the closing slash.
     if (rule.name === REGEX_LITERAL_TOKEN)
     {
-        const suffix = /^[gimsuy]*/.exec(slice.slice(text.length));
+        const suffix = /^[gimsuy]*/.exec(source.slice(start + text.length));
 
         if (suffix !== null)
         {
@@ -143,7 +118,7 @@ export function matchRule(rule: CompiledRule, slice: string): string | null
  *
  * @param buffer - Buffered source not yet consumed.
  * @param matchedText - Current best match at the buffer start.
- * @param rules - Candidate rules for the active lexer state.
+ * @param rules - Candidate token and skip rules.
  */
 export function hasLongerPossibleMatchCrossRule(
     buffer: string,
@@ -180,7 +155,7 @@ export function hasLongerPossibleMatchCrossRule(
  *
  * @param buffer - Buffered source not yet consumed.
  * @param matchedText - Current best match at the buffer start.
- * @param rules - Candidate rules for the active lexer state.
+ * @param rules - Candidate token and skip rules.
  * @param finished - Whether the input stream has ended.
  */
 export function hasLongerPossibleMatch(
@@ -219,7 +194,7 @@ export function hasLongerPossibleMatch(
  * Returns whether buffered input may become a token once more data arrives.
  *
  * @param buffer - Buffered source not yet consumed.
- * @param rules - Candidate rules for the active lexer state.
+ * @param rules - Candidate token and skip rules.
  */
 export function isPrefixOfPotentialMatch(
     buffer: string,
@@ -248,13 +223,15 @@ export function isPrefixOfPotentialMatch(
 /**
  * Finds the longest winning rule match at the start of a buffer.
  *
- * @param buffer - Buffered source to match from the start.
- * @param rules - Candidate rules for the active lexer state.
+ * @param source - Buffered source text.
+ * @param rules - Candidate token and skip rules.
+ * @param start - Offset into `source` where matching should begin.
  * @returns The longest winning match, or null when nothing matches.
  */
 export function findLongestMatch(
-    buffer: string,
+    source: string,
     rules: readonly CompiledRule[],
+    start = 0,
 ): { name: string; text: string; skip: boolean } | null
 {
     let bestMatch: { name: string; text: string; skip: boolean } | null = null;
@@ -262,7 +239,7 @@ export function findLongestMatch(
     // Try every rule and keep the longest match, breaking ties by rule order.
     for (const rule of rules)
     {
-        const matchedText = matchRule(rule, buffer);
+        const matchedText = matchRule(rule, source, start);
 
         if (matchedText === null || matchedText.length === 0)
         {
@@ -280,18 +257,4 @@ export function findLongestMatch(
     }
 
     return bestMatch;
-}
-
-/**
- * Validates that a lexer state name is declared in the grammar.
- *
- * @param compiled - Compiled lexer rules for a grammar.
- * @param state - Candidate lexer state name.
- */
-export function assertLexerState(compiled: CompiledLexerRules, state: string): void
-{
-    if (!compiled.states.includes(state))
-    {
-        throw new LexerStateError(state);
-    }
 }

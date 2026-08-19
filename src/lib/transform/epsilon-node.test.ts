@@ -17,7 +17,6 @@ describe('epsilon-node classification', () =>
         ['$eof'],
         [],
         [],
-        [],
         'lr1',
         1,
         [

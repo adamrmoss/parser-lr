@@ -37,7 +37,7 @@ const ast = context.parseSource(sourceText);
 | `ParserLr` | Lower-level parser bound to a `Grammar` and optional `ParseTable` |
 | `ParseTable` | Self-contained serializable LR table; lexer, parser, `ast`, and `transform` |
 | `AstNode` | Parse tree node (CST or AST after transform) |
-| `Lexer` | Tokenize source using grammar `tokens`, `skip`, and `states` |
+| `Lexer` | Tokenize source using grammar `tokens` and `skip` |
 
 ## Grammar subpath (`parser-lr/grammar`)
 

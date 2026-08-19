@@ -1,12 +1,10 @@
 import type { Grammar } from '../grammar/grammar.js';
 
 import {
-    assertLexerState,
     compileLexerRules,
     findLongestMatch,
     hasLongerPossibleMatch,
     isPrefixOfPotentialMatch,
-    rulesForState,
 } from './lexer-compile.js';
 import type { CompiledLexerRules } from './lexer-compile.js';
 import { LexerError } from './lexer-error.js';
@@ -15,7 +13,7 @@ import { eofToken, token } from './token.js';
 import type { Token } from './token.js';
 
 /**
- * Stream-based lexer driven by a grammar's `tokens`, `skip`, and `states` sections.
+ * Stream-based lexer driven by a grammar's `tokens` and `skip` sections.
  *
  * Push source chunks with {@link push}, signal end-of-input with {@link finish},
  * then read tokens via {@link next} or iteration. The final token is always `$eof`.
@@ -24,11 +22,12 @@ export class Lexer
 {
     private readonly compiled: CompiledLexerRules;
     private readonly queue: Token[] = [];
+    private queueReadIndex = 0;
     private buffer = '';
+    private bufferStart = 0;
     private offset = 0;
     private finished = false;
     private eofEmitted = false;
-    private currentState: string;
 
     /**
      * Creates a lexer from a parsed grammar.
@@ -38,26 +37,6 @@ export class Lexer
     public constructor(grammar: Grammar)
     {
         this.compiled = compileLexerRules(grammar);
-        this.currentState = this.compiled.initialState;
-    }
-
-    /**
-     * Returns the active lexer state name.
-     */
-    public get state(): string
-    {
-        return this.currentState;
-    }
-
-    /**
-     * Enters a declared lexer state.
-     *
-     * @param stateName - Lexer state to activate.
-     */
-    public enterState(stateName: string): void
-    {
-        assertLexerState(this.compiled, stateName);
-        this.currentState = stateName;
     }
 
     /**
@@ -72,6 +51,7 @@ export class Lexer
             throw new LexerInputError();
         }
 
+        this.compactBufferIfNeeded();
         this.buffer += chunk;
         this.drain(false);
     }
@@ -97,9 +77,12 @@ export class Lexer
             return null;
         }
 
-        if (this.queue.length > 0)
+        if (this.queueReadIndex < this.queue.length)
         {
-            return this.queue.shift() ?? null;
+            const value = this.queue[this.queueReadIndex];
+
+            this.queueReadIndex += 1;
+            return value ?? null;
         }
 
         if (!this.finished)
@@ -107,10 +90,10 @@ export class Lexer
             return null;
         }
 
-        if (this.buffer.length > 0)
+        if (this.bufferStart < this.buffer.length)
         {
             throw new LexerError(
-                `Unexpected character ${JSON.stringify(this.buffer[0])} at offset ${this.offset}`,
+                `Unexpected character ${JSON.stringify(this.buffer[this.bufferStart])} at offset ${this.offset}`,
                 this.offset,
             );
         }
@@ -131,14 +114,12 @@ export class Lexer
         this.push(source);
         this.finish();
 
-        const tokens: Token[] = [];
-        let nextToken = this.next();
+        this.queue.push(eofToken(this.offset));
+        this.eofEmitted = true;
 
-        while (nextToken !== null)
-        {
-            tokens.push(nextToken);
-            nextToken = this.next();
-        }
+        const tokens = this.queue.slice(this.queueReadIndex);
+
+        this.queueReadIndex = this.queue.length;
 
         return tokens;
     }
@@ -189,10 +170,10 @@ export class Lexer
 
             if (match === null)
             {
-                if (inputFinished && this.buffer.length > 0)
+                if (inputFinished && this.bufferStart < this.buffer.length)
                 {
                     throw new LexerError(
-                        `Unexpected character ${JSON.stringify(this.buffer[0])} at offset ${this.offset}`,
+                        `Unexpected character ${JSON.stringify(this.buffer[this.bufferStart])} at offset ${this.offset}`,
                         this.offset,
                     );
                 }
@@ -200,7 +181,7 @@ export class Lexer
                 return;
             }
 
-            this.buffer = this.buffer.slice(match.text.length);
+            this.bufferStart += match.text.length;
             this.offset += match.text.length;
 
             if (!match.skip)
@@ -221,17 +202,18 @@ export class Lexer
         | 'need-more'
         | null
     {
-        if (this.buffer.length === 0)
+        if (this.bufferStart >= this.buffer.length)
         {
             return null;
         }
 
-        const activeRules = rulesForState(this.compiled, this.currentState);
-        const bestMatch = findLongestMatch(this.buffer, activeRules);
+        const activeRules = this.compiled.rules;
+        const bestMatch = findLongestMatch(this.buffer, activeRules, this.bufferStart);
+        const remainingLength = this.buffer.length - this.bufferStart;
 
         if (bestMatch === null)
         {
-            if (!inputFinished && isPrefixOfPotentialMatch(this.buffer, activeRules))
+            if (!inputFinished && isPrefixOfPotentialMatch(this.buffer.slice(this.bufferStart), activeRules))
             {
                 return 'need-more';
             }
@@ -239,9 +221,9 @@ export class Lexer
             return null;
         }
 
-        if (bestMatch.text.length === this.buffer.length && !inputFinished)
+        if (bestMatch.text.length === remainingLength && !inputFinished)
         {
-            if (hasLongerPossibleMatch(this.buffer, bestMatch.text, activeRules, false))
+            if (hasLongerPossibleMatch(this.buffer.slice(this.bufferStart), bestMatch.text, activeRules, false))
             {
                 return 'need-more';
             }
@@ -256,12 +238,28 @@ export class Lexer
     }
 
     /**
+     * Reclaims scanned prefix bytes before appending the next stream chunk.
+     */
+    private compactBufferIfNeeded(): void
+    {
+        if (this.bufferStart === 0)
+        {
+            return;
+        }
+
+        this.buffer = this.buffer.slice(this.bufferStart);
+        this.bufferStart = 0;
+    }
+
+    /**
      * Resets stream state for a fresh lex run.
      */
     private reset(): void
     {
         this.queue.length = 0;
+        this.queueReadIndex = 0;
         this.buffer = '';
+        this.bufferStart = 0;
         this.offset = 0;
         this.finished = false;
         this.eofEmitted = false;
