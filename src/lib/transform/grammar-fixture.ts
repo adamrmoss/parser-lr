@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 import type { AstNode } from '../ast/ast-node.js';
-import { parseContextFromGrammar } from '../grammar-entry.js';
+import { parserFromGrammar } from '../grammar-entry.js';
 
 /**
  * One grammar fixture case with source input and optional expected AST JSON.
@@ -73,9 +73,9 @@ export function parseFixture(
 
     const grammarSource = readFileSync(grammarPath, 'utf8');
     const input = readFileSync(join(fixtureDir, inputFileName), 'utf8').trimEnd();
-    const context = parseContextFromGrammar(grammarSource, 'lr1');
+    const { parser } = parserFromGrammar(grammarSource, 'lr1');
 
-    return context.parseSource(input);
+    return parser.parseSource(input);
 }
 
 /**
@@ -138,8 +138,8 @@ export function runFixtureCase(
 {
     const grammarSource = readFileSync(fixture.grammarPath, 'utf8');
     const input = readFileSync(fixture.inputPath, 'utf8').trimEnd();
-    const context = parseContextFromGrammar(grammarSource, 'lr1');
-    const ast = context.parseSource(input);
+    const { parser } = parserFromGrammar(grammarSource, 'lr1');
+    const ast = parser.parseSource(input);
 
     if (fixture.expectedPath !== null)
     {

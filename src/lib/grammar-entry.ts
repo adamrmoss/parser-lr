@@ -41,38 +41,43 @@ export type {
     TableValidationIssue,
     TableValidationSeverity,
 } from './grammar/table-validator.js';
+export { ParserLoadError } from './parser-load-error.js';
 
-import { ParseContextError } from './parse-context-error.js';
-import { ParseContext } from './parse-context.js';
 import { readGrammar } from './grammar/read-grammar.js';
 import type { LrAlgorithm } from './parse-table/lr-algorithm.js';
 import { parseLrAlgorithm } from './parse-table/lr-algorithm.js';
 import { ParseTable } from './parse-table/parse-table.js';
-import { ParserLr } from './parser-lr.js';
+import { ParserLoadError } from './parser-load-error.js';
+import { ParserLr, parserFromTableJson } from './parser-lr.js';
 
 /**
- * Builds a parse context from grammar file text.
+ * Builds a parser and table from grammar file text.
  *
  * @param source - Full `.grammar` file contents.
  * @param algorithm - LR algorithm used to build the table.
  * @returns Parser and parse table ready for lexing or parsing.
  */
-export function parseContextFromGrammar(
+export function parserFromGrammar(
     source: string,
     algorithm: LrAlgorithm = 'lr1',
-): ParseContext
+): { parser: ParserLr; table: ParseTable }
 {
+    // Parse the grammar file.
     const grammar = readGrammar(source);
-    const table = ParseTable.fromGrammar(grammar, algorithm);
-    const parser = new ParserLr(grammar, table);
 
-    return new ParseContext(parser, table);
+    // Build the LR table once.
+    const table = ParseTable.fromGrammar(grammar, algorithm);
+
+    return {
+        parser: new ParserLr(grammar, table),
+        table,
+    };
 }
 
 /**
- * In-memory sources for constructing a {@link ParseContext} from grammar or table input.
+ * In-memory sources for constructing a parser and table from grammar or table input.
  */
-export interface GrammarParseContextSources
+export interface ParserSources
 {
     readonly grammarSource?: string;
     readonly tableJson?: string;
@@ -80,17 +85,19 @@ export interface GrammarParseContextSources
 }
 
 /**
- * Builds a parse context from a grammar or table source string.
+ * Builds a parser and table from a grammar or table source string.
  *
  * @param options - Grammar source, table JSON, and optional algorithm.
  * @returns Parser and parse table ready for lexing or parsing.
  */
-export function parseContextFromSources(options: GrammarParseContextSources): ParseContext
+export function parserFromSources(
+    options: ParserSources,
+): { parser: ParserLr; table: ParseTable }
 {
     // Prefer grammar source over a saved table when both are supplied.
     if (options.grammarSource !== undefined)
     {
-        return parseContextFromGrammar(
+        return parserFromGrammar(
             options.grammarSource,
             parseLrAlgorithm(options.algorithm),
         );
@@ -98,8 +105,8 @@ export function parseContextFromSources(options: GrammarParseContextSources): Pa
 
     if (options.tableJson !== undefined)
     {
-        return ParseContext.fromTableJson(options.tableJson);
+        return parserFromTableJson(options.tableJson);
     }
 
-    throw new ParseContextError('required: grammar source or table JSON');
+    throw new ParserLoadError('required: grammar source or table JSON');
 }

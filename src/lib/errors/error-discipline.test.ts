@@ -1,16 +1,16 @@
 import { describe, expect, it } from '@jest/globals';
 
+import { parserFromSources } from '../grammar-entry.js';
 import { Grammar } from '../grammar/grammar.js';
 import { ReadGrammarError, readGrammar } from '../grammar/index.js';
 import { Lexer } from '../lexer/lexer.js';
 import { LexerCompileError } from '../lexer/lexer-compile-error.js';
 import { LexerError } from '../lexer/lexer-error.js';
 import { LexerInputError } from '../lexer/lexer-input-error.js';
-import { parseContextFromSources } from '../grammar-entry.js';
-import { ParseContextError } from '../parse-context-error.js';
 import { ParseTableError } from '../parse-table/parse-table-error.js';
 import { ParseTable } from '../parse-table/parse-table.js';
 import { LrAlgorithmError, parseLrAlgorithm } from '../parse-table/index.js';
+import { ParserLoadError } from '../parser-load-error.js';
 
 import {
     formatUserError,
@@ -173,10 +173,10 @@ grammar
         expect(table.formatConflictWarnings().length).toBe(table.conflicts.length);
     });
 
-    it('reports missing parse context sources with ParseContextError', () =>
+    it('reports missing parser sources with ParserLoadError', () =>
     {
-        expect(() => parseContextFromSources({})).toThrow(ParseContextError);
-        expectCleanUserError(new ParseContextError('required: grammar source or table JSON'));
+        expect(() => parserFromSources({})).toThrow(ParserLoadError);
+        expectCleanUserError(new ParserLoadError('required: grammar source or table JSON'));
     });
 
     it('reports push-after-finish with LexerInputError', () =>

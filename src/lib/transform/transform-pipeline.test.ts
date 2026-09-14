@@ -3,12 +3,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import {
-    parseContextFromGrammar,
+    parserFromGrammar,
     readGrammar,
     validateGrammarTable,
 } from '../grammar-entry.js';
 import type { LrAlgorithm } from '../parse-table/lr-algorithm.js';
-import { ParseContext } from '../parse-context.js';
+import { parserFromTableJson } from '../parser-lr.js';
 import { desugarEbnf } from '../parse-table/bnf/desugar-ebnf.js';
 import { analyzeGrammar } from '../parse-table/analysis/first-follow.js';
 import { EOF_TOKEN_NAME } from '../lexer/token.js';
@@ -53,9 +53,9 @@ describe('labeled zero-factor transform pipeline', () =>
     it.each(algorithms)('preserves the epsilon variant under %s', (algorithm) =>
     {
         const grammar = readGrammar(optionalColorGrammarSource);
-        const context = parseContextFromGrammar(optionalColorGrammarSource, algorithm);
-        const cst = context.parser.parseCst(context.lex(''));
-        const ast = context.parseSource('');
+        const { parser } = parserFromGrammar(optionalColorGrammarSource, algorithm);
+        const cst = parser.parseCst(parser.lex(''));
+        const ast = parser.parseSource('');
 
         expect(validateGrammarTable(grammar).filter((issue) => issue.severity === 'error')).toEqual([]);
         expect(cst?.symbol).toBe('optional_color');
@@ -68,10 +68,10 @@ describe('labeled zero-factor transform pipeline', () =>
 
     it.each(algorithms)('preserves epsilon through table JSON under %s', (algorithm) =>
     {
-        const fromGrammar = parseContextFromGrammar(optionalColorGrammarSource, algorithm);
-        const fromTable = ParseContext.fromTableJson(fromGrammar.table.toJsonString());
-        const absent = fromTable.parseSource('');
-        const present = fromTable.parseSource('with blue');
+        const fromGrammar = parserFromGrammar(optionalColorGrammarSource, algorithm);
+        const { parser } = parserFromTableJson(fromGrammar.table.toJsonString());
+        const absent = parser.parseSource('');
+        const present = parser.parseSource('with blue');
 
         expect(absent?.symbol).toBe('optional_color');
         expect(absent?.variant).toBe('absent');
@@ -83,9 +83,9 @@ describe('labeled zero-factor transform pipeline', () =>
 
     it('keeps labeled epsilon identity when no explicit transform rule exists', () =>
     {
-        const context = parseContextFromGrammar(optionalColorGrammarSource, 'lr1');
-        const cst = context.parser.parseCst(context.lex(''));
-        const ast = transformCst(cst, new TransformSchema([]), context.table);
+        const { parser, table } = parserFromGrammar(optionalColorGrammarSource, 'lr1');
+        const cst = parser.parseCst(parser.lex(''));
+        const ast = transformCst(cst, new TransformSchema([]), table);
 
         expect(cst?.variant).toBe('absent');
         expect(ast?.symbol).toBe('optional_color');
@@ -99,8 +99,8 @@ describe('labeled zero-factor transform pipeline', () =>
             join(process.cwd(), 'grammars/fixtures/flatten-repeat/flatten-repeat.grammar'),
             'utf8',
         );
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource('a');
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource('a');
 
         expect(ast?.symbol).toBe('list');
         expect(ast?.variant).toBe('list');
@@ -126,8 +126,8 @@ describe('calc.grammar transform pipeline', () =>
 
     it('parses and transforms addition into an AST', () =>
     {
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource('1 + 2');
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource('1 + 2');
 
         expect(ast?.symbol).toBe('expr');
         expect(ast?.variant).toBe('binary');
@@ -136,10 +136,10 @@ describe('calc.grammar transform pipeline', () =>
 
     it('parses and transforms from self-contained table JSON', () =>
     {
-        const fromGrammar = parseContextFromGrammar(grammarSource, 'lr1');
+        const fromGrammar = parserFromGrammar(grammarSource, 'lr1');
         const tableJson = fromGrammar.table.toJsonString();
-        const fromTable = ParseContext.fromTableJson(tableJson);
-        const ast = fromTable.parseSource('1 + 2');
+        const { parser } = parserFromTableJson(tableJson);
+        const ast = parser.parseSource('1 + 2');
 
         expect(ast?.symbol).toBe('expr');
         expect(ast?.variant).toBe('binary');
@@ -153,8 +153,8 @@ describe('lisp.grammar transform pipeline', () =>
 
     it('parses and transforms a list form into an AST', () =>
     {
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource('(+ 1 2)');
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource('(+ 1 2)');
 
         expect(ast?.symbol).toBe('program');
         expect(ast?.variant).toBe('program');
@@ -178,8 +178,8 @@ describe('6502.grammar transform pipeline', () =>
 
     it('parses and transforms an assembler program into an AST', () =>
     {
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource('.org $8000\n    BRK\n');
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource('.org $8000\n    BRK\n');
 
         expect(ast?.symbol).toBe('program');
         expect(ast?.variant).toBe('program');

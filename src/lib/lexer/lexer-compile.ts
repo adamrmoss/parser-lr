@@ -32,27 +32,17 @@ export interface CompiledRule
 }
 
 /**
- * Compiled lexer rules for one grammar.
- */
-export interface CompiledLexerRules
-{
-    readonly rules: readonly CompiledRule[];
-}
-
-/**
  * Compiles token and skip rules from a grammar for streaming lexing.
  *
  * @param grammar - Grammar supplying lexer rule definitions.
  * @returns Compiled rules for longest-match scanning.
  */
-export function compileLexerRules(grammar: Grammar): CompiledLexerRules
+export function compileLexerRules(grammar: Grammar): readonly CompiledRule[]
 {
-    return {
-        rules: [
-            ...grammar.tokenRules.map((rule) => compileRule(rule, false)),
-            ...grammar.skipRules.map((rule) => compileRule(rule, true)),
-        ],
-    };
+    return [
+        ...grammar.tokenRules.map((rule) => compileRule(rule, false)),
+        ...grammar.skipRules.map((rule) => compileRule(rule, true)),
+    ];
 }
 
 /**

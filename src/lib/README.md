@@ -14,27 +14,28 @@ TypeScript types: `dist/lib/index.d.ts` and `dist/lib/grammar-entry.d.ts`.
 ## Quick start (table-only, browser-safe)
 
 ```typescript
-import { ParseContext } from 'parser-lr';
+import { parserFromTableJson } from 'parser-lr';
 
-const context = ParseContext.fromTableJson(tableJson);
-const ast = context.parseSource(sourceText);
+const { parser } = parserFromTableJson(tableJson);
+const ast = parser.parseSource(sourceText);
 ```
 
 ## Grammar-file path (Node only)
 
 ```typescript
-import { parseContextFromGrammar, readGrammar } from 'parser-lr/grammar';
+import { parserFromGrammar, readGrammar } from 'parser-lr/grammar';
 
-const context = parseContextFromGrammar(grammarSource, 'lr1');
-const ast = context.parseSource(sourceText);
+const { parser } = parserFromGrammar(grammarSource, 'lr1');
+const ast = parser.parseSource(sourceText);
 ```
 
 ## Main types (`parser-lr`)
 
 | Type | Role |
 |------|------|
-| `ParseContext` | Parser + table from table JSON; `lex`, `parse`, `parseSource` |
-| `ParserLr` | Lower-level parser bound to a `Grammar` and optional `ParseTable` |
+| `parserFromTableJson` | Builds `{ parser, table }` from table JSON |
+| `ParserLoadError` | Thrown when grammar source and table JSON are both missing |
+| `ParserLr` | Parser bound to a `Grammar` and optional `ParseTable`; `lex`, `parse`, `parseSource` |
 | `ParseTable` | Self-contained serializable LR table; lexer, parser, `ast`, and `transform` |
 | `AstNode` | Parse tree node (CST or AST after transform) |
 | `Lexer` | Tokenize source using grammar `tokens` and `skip` |
@@ -45,16 +46,17 @@ const ast = context.parseSource(sourceText);
 |------|------|
 | `Grammar` | Parsed `.grammar` file: lexer rules, productions, optional AST and transform schemas |
 | `readGrammar` | Parse `.grammar` text into a `Grammar` model |
-| `parseContextFromGrammar` | Build a `ParseContext` from grammar text |
+| `parserFromGrammar` | Build `{ parser, table }` from grammar text |
+| `parserFromSources` | Build `{ parser, table }` from grammar text or table JSON |
 | `validateGrammarTable` | Check `ast` / `transform` consistency on a `Grammar` model |
 
 Grammar file syntax: [`docs/grammar.md`](../../docs/grammar.md).
 
 ## Parse pipeline
 
-1. **Lex** — `Lexer` or `ParseContext.lex` tokenizes input using `tokens` and `skip` from the grammar or table.
+1. **Lex** — `Lexer` or `ParserLr.lex` tokenizes input using `tokens` and `skip` from the grammar or table.
 2. **Parse** — shift-reduce over the LR table produces a CST.
-3. **Transform** — when `transform` rules are present in the grammar or table JSON, `ParserLr.parse` / `ParseContext.parse` apply them and return an AST.
+3. **Transform** — when `transform` rules are present in the grammar or table JSON, `ParserLr.parse` applies them and returns an AST.
 
 ## Errors
 

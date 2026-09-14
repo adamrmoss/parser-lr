@@ -7,7 +7,7 @@ export {
     hasLongerPossibleMatchCrossRule,
     matchRule,
 } from './lexer-compile.js';
-export type { CompiledLexerRules, CompiledRule } from './lexer-compile.js';
+export type { CompiledRule } from './lexer-compile.js';
 export { LexerError } from './lexer-error.js';
 export {
     Lexer,

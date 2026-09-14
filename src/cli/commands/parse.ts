@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 
 import { formatDiagnostic } from '../../lib/diagnostics/format-diagnostic.js';
-import { parseContextFromGrammar } from '../../lib/grammar-entry.js';
+import { parserFromGrammar } from '../../lib/grammar-entry.js';
 import { ParserLrError } from '../../lib/index.js';
-import { ParseContext } from '../../lib/parse-context.js';
+import { parserFromTableJson, type ParserLr } from '../../lib/parser-lr.js';
 
 import { locateSourceError } from '../locate-source-error.js';
 import { readTextChunks, readTextFile, writeTextFile } from '../io.js';
@@ -30,13 +30,13 @@ export function registerParseCommand(program: Command): void
                 command.error('required: --grammar or --table');
             }
 
-            const context = await loadContextFromPaths(options);
+            const { parser } = await loadParserFromPaths(options);
 
             logProgress(`lexing ${options.input}`);
-            const tokens = await lexInputFile(context, options.input);
+            const tokens = await lexInputFile(parser, options.input);
 
             logProgress('parsing');
-            const result = context.parseResult(tokens);
+            const result = parser.parseResult(tokens);
 
             if (result.tree === null)
             {
@@ -79,14 +79,14 @@ interface ParseOptions
 /**
  * Lexes an input file and rewrites offset-bearing lexer failures with line numbers.
  *
- * @param context - Loaded parse context.
+ * @param parser - Loaded shift-reduce parser.
  * @param path - Input file path.
  */
-async function lexInputFile(context: ParseContext, path: string)
+async function lexInputFile(parser: ParserLr, path: string)
 {
     try
     {
-        return await context.lexChunkStreamAsync(readTextChunks(path));
+        return await parser.lexChunkStreamAsync(readTextChunks(path));
     }
     catch (error)
     {
@@ -97,12 +97,12 @@ async function lexInputFile(context: ParseContext, path: string)
 }
 
 /**
- * Reads grammar or table files and builds a parse context.
+ * Reads grammar or table files and builds a parser and table.
  *
  * @param options - CLI paths for grammar or table input.
- * @returns Loaded parse context.
+ * @returns Loaded parser and parse table.
  */
-async function loadContextFromPaths(options: ParseOptions): Promise<ParseContext>
+async function loadParserFromPaths(options: ParseOptions): Promise<{ parser: ParserLr }>
 {
     if (options.grammar !== undefined)
     {
@@ -113,7 +113,7 @@ async function loadContextFromPaths(options: ParseOptions): Promise<ParseContext
         {
             logProgress('building parse table');
 
-            return parseContextFromGrammar(grammarSource);
+            return parserFromGrammar(grammarSource);
         }
         catch (error)
         {
@@ -125,5 +125,5 @@ async function loadContextFromPaths(options: ParseOptions): Promise<ParseContext
     const tableJson = await readTextFile(options.table!);
 
     logProgress('loading parse table');
-    return ParseContext.fromTableJson(tableJson);
+    return parserFromTableJson(tableJson);
 }

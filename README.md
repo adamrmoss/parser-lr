@@ -91,35 +91,35 @@ After `npm install parser-lr`, the tarball also includes [`docs/`](docs/grammar.
 
 ```typescript
 import { readFile } from 'node:fs/promises';
-import { ParseContext } from 'parser-lr';
+import { parserFromTableJson } from 'parser-lr';
 
 const tableJson = await readFile('mylang.json', 'utf8');
-const context = ParseContext.fromTableJson(tableJson);
+const { parser } = parserFromTableJson(tableJson);
 
 const source = await readFile('program.txt', 'utf8');
-const ast = context.parseSource(source);
+const ast = parser.parseSource(source);
 ```
 
 ### Grammar-file path (Node only)
 
 ```typescript
 import { readFile } from 'node:fs/promises';
-import { parseContextFromGrammar } from 'parser-lr/grammar';
+import { parserFromGrammar } from 'parser-lr/grammar';
 
 const grammarSource = await readFile('mylang.grammar', 'utf8');
-const context = parseContextFromGrammar(grammarSource, 'lr1');
+const { parser } = parserFromGrammar(grammarSource, 'lr1');
 
 const source = await readFile('program.txt', 'utf8');
-const ast = context.parseSource(source);
+const ast = parser.parseSource(source);
 ```
 
 When testing this package from a clone, run `npm run build` first so `dist/lib/` exists. Published installs build automatically via `prepack`.
 
-Table-only consumers never load the meta-grammar module graph: `ParseContext.fromTableJson` does not import `grammar.json` or any Node built-ins.
+Table-only consumers never load the meta-grammar module graph: `parserFromTableJson` does not import `grammar.json` or any Node built-ins.
 
 The published CLI (`bin/parser-lr.js`) bundles grammar reading and the meta-grammar table for offline table generation and validation.
 
-`ParseContext` exposes `lex`, `parse`, and `createLexer` for finer control. See the [library API overview](https://github.com/adamrmoss/parser-lr/blob/main/src/lib/README.md).
+`ParserLr` exposes `lex`, `parse`, and `createLexer` for finer control. See the [library API overview](https://github.com/adamrmoss/parser-lr/blob/main/src/lib/README.md).
 
 ## Example grammars
 

@@ -21,7 +21,7 @@ describe('lexer-compile longest-match helpers', () =>
         'expr',
         [],
     );
-    const rules = compileLexerRules(grammar).rules;
+    const rules = compileLexerRules(grammar);
 
     it('detects longer cross-rule matches in buffered input', () =>
     {
@@ -38,7 +38,7 @@ describe('lexer-compile longest-match helpers', () =>
             'expr',
             [],
         );
-        const numberRules = compileLexerRules(numberGrammar).rules;
+        const numberRules = compileLexerRules(numberGrammar);
 
         expect(hasLongerPossibleMatch('1', '1', numberRules, true)).toBe(false);
         expect(hasLongerPossibleMatch('1', '1', numberRules, false)).toBe(true);
@@ -56,7 +56,7 @@ describe('lexer-compile longest-match helpers', () =>
             'expr',
             [],
         );
-        const calcRules = compileLexerRules(calcGrammar).rules;
+        const calcRules = compileLexerRules(calcGrammar);
 
         expect(findLongestMatch('123+4', calcRules)?.text).toBe('123');
     });

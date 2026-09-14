@@ -6,7 +6,7 @@ import {
     hasLongerPossibleMatch,
     isPrefixOfPotentialMatch,
 } from './lexer-compile.js';
-import type { CompiledLexerRules } from './lexer-compile.js';
+import type { CompiledRule } from './lexer-compile.js';
 import { LexerError } from './lexer-error.js';
 import { LexerInputError } from './lexer-input-error.js';
 import { eofToken, token } from './token.js';
@@ -20,7 +20,7 @@ import type { Token } from './token.js';
  */
 export class Lexer
 {
-    private readonly compiled: CompiledLexerRules;
+    private readonly rules: readonly CompiledRule[];
     private readonly queue: Token[] = [];
     private queueReadIndex = 0;
     private buffer = '';
@@ -36,7 +36,7 @@ export class Lexer
      */
     public constructor(grammar: Grammar)
     {
-        this.compiled = compileLexerRules(grammar);
+        this.rules = compileLexerRules(grammar);
     }
 
     /**
@@ -207,7 +207,7 @@ export class Lexer
             return null;
         }
 
-        const activeRules = this.compiled.rules;
+        const activeRules = this.rules;
         const bestMatch = findLongestMatch(this.buffer, activeRules, this.bufferStart);
         const remainingLength = this.buffer.length - this.bufferStart;
 

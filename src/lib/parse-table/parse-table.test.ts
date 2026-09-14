@@ -4,7 +4,7 @@ import { join } from 'node:path';
 
 import { Grammar } from '../grammar/grammar.js';
 import { readGrammar } from '../grammar/read-grammar.js';
-import { ParseContext } from '../parse-context.js';
+import { parserFromTableJson } from '../parser-lr.js';
 
 import { ParseTableError } from './parse-table-error.js';
 import { ParseTable } from './parse-table.js';
@@ -57,8 +57,8 @@ describe('ParseTable', () =>
         expect(restored.astSchema?.types).toEqual(grammar.astSchema?.types);
         expect(restored.transformSchema?.rules).toEqual(grammar.transformSchema?.rules);
 
-        const fromTable = ParseContext.fromTableJson(table.toJsonString());
-        const ast = fromTable.parseSource('3 + 4');
+        const { parser } = parserFromTableJson(table.toJsonString());
+        const ast = parser.parseSource('3 + 4');
 
         expect(ast?.symbol).toBe('expr');
         expect(ast?.variant).toBe('binary');

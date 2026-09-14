@@ -2,7 +2,7 @@ import { Command } from 'commander';
 
 import {
     formatTableValidationIssues,
-    parseContextFromSources,
+    parserFromSources,
     readGrammar,
     validateGrammarTable,
 } from '../../lib/grammar-entry.js';
@@ -41,16 +41,16 @@ export function registerTableCommands(program: Command): void
             logProgress(`building ${options.algorithm} parse table`);
             writeGrammarValidationMessages(grammar, options.grammar, grammarSource, false);
 
-            const context = parseContextFromSources({
+            const { table } = parserFromSources({
                 grammarSource,
                 algorithm: options.algorithm,
             });
 
             logProgress('serializing parse table');
-            const json = context.table.toJsonString();
+            const json = table.toJsonString();
 
             // Write conflict warnings to stderr after table generation.
-            for (const warning of context.table.formatConflictWarnings())
+            for (const warning of table.formatConflictWarnings())
             {
                 process.stderr.write(`${warning}\n`);
             }

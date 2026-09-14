@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { readGrammar } from '../grammar/read-grammar.js';
-import { parseContextFromGrammar } from '../grammar-entry.js';
+import { parserFromGrammar } from '../grammar-entry.js';
 import { ParseTable } from './parse-table.js';
 import { parseWithTable } from '../shift-reduce/shift-reduce-engine.js';
 
@@ -287,8 +287,8 @@ grammar
 
     it('parses expression precedence with correct nesting', () =>
     {
-        const context = parseContextFromGrammar(PRECEDENCE_GRAMMAR, 'lr1');
-        const tree = context.parse(context.lex('a + b * c'));
+        const { parser } = parserFromGrammar(PRECEDENCE_GRAMMAR, 'lr1');
+        const tree = parser.parse(parser.lex('a + b * c'));
 
         expect(tree?.symbol).toBe('expr');
         expect(tree?.children).toHaveLength(3);
@@ -303,8 +303,8 @@ grammar
     it('parses nested JSON-like structures', () =>
     {
         const source = '{"a": {"b": [1, 2], "c": "x"}, "d": []}';
-        const context = parseContextFromGrammar(JSON_GRAMMAR, 'lr1');
-        const tree = context.parse(context.lex(source));
+        const { parser } = parserFromGrammar(JSON_GRAMMAR, 'lr1');
+        const tree = parser.parse(parser.lex(source));
 
         expect(tree?.symbol).toBe('value');
         expect(tree?.children[0]?.symbol).toBe('object');
@@ -315,7 +315,7 @@ grammar
         const grammar = readGrammar(PRECEDENCE_GRAMMAR);
         const json = ParseTable.fromGrammar(grammar, 'lr1').toJsonString();
         const table = ParseTable.fromJsonString(json);
-        const tokens = parseContextFromGrammar(PRECEDENCE_GRAMMAR, 'lr1').lex('x + y');
+        const tokens = parserFromGrammar(PRECEDENCE_GRAMMAR, 'lr1').parser.lex('x + y');
 
         expect(parseWithTable(table, tokens)?.symbol).toBe('expr');
     });
@@ -344,8 +344,8 @@ grammar
 
     it('parses nested if-then-else with else bound to the inner if', () =>
     {
-        const context = parseContextFromGrammar(DANGLING_ELSE_GRAMMAR, 'lr1');
-        const tree = context.parser.parseCst(context.lex('if x then if y then a else b'));
+        const { parser } = parserFromGrammar(DANGLING_ELSE_GRAMMAR, 'lr1');
+        const tree = parser.parseCst(parser.lex('if x then if y then a else b'));
 
         expect(tree).not.toBeNull();
         expect(tree?.productionId).toBe(0);

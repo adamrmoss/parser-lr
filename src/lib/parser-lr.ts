@@ -224,3 +224,20 @@ export class ParserLr
         return ParseTable.fromGrammar(this.grammar, algorithm);
     }
 }
+
+/**
+ * Builds a parser and table from serialized parse table JSON.
+ *
+ * @param json - Serialized parse table JSON including `ast` and `transform` when present.
+ * @returns Parser and parse table ready for lexing and full AST parsing.
+ */
+export function parserFromTableJson(json: string): { parser: ParserLr; table: ParseTable }
+{
+    // Restore the serialized table.
+    const table = ParseTable.fromJsonString(json);
+
+    return {
+        parser: ParserLr.fromParseTable(table),
+        table,
+    };
+}

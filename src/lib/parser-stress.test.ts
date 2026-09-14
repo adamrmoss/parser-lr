@@ -2,10 +2,10 @@ import { describe, expect, it } from '@jest/globals';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { parseContextFromGrammar } from './grammar-entry.js';
-import { ParseContext } from './parse-context.js';
+import { parserFromGrammar } from './grammar-entry.js';
 import { readGrammar } from './grammar/read-grammar.js';
 import { ParseTable } from './parse-table/parse-table.js';
+import { parserFromTableJson } from './parser-lr.js';
 import { parseWithTable, parseWithTableResult } from './shift-reduce/shift-reduce-engine.js';
 import { transformCst } from './transform/cst-transformer.js';
 
@@ -60,19 +60,19 @@ describe('parser stress — sample grammars across LR algorithms', () =>
 
             it('parses representative input under lr1', () =>
             {
-                const context = parseContextFromGrammar(source, 'lr1');
+                const { parser } = parserFromGrammar(source, 'lr1');
 
                 if (filename === 'calc.grammar')
                 {
-                    expect(context.parseSource('1 + 2 + 3')).not.toBeNull();
+                    expect(parser.parseSource('1 + 2 + 3')).not.toBeNull();
                 }
                 else if (filename === 'lisp.grammar')
                 {
-                    expect(context.parseSource('(+ 1 (* 2 3))')).not.toBeNull();
+                    expect(parser.parseSource('(+ 1 (* 2 3))')).not.toBeNull();
                 }
                 else
                 {
-                    expect(context.parseSource('.org $8000\nLDA #$01\n')).not.toBeNull();
+                    expect(parser.parseSource('.org $8000\nLDA #$01\n')).not.toBeNull();
                 }
             });
         });
@@ -87,8 +87,8 @@ describe('parser stress — calc left-recursive chains', () =>
     {
         const terms = Array.from({ length: 200 }, (_, index) => String(index + 1));
         const source = terms.join(' + ');
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const tree = context.parseSource(source);
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const tree = parser.parseSource(source);
 
         expect(tree).not.toBeNull();
         expect(astDepth(tree)).toBeGreaterThan(100);
@@ -96,9 +96,9 @@ describe('parser stress — calc left-recursive chains', () =>
 
     it('rejects malformed calc input at the first bad token', () =>
     {
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const tokens = context.lex('1 + + 2');
-        const result = parseWithTableResult(context.table, tokens);
+        const { parser, table } = parserFromGrammar(grammarSource, 'lr1');
+        const tokens = parser.lex('1 + + 2');
+        const result = parseWithTableResult(table, tokens);
 
         expect(result.cst).toBeNull();
         expect(result.errorOffset).not.toBeNull();
@@ -114,8 +114,8 @@ describe('parser stress — lisp nesting and flatten transforms', () =>
     {
         const depth = 150;
         const source = `${'('.repeat(depth)}42${')'.repeat(depth)}`;
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const tree = context.parseSource(source);
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const tree = parser.parseSource(source);
 
         expect(tree).not.toBeNull();
         expect(tree?.symbol).toBe('program');
@@ -126,8 +126,8 @@ describe('parser stress — lisp nesting and flatten transforms', () =>
         const count = 100;
         const elements = Array.from({ length: count }, (_, index) => String(index)).join(' ');
         const source = `(${elements})`;
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource(source);
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource(source);
 
         expect(ast).not.toBeNull();
         expect(ast?.children[0]?.symbol).toBe('list');
@@ -138,8 +138,8 @@ describe('parser stress — lisp nesting and flatten transforms', () =>
     {
         const forms = Array.from({ length: 50 }, (_, index) => `(+ ${String(index)} 1)`);
         const source = forms.join('\n');
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource(source);
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource(source);
 
         expect(ast?.children).toHaveLength(50);
     });
@@ -164,8 +164,8 @@ describe('parser stress — 6502 assembler volume', () =>
             '    BRK',
         ];
         const repeated = Array.from({ length: 20 }, () => lines.join('\n')).join('\n');
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
-        const ast = context.parseSource(repeated);
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
+        const ast = parser.parseSource(repeated);
 
         expect(ast?.symbol).toBe('program');
         expect(ast?.children.length).toBeGreaterThan(100);
@@ -178,12 +178,12 @@ describe('parser stress — meta-grammar bootstrap', () =>
 
     it('parses every sample grammar file through the meta-grammar', () =>
     {
-        const context = parseContextFromGrammar(metaSource, 'lr1');
+        const { parser } = parserFromGrammar(metaSource, 'lr1');
 
         for (const filename of ['calc.grammar', 'lisp.grammar', '6502.grammar', 'ferrite.grammar', 'grammar.grammar'])
         {
             const source = readGrammarFile(filename);
-            const ast = context.parseSource(source);
+            const ast = parser.parseSource(source);
 
             expect(ast).not.toBeNull();
             expect(ast?.symbol).toBe('grammar_file');
@@ -192,8 +192,8 @@ describe('parser stress — meta-grammar bootstrap', () =>
 
     it('parses its own grammar file text', () =>
     {
-        const context = parseContextFromGrammar(metaSource, 'lr1');
-        const ast = context.parseSource(metaSource);
+        const { parser } = parserFromGrammar(metaSource, 'lr1');
+        const ast = parser.parseSource(metaSource);
 
         expect(ast).not.toBeNull();
         expect(ast?.symbol).toBe('grammar_file');
@@ -213,11 +213,11 @@ describe('parser stress — table JSON round-trip parity', () =>
         it(`produces identical AST for ${file} after JSON round-trip`, () =>
         {
             const grammarSource = readGrammarFile(file);
-            const memoryContext = parseContextFromGrammar(grammarSource, 'lr1');
-            const jsonTable = ParseContext.fromTableJson(memoryContext.table.toJsonString());
+            const { parser, table } = parserFromGrammar(grammarSource, 'lr1');
+            const { parser: jsonParser } = parserFromTableJson(table.toJsonString());
 
-            const fromMemory = memoryContext.parseSource(input);
-            const fromJson = jsonTable.parseSource(input);
+            const fromMemory = parser.parseSource(input);
+            const fromJson = jsonParser.parseSource(input);
 
             expect(fromJson).toEqual(fromMemory);
         });
@@ -233,11 +233,10 @@ describe('parser stress — all algorithms agree on conflict-free calc input', (
     {
         it(`accepts calc input under ${algorithm}`, () =>
         {
-            const context = parseContextFromGrammar(grammarSource, algorithm);
-            const table = context.table;
+            const { parser, table } = parserFromGrammar(grammarSource, algorithm);
 
             expect(table.toJson().algorithm).toBe(algorithm);
-            expect(context.parser.parseCst(context.lex(input))?.symbol).toBe('expr');
+            expect(parser.parseCst(parser.lex(input))?.symbol).toBe('expr');
         });
     }
 });
@@ -248,10 +247,10 @@ describe('parser stress — lexer streaming and chunk APIs', () =>
 
     it('lexes chunked lisp source identically to a single push', () =>
     {
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
         const source = '(+ 1 2)\n(* 3 4)\n';
-        const whole = context.lex(source);
-        const chunked = context.parser.lexChunkStream(['(+ 1 ', '2)\n(* ', '3 4)\n']);
+        const whole = parser.lex(source);
+        const chunked = parser.lexChunkStream(['(+ 1 ', '2)\n(* ', '3 4)\n']);
 
         expect(chunked).toEqual(whole);
     });
@@ -277,11 +276,11 @@ grammar
     ;
 `;
 
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
+        const { table } = parserFromGrammar(grammarSource, 'lr1');
 
-        expect(context.table.isConflictFree).toBe(false);
-        expect(context.table.conflicts.some((conflict) => conflict.kind === 'reduce-reduce')).toBe(true);
-        expect(context.table.formatConflictWarnings().length).toBeGreaterThan(0);
+        expect(table.isConflictFree).toBe(false);
+        expect(table.conflicts.some((conflict) => conflict.kind === 'reduce-reduce')).toBe(true);
+        expect(table.formatConflictWarnings().length).toBeGreaterThan(0);
     });
 });
 
@@ -292,15 +291,15 @@ describe('parser stress — transform pipeline edge cases', () =>
         const grammarSource = readGrammarFile('lisp.grammar');
         const grammar = readGrammar(grammarSource);
         const table = ParseTable.fromGrammar(grammar, 'lr1');
-        const context = parseContextFromGrammar(grammarSource, 'lr1');
+        const { parser } = parserFromGrammar(grammarSource, 'lr1');
 
-        const emptyList = context.parseSource('()');
+        const emptyList = parser.parseSource('()');
         expect(emptyList).not.toBeNull();
 
-        const singleton = context.parseSource('(x)');
+        const singleton = parser.parseSource('(x)');
         expect(singleton?.children[0]?.children[1]?.children).toHaveLength(1);
 
-        const cst = context.parser.parseCst(context.lex('(a b)'));
+        const cst = parser.parseCst(parser.lex('(a b)'));
         const schema = grammar.transformSchema;
 
         expect(schema).not.toBeNull();

@@ -1,12 +1,12 @@
 import { describe, expect, it } from '@jest/globals';
 
 import { Grammar } from './grammar/grammar.js';
-import { parseContextFromGrammar, parseContextFromSources } from './grammar-entry.js';
-import { ParseContextError } from './parse-context-error.js';
-import { ParseContext } from './parse-context.js';
+import { parserFromGrammar, parserFromSources } from './grammar-entry.js';
 import { ParseTable } from './parse-table/parse-table.js';
+import { ParserLoadError } from './parser-load-error.js';
+import { parserFromTableJson } from './parser-lr.js';
 
-describe('ParseContext', () =>
+describe('parserFromTableJson', () =>
 {
     it('loads from serialized table JSON', () =>
     {
@@ -18,10 +18,10 @@ describe('ParseContext', () =>
             [],
         );
         const json = ParseTable.fromGrammar(grammar).toJsonString();
-        const context = ParseContext.fromTableJson(json);
+        const { parser, table } = parserFromTableJson(json);
 
-        expect(context.table.grammarName).toBe('calc');
-        expect(context.lex('42')).toEqual([
+        expect(table.grammarName).toBe('calc');
+        expect(parser.lex('42')).toEqual([
             {
                 name: 'number',
                 text: '42',
@@ -36,7 +36,7 @@ describe('ParseContext', () =>
     });
 });
 
-describe('grammar-entry parse context factories', () =>
+describe('grammar-entry parser factories', () =>
 {
     const calcGrammarSource = `
 name "calc" ;
@@ -56,12 +56,12 @@ grammar
 
     it('loads from grammar source', () =>
     {
-        const context = parseContextFromGrammar(calcGrammarSource, 'lalr');
+        const { parser, table } = parserFromGrammar(calcGrammarSource, 'lalr');
 
-        expect(context.table.grammarName).toBe('calc');
-        expect(context.table.algorithm).toBe('lalr');
-        expect(context.lex('1 + 2')).toHaveLength(4);
-        expect(context.lex('1 + 2').at(-1)?.name).toBe('$eof');
+        expect(table.grammarName).toBe('calc');
+        expect(table.algorithm).toBe('lalr');
+        expect(parser.lex('1 + 2')).toHaveLength(4);
+        expect(parser.lex('1 + 2').at(-1)?.name).toBe('$eof');
     });
 
     it('prefers grammar source over table JSON when both are supplied', () =>
@@ -74,33 +74,33 @@ grammar
             [],
         )).toJsonString();
 
-        const context = parseContextFromSources({
+        const { table } = parserFromSources({
             grammarSource: calcGrammarSource,
             tableJson,
         });
 
-        expect(context.table.grammarName).toBe('calc');
+        expect(table.grammarName).toBe('calc');
     });
 
-    it('delegates chunk lexing and parsing to the parser', async () =>
+    it('exposes chunk lexing and parsing on the parser', async () =>
     {
-        const context = parseContextFromGrammar(calcGrammarSource, 'lr1');
+        const { parser } = parserFromGrammar(calcGrammarSource, 'lr1');
 
-        expect(context.createLexer().lex('1')).toHaveLength(2);
-        expect(context.lexChunkStream(['1', '2'])).toEqual(context.lex('12'));
-        expect([...context.lexChunks(['3'])]).toEqual(context.lex('3'));
+        expect(parser.createLexer().lex('1')).toHaveLength(2);
+        expect(parser.lexChunkStream(['1', '2'])).toEqual(parser.lex('12'));
+        expect([...parser.lexChunks(['3'])]).toEqual(parser.lex('3'));
 
         async function* chunks(): AsyncGenerator<string>
         {
             yield '4';
         }
 
-        expect(await context.lexChunkStreamAsync(chunks())).toEqual(context.lex('4'));
-        expect(context.parse(context.lex('7'))?.symbol).toBe('expr');
+        expect(await parser.lexChunkStreamAsync(chunks())).toEqual(parser.lex('4'));
+        expect(parser.parse(parser.lex('7'))?.symbol).toBe('expr');
     });
 
-    it('throws ParseContextError when neither grammar nor table is supplied', () =>
+    it('throws ParserLoadError when neither grammar nor table is supplied', () =>
     {
-        expect(() => parseContextFromSources({})).toThrow(ParseContextError);
+        expect(() => parserFromSources({})).toThrow(ParserLoadError);
     });
 });

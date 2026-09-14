@@ -16,7 +16,7 @@ async function runBrowserBundleAcceptance(consumerDir, outputPath)
 
     writeFileSync(
         entryPath,
-        "import { ParseContext } from 'parser-lr';\nvoid ParseContext;\n",
+        "import { parserFromTableJson } from 'parser-lr';\nvoid parserFromTableJson;\n",
     );
 
     await build({
